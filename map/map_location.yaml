@@ -1,0 +1,84 @@
+
+# start_posi #
+
+/start_posi_translation_x: -4.6162e-05
+/start_posi_translation_y: 0.00574396
+/start_posi_translation_z: 0
+
+/start_posi_rotation_x: 0
+/start_posi_rotation_y: 0
+/start_posi_rotation_z: -0.0055192
+/start_posi_rotation_w: 0.999985
+#======================================#
+
+# table1 #
+
+/table1_translation_x: 3.93576
+/table1_translation_y: -0.491941
+/table1_translation_z: 0
+
+/table1_rotation_x: 0
+/table1_rotation_y: 0
+/table1_rotation_z: -0.710559
+/table1_rotation_w: 0.703638
+#======================================#
+
+# table2 #
+
+/table2_translation_x: 8.68956
+/table2_translation_y: 0.515285
+/table2_translation_z: 0
+
+/table2_rotation_x: 0
+/table2_rotation_y: 0
+/table2_rotation_z: 0.9957
+/table2_rotation_w: 0.0926371
+#======================================#
+
+# table3 #
+
+/table3_translation_x: 3.72263
+/table3_translation_y: -4.19043
+/table3_translation_z: 0
+
+/table3_rotation_x: 0
+/table3_rotation_y: 0
+/table3_rotation_z: 0.65676
+/table3_rotation_w: 0.7541
+#======================================#
+
+# table4 #
+
+/table4_translation_x: 2.24612
+/table4_translation_y: -4.43591
+/table4_translation_z: 0
+
+/table4_rotation_x: 0
+/table4_rotation_y: 0
+/table4_rotation_z: 0.883217
+/table4_rotation_w: -0.468964
+#======================================#
+
+# table5 #
+
+/table5_translation_x: 6.98964
+/table5_translation_y: -2.85029
+/table5_translation_z: 0
+
+/table5_rotation_x: 0
+/table5_rotation_y: 0
+/table5_rotation_z: 0.626433
+/table5_rotation_w: 0.779475
+#======================================#
+
+# table6 #
+
+/table6_translation_x: 7.50352
+/table6_translation_y: -4.87808
+/table6_translation_z: 0
+
+/table6_rotation_x: 0
+/table6_rotation_y: 0
+/table6_rotation_z: -0.306136
+/table6_rotation_w: 0.951988
+#======================================#

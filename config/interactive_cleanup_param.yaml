@@ -1,0 +1,16 @@
+obstacle_point_topic_name: "/raw_obstacles" # "/obstacles" #
+pub_twist_topic_name: "/hsrb/opt_command_velocity"
+robot_position_frame_name: "base_footprint"
+odom_frame_name: "odom"
+pub_midpoint_marker_topic_name: "/midpoint_marker"
+pub_speech_word_topic_name: "/speech_word"
+max_move_speed: 1.0 # [cm/s] #
+back_speed: -0.4 # [cm/s] #
+max_trun_speed: 20.0 # [deg/s] #
+max_move_distance: 10.0 # [m] #
+keep_distance: 2.0 # [m] #
+init_target_distance: 2.5 # [m] #
+stop_distance: 0.02 # ±[m] #
+constant_velocity_distance: 5.0 # [m] #
+constant_velocity_deg: 30.0 # [deg] #
+distance_from_last_target_point_limit: 0.70 # [m] #
