@@ -1,22 +1,27 @@
-<!-- sobit_follower.launch -->
+<!-- target_scan_follower.launch -->
 <launch>
 
-	<!-- minimal -->
-	<!--include file="$(find turtlebot_edu)/launch/minimal.launch"/-->
+	<!-- picotts -->
+	<!--<include file="$(find picotts)/launch/picotts.launch"/>-->
+
 	<!-- urg -->
 	<include file="$(find turtlebot_edu)/launch/urg.launch"/>
+
 	<!-- velocity smoother -->
-	<include file="$(find sobit_follower)/launch/velocity_smoother.launch"/>
-    <!-- Points_grouping -->
-    <node pkg="sobit_follower" type="Points_grouping" name="Points_grouping_node" output="screen"/>
-    <!-- target_scan -->
-    <node pkg="sobit_follower" type="target_scan" name="target_scan_node" output="screen"/>
-	<!-- path_plan -->
-	<node pkg="sobit_follower" type="path_plan_test" name="route_planning_node" output="screen"/>
-	<!-- kalman -->
-	<node pkg="sobit_follower" type="kalman_check" name="kalman_check_node" output="screen"/>
-	<!-- rviz -->
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/launch/test.rviz"/>
+	<include file="$(find target_scan_follower)/launch/velocity_smoother.launch"/>
+
+	<!-- obstacle detector -->
+	<include file="$(find target_scan_follower)/launch/obstacle_detector_nodes.launch"/>
+
+	<!-- target_scan_follower -->
+    <!--group ns = "target_follower_group"-->
+    <node pkg="target_scan_follower" type="target_scan_following" name="target_follower_node" output="screen"/>
 	<!-- txt -->
-	<node pkg="sobit_follower" type="file_wr.py" name="point_listener" output="screen"/>
+	<node pkg="target_scan_follower" type="file_wr.py" name="point_listener" output="screen"/>
+		<!--rosparam command="load" file="$(find target_scan_follower)/config/param.yaml"/-->
+
+		<!--param name="pub_speech_word_topic_name" type="string" value="/speech_word" /-->
+	<!-- rviz -->
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find target_scan_follower)/launch/test_follower_convention.rviz"/>
+    <!--/group-->
 </launch>
