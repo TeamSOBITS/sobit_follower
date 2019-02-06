@@ -4,7 +4,7 @@
 	<!-- minimal -->
 	<!--include file="$(find turtlebot_edu)/launch/minimal.launch"/-->
 	<!-- urg -->
-	<!--include file="$(find turtlebot_edu)/launch/urg.launch"/-->
+	<include file="$(find turtlebot_edu)/launch/urg.launch"/>
 	<!-- velocity smoother -->
 	<include file="$(find sobit_follower)/launch/velocity_smoother.launch"/>
     <!-- Points_grouping -->

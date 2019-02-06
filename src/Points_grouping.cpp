@@ -71,7 +71,7 @@ class Points_grouping_class
 	double min_circle_radius = 0.04;//中心点からの最小半径
 	double correction_of_radius = 0.05;//各円の半径を微調整
 	int pp;
-	double base_radius = 0.25;//0.45
+	double base_radius = 0.20;//0.45
 	//struct
 	circle_set correction_values;
 	tp_set all_set;
