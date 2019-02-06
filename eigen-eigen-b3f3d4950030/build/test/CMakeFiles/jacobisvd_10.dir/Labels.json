@@ -1,0 +1,15 @@
+
+{
+	"sources" : 
+	[
+		
+		{
+			"file" : "/home/iwami/eigen-eigen-b3f3d4950030/test/jacobisvd.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : [ "BuildOfficial" ],
+		"name" : "jacobisvd_10"
+	}
+}

@@ -1,0 +1,12 @@
+<!--cost_of_person_grant-->
+<launch>
+    <!--group ns = "cost_of_person_grant_node"-->
+	<!-- ssd_node -->
+	<include file="$(find ssd_node)/launch/object_detect_with_tf_wrs.launch"/>
+	<!-- obstacle detector -->
+	<include file="$(find obstacle_detector)/launch/obstacle_detector_nodesHSR.launch"/>
+	<!-- cost_grant -->
+	<node pkg="target_scan_follower" type="cost_grant" name="cost_grant" output="screen"/>
+    <!--/group-->
+
+</launch>

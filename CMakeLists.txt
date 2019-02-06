@@ -253,12 +253,17 @@ target_link_libraries(Points_grouping ${catkin_LIBRARIES})
 add_executable(path_plan_test src/path_plan_test.cpp)
 target_link_libraries(path_plan_test ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
+add_executable(kalman_check src/kalman_check.cpp)
+target_link_libraries(kalman_check ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
 add_executable(kalman src/kalman.cpp)
 target_link_libraries(kalman ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 add_executable(target_scan_following src/target_scan_following.cpp)
 target_link_libraries(target_scan_following ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
+add_executable(path_plan_test_2 src/path_plan_test_2.cpp)
+target_link_libraries(path_plan_test_2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 
 

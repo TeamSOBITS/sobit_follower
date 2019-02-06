@@ -10,10 +10,6 @@
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <obstacle_detector/Obstacles.h>
-#include <obstacle_detector/SegmentObstacle.h>
-#include <obstacle_detector/CircleObstacle.h>
-
 #include <sobit_follower/grouped_points_array.h>
 #include <sobit_follower/grouped_points.h>
 #include <sobit_follower/point_states.h>
@@ -47,7 +43,7 @@ typedef struct {         /* 構造体の型枠を定義する */
 } optimal_state;//最適?なパスと評価値
 
 
-class route_planning_class
+class path_plan_class
 {
 	//nodehandle
 	ros::NodeHandle nh;
@@ -92,7 +88,7 @@ class route_planning_class
 	std::string base_frame_name;
 
 public:
-	route_planning_class(){
+	path_plan_class(){
 
 	//試験用
 	//this->goal_point.x = 2.0;//ワールド基準
@@ -100,11 +96,11 @@ public:
 
 	base_frame_name = "base_footprint";
 	//目的値をサブスクライブ
-	this->sub_goal = nh.subscribe("/target_states",1,&route_planning_class::target_OK,this);
+	this->sub_goal = nh.subscribe("/target_states",1,&path_plan_class::target_OK,this);
 	//obstacle情報をサブスクライブ
-	this->sub_obstacle_states = nh.subscribe( "/obstacle_states", 1, &route_planning_class::obstacle_states_cb, this );
+	this->sub_obstacle_states = nh.subscribe( "/obstacle_states", 1, &path_plan_class::obstacle_states_cb, this );
 	//予測位置をサブスクライブ
-	this->sub_pre_goal = nh.subscribe( "/pre_point", 1, &route_planning_class::target_NG, this );
+	this->sub_pre_goal = nh.subscribe( "/pre_point", 1, &path_plan_class::target_NG, this );
 	//決定パスをパブリッシュ
 	this->pub_path_marker = nh.advertise<visualization_msgs::MarkerArray>( "/path_marker", 1 );
 	//全てのパスをパブリッシュ
@@ -118,7 +114,7 @@ public:
 
 	}//public
 
-	~route_planning_class(){}
+	~path_plan_class(){}
 
 void obstacle_states_cb(const sobit_follower::grouped_points_arrayPtr input)
 {
@@ -167,6 +163,8 @@ void obstacle_states_cb(const sobit_follower::grouped_points_arrayPtr input)
 		states.pre_flag = this->cmd_vel_flag;
 		this->pub_point_states.publish(states);
 	}//else
+	//this->vel.linear.x = 0.0;
+	//this->vel.angular.z = 0.0;
 	this->pub_cmd_vel.publish(this->vel);
 	this->pub_goal_flag.publish(goal_flag);
 }//obstacle_states_cb
@@ -174,21 +172,21 @@ void obstacle_states_cb(const sobit_follower::grouped_points_arrayPtr input)
 void dwa()
 {
 	//------------------車輪のパラメータ--------------------
-	int pre_step = 25;	//予測回数多次元
+	int pre_step = 30;	//予測回数多次元
 	//int collision_step = pre_step / 10;
-	double samplingtime = 0.16;//[s]	//サンプリングタイム
+	double samplingtime = 0.2;//[s]	//サンプリングタイム
 
-	double velo_step = 60.0;	//あまり大きくすると処理が重くなる
-	double ang_velo_step = 60.0;	//あまり大きくすると処理が重くなる
+	double velo_step = 50.0;	//あまり大きくすると処理が重くなる
+	double ang_velo_step = 50.0;	//あまり大きくすると処理が重くなる
 	//速度制限
-	double max_velo_def = 0.8;//[m/s]	最高速度(0.4)
+	double max_velo_def = 1.0;//[m/s]	最高速度(0.4)
 	double min_velo_def = 0.0;//[m/s]	最低速度(0.0)
 	//回転速度制限
-	double max_ang_def = 40.0;//[rad/s]	最高回転速度(20)
-	double min_ang_def = -40.0;//[rad/s]	最低回転速度(0)
+	double max_ang_def = 20.0;//[rad/s]	最高回転速度(20)
+	double min_ang_def = -20.0;//[rad/s]	最低回転速度(0)
 	//各加速度制御
-	double max_acceration = 1.5;	//最高加速度(0.5)
-	double max_ang_acceration = 2.0;	//最高回転加速度(57....度)(1.0)
+	double max_acceration = 1.0;	//最高加速度(0.5)
+	double max_ang_acceration = 1.8;	//最高回転加速度(57....度)(1.0)
 
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
@@ -204,7 +202,7 @@ void dwa()
 	double delta_velo = (max_velo - min_velo) / velo_step;
 	double delta_ang_velo = (max_ang_velo - min_ang_velo) / ang_velo_step;
 
-	//モデルや環境によって調整する必要あり(重み付け)
+	//重み付け(モデルや環境によって調整する必要あり)
 	double weighting_goal = 0.1;
 	double weighting_obs = 0.0;//障害物の距離による評価はなし
 	double weighting_angle = 0.04;
@@ -227,7 +225,9 @@ void dwa()
 			path_list.clear();	//path追加後，path_listを空にする→これをfor_2&for_3分だけループさせる
 		}//for_3
 	}//for_2
+
 	normalization();
+
 	auto path = this->path_eval_list.begin();//scoreが入ったlist
 	optimal_state optimal;
 	optimal_state option;
@@ -406,10 +406,11 @@ void target_NG(const geometry_msgs::Point::ConstPtr& msg)//人検出不可な場
 	if(hypotf(p.x,p.y) <= this->keep_distance)//停止
 	{
 		this->cmd_vel_flag = false;
+		printf("予測位置に到着．\n");
 	}//if
 	else
 	{
-		printf("targetを見失ったので予測値まで移動します．\n");
+		printf("targetを見失ったので予測位置まで移動します．\n");
 		this->base_laser_point.point = p;
 		this->cmd_vel_flag = true;
 	}//else
@@ -426,7 +427,7 @@ void path_marker_array(optimal_state data)
 	marker.markers[0].type = visualization_msgs::Marker::LINE_STRIP;
 	marker.markers[0].ns = "optimum_path";
 	marker.markers[0].id = 1;
-	marker.markers[0].scale.x = 0.01;
+	marker.markers[0].scale.x = 0.03;
 	marker.markers[0].color.a = 1.0;
 	marker.markers[0].color.r = 0.0;
 	marker.markers[0].color.g = 0.0;
@@ -507,16 +508,16 @@ void path_marker_array_2(int collision_size)
 		marker_all.markers[k].type = visualization_msgs::Marker::LINE_STRIP;
 		marker_all.markers[k].ns = "all_path";
 		marker_all.markers[k].id = k;
-		marker_all.markers[k].scale.x = 0.01;
-		marker_all.markers[k].color.a = 1.0;
+		marker_all.markers[k].scale.x = 0.03;
+		marker_all.markers[k].color.a = 0.5;
 		if(path->collision == true) {//衝突
-			marker_all.markers[k].color.r = 1.0;
+			marker_all.markers[k].color.r = 1.0;//1.0
 			marker_all.markers[k].color.g = 0.0;
 			marker_all.markers[k].color.b = 0.0;
 		}//if
 		else {
 			marker_all.markers[k].color.r = 0.0;
-			marker_all.markers[k].color.g = 1.0;
+			marker_all.markers[k].color.g = 1.0;//1.0
 			marker_all.markers[k].color.b = 0.0;
 		}//else
 		for(auto state = option.path.begin(); state != option.path.end(); state++)//for_7
@@ -533,13 +534,13 @@ void path_marker_array_2(int collision_size)
 	this->pub_path_marker_all.publish( marker_all );
 }//path_marker_array_2
 
-};//route_planning_class
+};//path_plan_class
 
 int main(int argc,char **argv)
 {
 
-	ros::init(argc,argv,"route_planning_node");
-	route_planning_class psc;
+	ros::init(argc,argv,"path_plan_node");
+	path_plan_class psc;
 	ros::spin();
 	return 0;
 }

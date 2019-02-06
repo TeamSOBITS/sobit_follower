@@ -1,0 +1,14 @@
+-I/home/iwami/eigen-eigen-b3f3d4950030
+-I/home/iwami/eigen-eigen-b3f3d4950030/build
+-I/usr/include/qt4
+-I/usr/include/qt4/QtOpenGL
+-I/usr/include/qt4/QtGui
+-I/usr/include/qt4/QtCore
+-I/usr/include/qt4
+-D$<$<NOT:$<CONFIG:Debug>>:QT_NO_DEBUG>
+-DQT_OPENGL_LIB
+-DQT_GUI_LIB
+-DQT_CORE_LIB
+-o
+/home/iwami/eigen-eigen-b3f3d4950030/build/demos/opengl/quaternion_demo.moc
+/home/iwami/eigen-eigen-b3f3d4950030/demos/opengl/quaternion_demo.h

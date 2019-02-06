@@ -1,0 +1,15 @@
+
+{
+	"sources" : 
+	[
+		
+		{
+			"file" : "/home/iwami/eigen-eigen-b3f3d4950030/test/conservative_resize.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : [ "BuildOfficial" ],
+		"name" : "conservative_resize_5"
+	}
+}

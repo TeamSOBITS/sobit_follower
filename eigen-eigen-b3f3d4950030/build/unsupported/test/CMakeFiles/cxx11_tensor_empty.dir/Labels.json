@@ -1,0 +1,15 @@
+
+{
+	"sources" : 
+	[
+		
+		{
+			"file" : "/home/iwami/eigen-eigen-b3f3d4950030/unsupported/test/cxx11_tensor_empty.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : [ "BuildUnsupported" ],
+		"name" : "cxx11_tensor_empty"
+	}
+}

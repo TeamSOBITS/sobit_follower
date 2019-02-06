@@ -25,10 +25,6 @@
 
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
-
-#include <obstacle_detector/Obstacles.h>
-#include <obstacle_detector/SegmentObstacle.h>
-#include <obstacle_detector/CircleObstacle.h>
 typedef struct {         /* 構造体の型枠を定義する */
 	geometry_msgs::Point observe_point;
 	geometry_msgs::Point current_pre_point;
@@ -46,6 +42,7 @@ public:
 	//PUB
 	ros::Publisher pub_point_marker;
 	ros::Publisher pub_pre_target_point;
+	ros::Publisher pub_kalman_point;
 	//ros::Publisher cost_grant_point;
 	ros::Publisher pub_cost_marker;
 	tf::TransformListener listener;
@@ -81,6 +78,9 @@ public:
 	Eigen::MatrixXf filtered_target_states;//補正後の状態(現在における推定値)
 	Eigen::MatrixXf filtered_dispersion;//現在における事後誤差共分散
 
+	float kansoku_x[7] = {0,6,7,8,9,10,11};
+	float kansoku_y[7] = {0,17,15,14,13,12,11};
+
 	kalman_filter_class(){
 		base_frame_name = "base_footprint";
 		this->current_states.setZero(2,1);
@@ -107,6 +107,7 @@ public:
 		this->pub_point_marker = nh.advertise<visualization_msgs::MarkerArray>( "/point_marker", 1 );
 		this->sub_target_flag = nh.subscribe("/target_judge",1,&kalman_filter_class::target_judge,this);
 		this->pub_pre_target_point = nh.advertise<geometry_msgs::Point>( "/pre_point", 1 );
+		this->pub_kalman_point = nh.advertise<geometry_msgs::Point>( "/kalman_point", 1 );
 		//this->sub_info = nh.subscribe("target_info",1,&kalman_filter_class::pp);
 		//this->pub_point_marker = nh.advertise<geometry_msgs::Point>("/publish_state",1);
 	}//public
@@ -115,19 +116,9 @@ public:
 
 void target_point(const geometry_msgs::Point& msg)
 {
-	ros::Time current_time = ros::Time::now();//現在の時刻
-	this->duration = current_time - this->before_time;
-	//std::cout << "this->current_time" << this->current_time << std::endl;
-	//std::cout << "this->before_time" << this->before_time << std::endl;
-	int bt = this->duration.toSec() * 100.0;
-	//this->dt = double(bt / 100.0);//時間間隔
-	//this->dt = 0.1;
+	//printf("aaaaaaaaaaa\n");
 	this->dt = 0.1;//時間間隔
-	this->before_time = current_time;
 	this->seq++;
-	//std::cout << "this->seq :" << this->seq << std::endl;
-	if(this->seq == 1) return;
-	//std::cout << "" << this->duration.nsec << std::endl;
 
 	geometry_msgs::PointStamped odom_base_target_point;//変換後のtargetの座標を格納する
 	geometry_msgs::PointStamped robot_base_target_point;
@@ -142,17 +133,16 @@ void target_point(const geometry_msgs::Point& msg)
 		ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
 		return;
 	}//catch
-
-	//観測値の更新
 	this->current_states(0,0) = odom_base_target_point.point.x;
 	this->current_states(1,0) = odom_base_target_point.point.y;
-	//this->current_states(0,0) = msg.x;
-	//this->current_states(1,0) = msg.y;
-	/*std::cout << "msg.x" << msg.x << std::endl;
-	std::cout << "msg.y" << msg.y << std::endl;
-	std::cout << "this->current_states(0,0)" << this->current_states(0,0) << std::endl;
-	std::cout << "this->current_states(1,0)" << this->current_states(1,0) << std::endl;*/
+	//観測値の更新
+	//this->current_states(0,0) = this->kansoku_x[0] + i * 0.1;
+	//this->current_states(1,0) = this->kansoku_y[0] + i * 0.02;
+	//std::cout << "this->current_states(0,0)" << this->current_states(0,0) << std::endl;
+	//std::cout << "this->current_states(1,0)" << this->current_states(1,0) << std::endl;
+
 	filtering();
+
 }//target_point
 
 void filtering()
@@ -186,12 +176,12 @@ void filtering()
 	printf("観測値の予測誤差\n");
 	std::cout << "" << observation_pre_error_of_current << std::endl;
 	printf("過去から現在の予測値\n");
-	std::cout << "" << this->pre_dispersion_states_of_rear << std::endl;
+	std::cout << "" << this->pre_dispersion_states_of_rear << std::endl;*/
 	printf("補正値\n");
-	std::cout << "" << this->filtered_target_states << std::endl;*/
+	std::cout << "" << this->filtered_target_states << std::endl;
 
 	//現在における事後誤差共分散←これは1ステップ後の事前共分散として扱う
-	this->filtered_dispersion = ( this->E - this->kalman_gain * this->H ) * this->pre_error_dispersion_of_current;
+	this->filtered_dispersion = this->pre_error_dispersion_of_current - this->kalman_gain * this->H * this->pre_error_dispersion_of_current;
 	//printf("補正値の分散\n");
 	//std::cout << "" << this->filtered_dispersion << std::endl;
 
@@ -225,10 +215,9 @@ void init()
 		}//for
 	}//for
 	//printf("seq ======== %d\n",this->seq);
-	if(this->seq == 2)
-	{
 	//printf("初期化\n");
 	//HとH_TRANSの初期化(単位変換時に別処理)
+	if(this->seq == 1) {
 	for(int i = 0; i < 2; i++) {
 		for(int j = 0; j < 4; j++) {
 			if(i == j) {
@@ -267,7 +256,7 @@ void predict_target_and_error_update()
 	//std::cout << "" << this->pre_dispersion_states_of_rear << std::endl;
 
 	//1ステップ後における事前誤差共分散行列
-	this->pre_error_dispersion_of_current = this->F * this->filtered_dispersion * this->F_TRANS;
+	this->pre_error_dispersion_of_current = this->E + this->F * this->filtered_dispersion * this->F_TRANS;
 
 	//printf("未来の予測分散\n");
 	//std::cout << "" << this->pre_error_dispersion_of_current << std::endl;
@@ -285,27 +274,15 @@ void update()//視覚化用に格納
 	this->states.filtered_vel.y = this->filtered_target_states(3,0);
 	this->states.after_pre_point.x = this->pre_dispersion_states_of_rear(0,0);
 	this->states.after_pre_point.y = this->pre_dispersion_states_of_rear(1,0);
-	geometry_msgs::PointStamped odom_base_target_point;//変換後のtargetの座標を格納する
-	geometry_msgs::PointStamped robot_base_target_point;
-	try{
-	odom_base_target_point.header.frame_id = "/odom";
-	odom_base_target_point.header.stamp = ros::Time(0);
-	odom_base_target_point.point.x = this->states.after_pre_point.x;
-	odom_base_target_point.point.y = this->states.after_pre_point.y;
-	this->listener.transformPoint(base_frame_name, odom_base_target_point, robot_base_target_point );
-	}//try
-	catch(tf::TransformException& ex)
-	{
-		ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
-	}//catch
+	this->pub_kalman_point.publish(this->states.filtered_point);
 	//printf("予測値\n");
 	//std::cout << "" << robot_base_target_point.point << std::endl;
-	target_point_marker(robot_base_target_point.point);
+	//target_point_marker(robot_base_target_point.point);
 }//update
 
 void kalman()
 {
-	this->S = this->H * this->pre_error_dispersion_of_current * this->H_TRANS;//後に逆行列を求める
+	this->S = this->H * this->pre_error_dispersion_of_current * this->H_TRANS + this->R;//後に逆行列を求める
 	//std::cout << "" << this->H << std::endl;
 	//std::cout << "" << this->H_TRANS << std::endl;
 	//std::cout << "" << this->pre_error_dispersion_of_current << std::endl;
@@ -313,9 +290,9 @@ void kalman()
 	Eigen::MatrixXf E_2(2,2);//単位行列(2 * 2)
 	E_2(0,0) = E_2(1,1) = 1.0;
 	E_2(0,1) = E_2(1,0) = 0.0;
-	this->R(0,0) = 0.1;
+	this->R(0,0) = 2.0;
 	this->R(0,1) = 0.0;
-	this->R(1,1) = 0.1;
+	this->R(1,1) = 2.0;
 	this->R(1,0) = 0.0;
 	//std::cout << "" << E_2 << std::endl;
 	double buf = 0.0;//一時的な格納変数
@@ -354,7 +331,7 @@ void kalman()
 			}//for
 		}//for
 		this->S_TRANS = E_2;
-		this->kalman_gain = (this->pre_error_dispersion_of_current * this->H_TRANS) * (this->S_TRANS + this->R);	
+		this->kalman_gain = (this->pre_error_dispersion_of_current * this->H_TRANS) * this->S_TRANS;	
 	}//else
 
 	//printf("S\n");
@@ -386,7 +363,7 @@ void target_judge(const std_msgs::Bool& msg)
 	}
 }//target_judge
 
-void target_point_marker(geometry_msgs::Point msg)
+/*void target_point_marker(geometry_msgs::Point msg)
 {
 	visualization_msgs::MarkerArray marker;
 	marker.markers.resize(2);
@@ -473,16 +450,16 @@ void target_point_marker(geometry_msgs::Point msg)
 	marker.markers[3].pose.orientation.y = 0;
 	marker.markers[3].pose.orientation.z = 0;
 	marker.markers[3].pose.orientation.w = 1;
-	this->pub_point_marker.publish( marker );*/
+	this->pub_point_marker.publish( marker );
 
-}//target_point_marker
+}//target_point_marker*/
 
 
 };//Points_grouping_class
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "kalman_filter_node");
+	ros::init(argc, argv, "kalman_node");
 	kalman_filter_class tf_class;
 	ros::spin();
 	return 0;

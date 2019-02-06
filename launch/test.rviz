@@ -32,6 +32,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 466
@@ -42,7 +43,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.0299999993
         Value: Lines
@@ -55,10 +56,10 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Circles color: 170; 0; 0
       Class: Obstacles
-      Enabled: true
+      Enabled: false
       Margin color: 0; 170; 0
       Name: Obstacles
       Opacity: 0.75
@@ -66,13 +67,15 @@ Visualization Manager:
       Segments thickness: 0.0299999993
       Topic: /circle_states
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /path_marker
       Name: MarkerArray
       Namespaces:
-        {}
+        goal_point: true
+        last_path_point: true
+        optimum_path: true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -84,207 +87,24 @@ Visualization Manager:
       Queue Size: 100
       Value: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_footprint:
-          Value: true
-        base_laser_link:
-          Value: true
-        base_link:
-          Value: false
-        caster_back_link:
-          Value: false
-        caster_front_link:
-          Value: false
-        cliff_sensor_front_link:
-          Value: false
-        cliff_sensor_left_link:
-          Value: false
-        cliff_sensor_right_link:
-          Value: false
-        depth_link:
-          Value: false
-        gyro_link:
-          Value: false
-        link1:
-          Value: false
-        link10:
-          Value: false
-        link2:
-          Value: false
-        link3:
-          Value: false
-        link4:
-          Value: false
-        link5:
-          Value: false
-        link6:
-          Value: false
-        link7:
-          Value: false
-        link8:
-          Value: false
-        link9:
-          Value: false
-        odom:
-          Value: true
-        plate_bottom_link:
-          Value: false
-        plate_middle_link:
-          Value: false
-        plate_top_link:
-          Value: false
-        pole_bottom_0_link:
-          Value: false
-        pole_bottom_0_link_add:
-          Value: false
-        pole_bottom_1_link:
-          Value: false
-        pole_bottom_1_link_add:
-          Value: false
-        pole_bottom_2_link:
-          Value: false
-        pole_bottom_2_link_add:
-          Value: false
-        pole_bottom_3_link:
-          Value: false
-        pole_bottom_3_link_add:
-          Value: false
-        pole_bottom_4_link:
-          Value: false
-        pole_bottom_5_link:
-          Value: false
-        pole_middle_0_link:
-          Value: false
-        pole_middle_1_link:
-          Value: false
-        pole_middle_2_link:
-          Value: false
-        pole_middle_3_link:
-          Value: false
-        pole_top_0_link:
-          Value: false
-        pole_top_1_link:
-          Value: false
-        pole_top_2_link:
-          Value: false
-        pole_top_3_link:
-          Value: false
-        rgb_link:
-          Value: false
-        wheel_left_link:
-          Value: false
-        wheel_right_link:
-          Value: false
-        xtion:
-          Value: false
-        xtion_link1:
-          Value: false
-        xtion_link2:
-          Value: false
-        xtion_link3:
-          Value: false
-        xtion_link4:
-          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        odom:
-          base_footprint:
-            base_link:
-              base_laser_link:
-                {}
-              caster_back_link:
-                {}
-              caster_front_link:
-                {}
-              cliff_sensor_front_link:
-                {}
-              cliff_sensor_left_link:
-                {}
-              cliff_sensor_right_link:
-                {}
-              gyro_link:
-                {}
-              plate_bottom_link:
-                {}
-              plate_middle_link:
-                {}
-              plate_top_link:
-                link1:
-                  link2:
-                    link3:
-                      link4:
-                        link5:
-                          link6:
-                            link7:
-                              link10:
-                                {}
-                              link8:
-                                {}
-                              link9:
-                                {}
-                xtion_link1:
-                  xtion_link2:
-                    xtion_link3:
-                      xtion_link4:
-                        xtion:
-                          depth_link:
-                            {}
-                          rgb_link:
-                            {}
-              pole_bottom_0_link:
-                {}
-              pole_bottom_0_link_add:
-                {}
-              pole_bottom_1_link:
-                {}
-              pole_bottom_1_link_add:
-                {}
-              pole_bottom_2_link:
-                {}
-              pole_bottom_2_link_add:
-                {}
-              pole_bottom_3_link:
-                {}
-              pole_bottom_3_link_add:
-                {}
-              pole_bottom_4_link:
-                {}
-              pole_bottom_5_link:
-                {}
-              pole_middle_0_link:
-                {}
-              pole_middle_1_link:
-                {}
-              pole_middle_2_link:
-                {}
-              pole_middle_3_link:
-                {}
-              pole_top_0_link:
-                {}
-              pole_top_1_link:
-                {}
-              pole_top_2_link:
-                {}
-              pole_top_3_link:
-                {}
-              wheel_left_link:
-                {}
-              wheel_right_link:
-                {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 2.30557799
-        Min Value: 0.204999819
+        Max Value: 2.44321227
+        Min Value: 0.217805505
         Value: true
       Axis: X
       Channel Name: intensity
@@ -315,7 +135,8 @@ Visualization Manager:
       Marker Topic: /target_person_marker
       Name: Marker
       Namespaces:
-        {}
+        last_target_point: true
+        target_point_area: true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -323,7 +144,7 @@ Visualization Manager:
       Marker Topic: /path_marker_all
       Name: MarkerArray
       Namespaces:
-        {}
+        all_path: true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -334,9 +155,260 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_laser_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        caster_back_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        caster_front_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        cliff_sensor_front_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_sensor_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_sensor_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        depth_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        gyro_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        link1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link10:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        link4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        link6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link8:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        link9:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_bottom_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_middle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_top_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_0_link_add:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_1_link_add:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_2_link_add:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_3_link_add:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_5_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        rgb_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wheel_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wheel_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xtion:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xtion_link1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xtion_link2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xtion_link3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        xtion_link4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
+    Background Color: 255; 255; 255
     Default Light: true
     Fixed Frame: base_footprint
     Frame Rate: 30
@@ -359,25 +431,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.0406251
+      Distance: 4.04070854
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.557384491
-        Y: 0.199576691
-        Z: 0.0292976815
+        X: 1.24022782
+        Y: -0.089093782
+        Z: 0.143375844
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.879796863
+      Pitch: 1.56979632
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.77543116
+      Yaw: 3.13043118
     Saved: ~
 Window Geometry:
   Displays:

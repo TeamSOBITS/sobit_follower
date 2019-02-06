@@ -31,10 +31,6 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PointStamped.h>
 
-#include <obstacle_detector/Obstacles.h>
-#include <obstacle_detector/SegmentObstacle.h>
-#include <obstacle_detector/CircleObstacle.h>
-
 #include <move_base_msgs/MoveBaseAction.h>
 #include <move_base_msgs/MoveBaseGoal.h>
 #include <actionlib/client/simple_action_client.h>
@@ -288,7 +284,7 @@ public:
 			}//else
 		}//for
 		//ROS_INFO("nearest_obstacle_point_from_last_target_point::%f",nearest_obstacle_point_from_last_target_point.x);
-		std::cout << "last_target_point :: " << last_target_point << std::endl;
+		//std::cout << "last_target_point :: " << last_target_point << std::endl;
 		//std::cout << "nearest_obstacle_point_from_last_target_point :: " << nearest_obstacle_point_from_last_target_point << std::endl;
 		//ROS_INFO("nearest_obstacle_point_from_last_target_point::%f",nearest_obstacle_point_from_last_target_point);
 		input->grouped_points_array[num].center_radius = 0.0;//target周辺のコストをなくす

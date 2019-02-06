@@ -14,7 +14,7 @@ from sobit_follower.msg import point_states
 past_flag = True
 now = datetime.datetime.now()
 fmt_name = "sample_{0:%Y年%m月%d日-%H時%M分}.txt".format(now)
-path = '/home/iwami/catkin_ws/src/target_scan_follower/txt/'
+path = '/home/iwami/catkin_ws/src/sobit_follower/txt/'
 D = path + fmt_name
 with open(D, mode='a') as f:
 	#f.write(data.robot_point.x," ",data.robot_point.y," ",data.target_point.point.x," ",data.target_point.point.y)

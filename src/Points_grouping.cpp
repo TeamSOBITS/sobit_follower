@@ -22,10 +22,6 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/Point.h>
 
-#include <obstacle_detector/Obstacles.h>
-#include <obstacle_detector/SegmentObstacle.h>
-#include <obstacle_detector/CircleObstacle.h>
-
 #include <sobit_follower/grouped_points_array.h>
 #include <sobit_follower/grouped_points.h>
 
@@ -56,7 +52,6 @@ class Points_grouping_class
 	ros::Subscriber sub_laser_scan;
 	//PUB
 	ros::Publisher pub_circle_states;
-	ros::Publisher pub_circle_states_correction;
 	ros::Publisher pub_circle_states_multiple;
 	ros::Publisher pub_circle_states_part;
 	ros::Publisher pub_cost_marker;
@@ -76,7 +71,7 @@ class Points_grouping_class
 	double min_circle_radius = 0.04;//中心点からの最小半径
 	double correction_of_radius = 0.05;//各円の半径を微調整
 	int pp;
-	double base_radius = 0.4;
+	double base_radius = 0.25;//0.45
 	//struct
 	circle_set correction_values;
 	tp_set all_set;
@@ -85,18 +80,10 @@ public:
 	Points_grouping_class(){
 	//Laser_scanをサブスクライブ
 	this->sub_laser_scan = nh.subscribe("/scan",1,&Points_grouping_class::laser_points,this);
-	//circle_statesをパブリッシュ
-	this->pub_circle_states = nh.advertise<obstacle_detector::Obstacles>("/circle_states", 1 );
 	//points_statesをパブリッシュ
 	this->pub_points_states = nh.advertise<sobit_follower::grouped_points_array>("/points_states", 1 );
-	//this->pub_circle_states_correction = nh.advertise<obstacle_detector::Obstacles>("circle_states_correction", 1 );
-	//this->pub_circle_states_multiple = nh.advertise<obstacle_detector::Obstacles>("multiple_circle_states", 1 );
-	this->pub_circle_states_part = nh.advertise<obstacle_detector::Obstacles>("part_circle_states", 1 );
-	//this->cost_grant_point = nh.advertise<geometry_msgs::Point>("cost", 1 );
 	this->pub_cost_marker = nh.advertise<visualization_msgs::MarkerArray>( "/point_marker", 1 );
 	this->pub_test_marker = nh.advertise<visualization_msgs::MarkerArray>( "/test_marker", 1 );
-	//this->sub_laser_scan = nh.subscribe("circle_states",1,&Points_grouping_class::marker,this);
-	//this->group_lists.grouped_points_array[group_size].particle_x.resize(group_points_list.size());
 	}//public
 
 ~Points_grouping_class(){}
@@ -129,14 +116,6 @@ void decision_of_grouping()
 		auto past_point = points_list.begin();
 		int point_counter = 0;
 		//this->pp = 0;
-		//折角なのでobstacleの型に合わせる
-		obstacle_detector::ObstaclesPtr all_circle_states(new obstacle_detector::Obstacles);	//全ての点群のステート
-		obstacle_detector::CircleObstacle circle;
-		all_circle_states->header.frame_id = this->frame_id;
-
-		obstacle_detector::ObstaclesPtr part_circle_states(new obstacle_detector::Obstacles);	//試験用
-		obstacle_detector::CircleObstacle part_circle;
-		part_circle_states->header.frame_id = this->frame_id;
 		int i = 0;
 
 		for(auto point = this->points_list.begin(); point != this->points_list.end(); point++) //for points_list loop
@@ -168,13 +147,6 @@ void decision_of_grouping()
 				temp_circle_set.center_y = this->correction_values.center_y;
 				group_list.push_back(temp_circle_set);
 
-					//publishする時の型に合わせる
-				if( this->min_circle_radius < this->correction_values.radius && this->correction_values.radius < this->max_circle_radius) 					{	//if_3
-        			circle.center.x = this->correction_values.center_x;
-        			circle.center.y = this->correction_values.center_y;
-					circle.radius = this->correction_values.radius + 0.1;
-					all_circle_states->circles.push_back(circle);
-				}//if_3
 				this->all_set.buf.clear();
 				this->group_points_list.clear();//空にする
 			}//if_1
@@ -182,7 +154,6 @@ void decision_of_grouping()
 			this->group_points_list.push_back( *point );	//group_points_listに追加
 			point_counter++;	//余りよろしくない
 		}//for points_list loop
-		this->pub_circle_states.publish(all_circle_states);//all_circle_statesをパブリッシュ
 		tp_set group_set;
 		int group_number = 0;
 		sobit_follower::grouped_points_array group_lists;
@@ -212,92 +183,6 @@ void decision_of_grouping()
 
 		this->pub_points_states.publish(group_lists);
 		this->sample_group.clear();
-
-		obstacle_detector::ObstaclesPtr circle_states_correction(new obstacle_detector::Obstacles);//比較用 
-		obstacle_detector::CircleObstacle circle_obs;
-		circle_states_correction->header.frame_id = this->frame_id;
-
-		obstacle_detector::ObstaclesPtr multiple_circle_list(new obstacle_detector::Obstacles);//複数のサークルが近い時の各サークルの情報を保存
-		obstacle_detector::CircleObstacle circle_states_save;
-		multiple_circle_list->header.frame_id = this->frame_id;
-
-		double next_radius = 0.0;
-		double next_center_x = 0.0;
-		double next_center_y  = 0.0;
-		int	set_count = 0;
-		int circle_id_count = 0;
-		for( int i = 0 ; i < all_circle_states->circles.size() ; i ++ )//for
-		{
-			if(i == 0){/*std::cout << "-------------------------------------------------------"<< std::endl;*/}
-			next_radius = all_circle_states->circles[i+1].radius;
-			next_center_x = all_circle_states->circles[i+1].center.x;
-			next_center_y = all_circle_states->circles[i+1].center.y;
-			double center_distance = hypotf((next_center_x - all_circle_states->circles[i].center.x),(next_center_y - all_circle_states->circles[i].center.y));//過去のサークル同士の中心点の距離
-			double radius_distance = next_radius + all_circle_states->circles[i].radius;//隣のサークル同士の半径合計
-
-			if(next_radius != all_circle_states->circles[i].radius && center_distance < radius_distance)//次の隣の円と接触している場合
-			{
-				//接触している円のステートを保存
-				circle_states_save.center.x = all_circle_states->circles[i].center.x;
-				circle_states_save.center.y = all_circle_states->circles[i].center.y;
-				circle_states_save.radius = all_circle_states->circles[i].radius;
-				multiple_circle_list->circles.push_back(circle_states_save);
-				set_count++;
-			}//if
-			else//次の隣の円と接触していない場合 else_1
-			{
-				if(set_count > 1)	//次の隣の円と比較した時，前の円のステートを更新　書き方が綺麗じゃないので改めて考える
-				{
-					circle_states_save.center.x = all_circle_states->circles[i].center.x;
-					circle_states_save.center.y = all_circle_states->circles[i].center.y;
-					circle_states_save.radius = all_circle_states->circles[i].radius;
-					multiple_circle_list->circles.push_back(circle_states_save);
-					//std::cout << "Multiple_obstacle_ID_2:: " << i << std::endl;
-					//ROS_INFO("-------------------------------------------------------");
-					double center_point_x_total = 0.0;
-					double center_point_y_total = 0.0;
-					double max_radius_candidate = 0.0;
-					if(multiple_circle_list->circles.size() > 0)
-					{
-						for(int j = 0;j <= multiple_circle_list->circles.size() ; j++) //接触している複数円のステートを参照 for
-						{
-							center_point_x_total += multiple_circle_list->circles[j].center.x;
-							center_point_y_total += multiple_circle_list->circles[j].center.y;
-							if(max_radius_candidate < multiple_circle_list->circles[j].radius)
-							{
-								max_radius_candidate = multiple_circle_list->circles[j].radius;
-							}//if
-						}//for
-						//値が無限になる場合，小数点3位以下は切り捨て
-						double x_correction = floor((center_point_x_total / multiple_circle_list->circles.size()) * 1000) / 1000;
-						double y_correction = floor((center_point_y_total / multiple_circle_list->circles.size()) * 1000) / 1000;
-						double radius_correction = floor(max_radius_candidate * 1000) / 1000;
-						int k = max_radius_candidate * 1000;
-						circle_obs.center.x = x_correction;
-						circle_obs.center.y = y_correction;
-						circle_obs.radius = max_radius_candidate;
-						multiple_circle_list->circles.clear();	//マルチサークルが更新され次第，空にする
-					}//if
-					set_count = 0;
-				}//if
-				else	//single_obstacleの場合 else_2
-				{
-					//std::cout << "-------------------------------------------------------"<< std::endl;
-					circle_obs.center.x = all_circle_states->circles[i].center.x;
-					circle_obs.center.y = all_circle_states->circles[i].center.y;
-					circle_obs.radius = all_circle_states->circles[i].radius;	//現在の接触していない円のステートを更新
-					//circle_states_2->circles.push_back(circle_obs);
-					//std::cout << "single_obstacle_ID:: " << i << std::endl;
-					//std::cout << "-------------------------------------------------------"<< std::endl;
-				}//else_2
-				circle_states_correction->circles.push_back(circle_obs);	//接触している複数円から新たな円のステートを更新
-			}//else_1
-			//circle_states_2->circles.push_back(circle_2);
-		}//for
-		//this->pub_circle_states_correction.publish(circle_states_correction);
-		//this->pub_circle_states_multiple.publish(multiple_circle_list);
-		circle_states_correction->circles.clear();	//空にする
-		all_circle_states->circles.clear();	//空にする
 		this->points_list.clear();//空にする
 	}//decision_of_grouping
 
@@ -554,26 +439,30 @@ void test_marker()
 			marker.markers[num].scale.x = option.radius;
 			marker.markers[num].scale.y = option.radius;
 			marker.markers[num].scale.z = 0.05;
-			marker.markers[num].color.a = 0.1;
+			marker.markers[num].color.a = 1.0;
+			marker.markers[num].color.r = 1.0;//1.0
+			marker.markers[num].color.g = 0.5;//0.5
+			marker.markers[num].color.b = 0.5;//0.5
 
-			if(group_num % 2 == 0)
+			/*if(group_num % 2 == 0)
 			{
-				marker.markers[num].color.r = 1.0;
-				marker.markers[num].color.g = 0.5;
-				marker.markers[num].color.b = 0.5;
+				marker.markers[num].color.r = 1.0;//1.0
+				marker.markers[num].color.g = 0.5;//0.5
+				marker.markers[num].color.b = 0.5;//0.5
 			}
 			else if(group_num % 3 == 1)
 			{
-				marker.markers[num].color.r = 0.5;
-				marker.markers[num].color.g = 1.0;
-				marker.markers[num].color.b = 0.5;
+				marker.markers[num].color.r = 0.5;//0.5
+				marker.markers[num].color.g = 1.0;//1.0
+				marker.markers[num].color.b = 0.5;//0.5
 			}
 			else
 			{
-				marker.markers[num].color.r = 0.5;
-				marker.markers[num].color.g = 0.5;
-				marker.markers[num].color.b = 1.0;
-			}
+				marker.markers[num].color.r = 0.5;//0.5
+				marker.markers[num].color.g = 0.5;//0.5
+				marker.markers[num].color.b = 1.0;//1.0
+			}*/
+
 			geometry_msgs::Point test;
 			test.x = state->x;
 			test.y = state->y;

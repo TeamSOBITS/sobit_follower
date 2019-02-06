@@ -1,0 +1,301 @@
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Wshorten64to32 failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_21c10/fast"
+/usr/bin/make -f CMakeFiles/cmTC_21c10.dir/build.make CMakeFiles/cmTC_21c10.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_21c10.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -DCOMPILER_SUPPORT_Wshorten64to32 -Werror   -Wshorten-64-to-32 -o CMakeFiles/cmTC_21c10.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-Wshorten-64-to-32'
+CMakeFiles/cmTC_21c10.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_21c10.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_21c10.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_21c10/fast' failed
+make: *** [cmTC_21c10/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Wenumconversion failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0f1e1/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0f1e1.dir/build.make CMakeFiles/cmTC_0f1e1.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_0f1e1.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -DCOMPILER_SUPPORT_Wenumconversion -Werror   -Wenum-conversion -o CMakeFiles/cmTC_0f1e1.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-Wenum-conversion'
+CMakeFiles/cmTC_0f1e1.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_0f1e1.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_0f1e1.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_0f1e1/fast' failed
+make: *** [cmTC_0f1e1/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Wcpp11extensions failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_c3b81/fast"
+/usr/bin/make -f CMakeFiles/cmTC_c3b81.dir/build.make CMakeFiles/cmTC_c3b81.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_c3b81.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -DCOMPILER_SUPPORT_Wcpp11extensions -Werror   -Wc++11-extensions -o CMakeFiles/cmTC_c3b81.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-Wc++11-extensions'
+CMakeFiles/cmTC_c3b81.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_c3b81.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_c3b81.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_c3b81/fast' failed
+make: *** [cmTC_c3b81/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_wd981 failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_7c7cb/fast"
+/usr/bin/make -f CMakeFiles/cmTC_7c7cb.dir/build.make CMakeFiles/cmTC_7c7cb.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7c7cb.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_wd981 -Werror   -wd981 -o CMakeFiles/cmTC_7c7cb.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-wd981'
+CMakeFiles/cmTC_7c7cb.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_7c7cb.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_7c7cb.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_7c7cb/fast' failed
+make: *** [cmTC_7c7cb/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_wd2304 failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_f7555/fast"
+/usr/bin/make -f CMakeFiles/cmTC_f7555.dir/build.make CMakeFiles/cmTC_f7555.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f7555.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_wd2304 -Werror   -wd2304 -o CMakeFiles/cmTC_f7555.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-wd2304'
+CMakeFiles/cmTC_f7555.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_f7555.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_f7555.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_f7555/fast' failed
+make: *** [cmTC_f7555/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_STRICTANSI failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_333ad/fast"
+/usr/bin/make -f CMakeFiles/cmTC_333ad.dir/build.make CMakeFiles/cmTC_333ad.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_333ad.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_STRICTANSI -Werror   -strict-ansi -o CMakeFiles/cmTC_333ad.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-strict-ansi'
+CMakeFiles/cmTC_333ad.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_333ad.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_333ad.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_333ad/fast' failed
+make: *** [cmTC_333ad/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test COMPILER_SUPPORT_Qunusedarguments failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_ea844/fast"
+/usr/bin/make -f CMakeFiles/cmTC_ea844.dir/build.make CMakeFiles/cmTC_ea844.dir/build
+make[1]: Entering directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ea844.dir/src.cxx.o
+/usr/bin/c++     -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -DCOMPILER_SUPPORT_Qunusedarguments -Werror   -Qunused-arguments -o CMakeFiles/cmTC_ea844.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+c++: error: unrecognized command line option '-Qunused-arguments'
+CMakeFiles/cmTC_ea844.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_ea844.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_ea844.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_ea844/fast' failed
+make: *** [cmTC_ea844/fast] Error 2
+
+Source file was:
+int main() { return 0; }
+Determining if the Q_WS_WIN exist failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_4555b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_4555b.dir/build.make CMakeFiles/cmTC_4555b.dir/build
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' に入ります
+Building CXX object CMakeFiles/cmTC_4555b.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++    -I/usr/include/qt4  -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -ansi -O1 -g1    -o CMakeFiles/cmTC_4555b.dir/CheckSymbolExists.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_WIN’ was not declared in this scope
+   return ((int*)(&Q_WS_WIN))[argc];
+                   ^
+CMakeFiles/cmTC_4555b.dir/build.make:65: ターゲット 'CMakeFiles/cmTC_4555b.dir/CheckSymbolExists.cxx.o' のレシピで失敗しました
+make[1]: *** [CMakeFiles/cmTC_4555b.dir/CheckSymbolExists.cxx.o] エラー 1
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' から出ます
+Makefile:126: ターゲット 'cmTC_4555b/fast' のレシピで失敗しました
+make: *** [cmTC_4555b/fast] エラー 2
+
+File /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_WIN
+  return ((int*)(&Q_WS_WIN))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the Q_WS_QWS exist failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_89b90/fast"
+/usr/bin/make -f CMakeFiles/cmTC_89b90.dir/build.make CMakeFiles/cmTC_89b90.dir/build
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' に入ります
+Building CXX object CMakeFiles/cmTC_89b90.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++    -I/usr/include/qt4  -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -ansi -O1 -g1    -o CMakeFiles/cmTC_89b90.dir/CheckSymbolExists.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_QWS’ was not declared in this scope
+   return ((int*)(&Q_WS_QWS))[argc];
+                   ^
+CMakeFiles/cmTC_89b90.dir/build.make:65: ターゲット 'CMakeFiles/cmTC_89b90.dir/CheckSymbolExists.cxx.o' のレシピで失敗しました
+make[1]: *** [CMakeFiles/cmTC_89b90.dir/CheckSymbolExists.cxx.o] エラー 1
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' から出ます
+Makefile:126: ターゲット 'cmTC_89b90/fast' のレシピで失敗しました
+make: *** [cmTC_89b90/fast] エラー 2
+
+File /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_QWS
+  return ((int*)(&Q_WS_QWS))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the Q_WS_MAC exist failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_16b09/fast"
+/usr/bin/make -f CMakeFiles/cmTC_16b09.dir/build.make CMakeFiles/cmTC_16b09.dir/build
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' に入ります
+Building CXX object CMakeFiles/cmTC_16b09.dir/CheckSymbolExists.cxx.o
+/usr/bin/c++    -I/usr/include/qt4  -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -ansi -O1 -g1    -o CMakeFiles/cmTC_16b09.dir/CheckSymbolExists.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_MAC’ was not declared in this scope
+   return ((int*)(&Q_WS_MAC))[argc];
+                   ^
+CMakeFiles/cmTC_16b09.dir/build.make:65: ターゲット 'CMakeFiles/cmTC_16b09.dir/CheckSymbolExists.cxx.o' のレシピで失敗しました
+make[1]: *** [CMakeFiles/cmTC_16b09.dir/CheckSymbolExists.cxx.o] エラー 1
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' から出ます
+Makefile:126: ターゲット 'cmTC_16b09/fast' のレシピで失敗しました
+make: *** [cmTC_16b09/fast] エラー 2
+
+File /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_MAC
+  return ((int*)(&Q_WS_MAC))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Performing C++ SOURCE FILE Test SUPERLU_HAS_GLOBALLU_T failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_bb081/fast"
+/usr/bin/make -f CMakeFiles/cmTC_bb081.dir/build.make CMakeFiles/cmTC_bb081.dir/build
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' に入ります
+Building CXX object CMakeFiles/cmTC_bb081.dir/src.cxx.o
+/usr/bin/c++    -I/usr/include/superlu  -pedantic -Wall -Wextra -Wundef -Wcast-align -Wchar-subscripts -Wnon-virtual-dtor -Wunused-local-typedefs -Wpointer-arith -Wwrite-strings -Wformat-security -Wlogical-op -Wdouble-promotion -Wno-psabi -Wno-variadic-macros -Wno-long-long -fno-check-new -fno-common -fstrict-aliasing -ansi -DSUPERLU_HAS_GLOBALLU_T   -o CMakeFiles/cmTC_bb081.dir/src.cxx.o -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx: In function ‘int main()’:
+/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/src.cxx:7:3: error: ‘GlobalLU_t’ was not declared in this scope
+   GlobalLU_t glu;
+   ^
+CMakeFiles/cmTC_bb081.dir/build.make:65: ターゲット 'CMakeFiles/cmTC_bb081.dir/src.cxx.o' のレシピで失敗しました
+make[1]: *** [CMakeFiles/cmTC_bb081.dir/src.cxx.o] エラー 1
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' から出ます
+Makefile:126: ターゲット 'cmTC_bb081/fast' のレシピで失敗しました
+make: *** [cmTC_bb081/fast] エラー 2
+
+Source file was:
+
+typedef int int_t;
+#include <supermatrix.h>
+#include <slu_util.h>
+int main(void)
+{
+  GlobalLU_t glu;
+  return 0;
+}
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_dd463/fast"
+/usr/bin/make -f CMakeFiles/cmTC_dd463.dir/build.make CMakeFiles/cmTC_dd463.dir/build
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' に入ります
+Building C object CMakeFiles/cmTC_dd463.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_dd463.dir/CheckSymbolExists.c.o   -c /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_dd463
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dd463.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_dd463.dir/CheckSymbolExists.c.o  -o cmTC_dd463 -rdynamic 
+CMakeFiles/cmTC_dd463.dir/CheckSymbolExists.c.o: 関数 `main' 内:
+CheckSymbolExists.c:(.text+0x16): `pthread_create' に対する定義されていない参照です
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_dd463.dir/build.make:97: ターゲット 'cmTC_dd463' のレシピで失敗しました
+make[1]: *** [cmTC_dd463] エラー 1
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' から出ます
+Makefile:126: ターゲット 'cmTC_dd463/fast' のレシピで失敗しました
+make: *** [cmTC_dd463/fast] エラー 2
+
+File /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_5a42c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_5a42c.dir/build.make CMakeFiles/cmTC_5a42c.dir/build
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' に入ります
+Building C object CMakeFiles/cmTC_5a42c.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_5a42c.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.7/Modules/CheckFunctionExists.c
+Linking C executable cmTC_5a42c
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5a42c.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_5a42c.dir/CheckFunctionExists.c.o  -o cmTC_5a42c -rdynamic -lpthreads 
+/usr/bin/ld: -lpthreads が見つかりません
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_5a42c.dir/build.make:97: ターゲット 'cmTC_5a42c' のレシピで失敗しました
+make[1]: *** [cmTC_5a42c] エラー 1
+make[1]: ディレクトリ '/home/iwami/eigen-eigen-b3f3d4950030/build/CMakeFiles/CMakeTmp' から出ます
+Makefile:126: ターゲット 'cmTC_5a42c/fast' のレシピで失敗しました
+make: *** [cmTC_5a42c/fast] エラー 2
+
+

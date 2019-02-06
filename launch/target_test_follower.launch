@@ -1,0 +1,24 @@
+<!-- target_test_follower.launch -->
+<launch>
+
+	<!-- minimal -->
+	<!--include file="$(find turtlebot_edu)/launch/minimal.launch"/-->
+	<!-- urg -->
+	<include file="$(find turtlebot_edu)/launch/urg.launch"/>
+	<!-- velocity smoother -->
+	<include file="$(find sobit_follower)/launch/velocity_smoother_2.launch"/>
+    <!-- Points_grouping -->
+    <node pkg="sobit_follower" type="Points_grouping" name="Points_grouping_node" output="screen"/>
+    <!-- target_scan -->
+    <node pkg="sobit_follower" type="target_scan" name="target_scan_node" output="screen"/>
+	<!-- path_plan -->
+	<node pkg="sobit_follower" type="path_plan_test" name="path_plan_node" output="screen"/>
+	<!-- kalman -->
+	<!--node pkg="sobit_follower" type="kalman" name="kalman_node" output="screen"/-->
+	<!-- rviz -->
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/launch/test.rviz"/>
+	<!-- txt1 -->
+	<node pkg="sobit_follower" type="file_wr.py" name="point_listener" output="screen"/>
+	<!-- txt2 -->
+	<node pkg="sobit_follower" type="kalman_point.py" name="kalman_point_listener" output="screen"/>
+</launch>

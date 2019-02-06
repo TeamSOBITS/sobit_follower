@@ -1,0 +1,7 @@
+-I/home/iwami/eigen-eigen-b3f3d4950030
+-I/home/iwami/eigen-eigen-b3f3d4950030/build
+-I/usr/include/qt4
+-DNDEBUG
+-o
+/home/iwami/eigen-eigen-b3f3d4950030/build/demos/mandelbrot/mandelbrot.moc
+/home/iwami/eigen-eigen-b3f3d4950030/demos/mandelbrot/mandelbrot.h
