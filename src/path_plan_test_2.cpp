@@ -236,8 +236,8 @@ void dwa()
 	
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
-	double min_ang_velo = current_robot_ang - range_ang_velo;
-	double max_ang_velo = current_robot_ang + range_ang_velo;
+	double min_ang_velo = this->current_robot_ang - range_ang_velo;
+	double max_ang_velo = this->current_robot_ang + range_ang_velo;
 
 	//前進加速度を考慮した範囲
 	double range_velo = samplingtime * max_acceration;

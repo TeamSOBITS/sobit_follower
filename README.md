@@ -1,8 +1,11 @@
 # sobit_followerセットアップ手順
 
 # turtlebot_eduのインストール
+roscd sobit_follower
 
-./install_turtlebot_edu.sh
+chmod 755 install_turtlebot_edu.sh
+
+sudo ./install_turtlebot_edu.sh
 
 roscd turtlebot_edu
 

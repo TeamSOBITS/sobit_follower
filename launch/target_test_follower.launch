@@ -10,7 +10,7 @@
     <!-- Points_grouping -->
     <node pkg="sobit_follower" type="Points_grouping" name="Points_grouping_node" output="screen"/>
     <!-- target_scan -->
-    <node pkg="sobit_follower" type="target_scan" name="target_scan_node" output="screen"/>
+    <node pkg="sobit_follower" type="target_scan_check" name="target_scan_node" output="screen"/>
 	<!-- path_plan -->
 	<node pkg="sobit_follower" type="path_plan_test" name="path_plan_node" output="screen"/>
 	<!-- kalman -->
