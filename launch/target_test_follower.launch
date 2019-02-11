@@ -14,7 +14,7 @@
 	<!-- path_plan -->
 	<node pkg="sobit_follower" type="path_plan_test" name="path_plan_node" output="screen"/>
 	<!-- kalman -->
-	<!--node pkg="sobit_follower" type="kalman" name="kalman_node" output="screen"/-->
+	<node pkg="sobit_follower" type="kalman_check2" name="kalman_check2_node" output="screen"/>
 	<!-- rviz -->
 	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/launch/test.rviz"/>
 	<!-- txt1 -->

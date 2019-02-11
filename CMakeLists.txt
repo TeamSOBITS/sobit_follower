@@ -66,11 +66,12 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
+ add_service_files(
+   FILES
+   target_predict.srv
 #   Service1.srv
 #   Service2.srv
-# )
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -257,6 +258,10 @@ add_executable(kalman_check src/kalman_check.cpp)
 target_link_libraries(kalman_check ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(kalman_check ${PROJECT_NAME}_generate_messages_cpp)
 
+add_executable(kalman_check2 src/kalman_check2.cpp)
+target_link_libraries(kalman_check2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(kalman_check2 ${PROJECT_NAME}_generate_messages_cpp)
+
 add_executable(kalman src/kalman.cpp)
 target_link_libraries(kalman ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(kalman ${PROJECT_NAME}_generate_messages_cpp)
@@ -268,6 +273,10 @@ add_dependencies(target_following ${PROJECT_NAME}_generate_messages_cpp)
 add_executable(path_plan_test_2 src/path_plan_test_2.cpp)
 target_link_libraries(path_plan_test_2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(path_plan_test_2 ${PROJECT_NAME}_generate_messages_cpp)
+
+add_executable(target_scan_check src/target_scan_check.cpp)
+target_link_libraries(target_scan_check ${catkin_LIBRARIES})
+add_dependencies(target_scan_check ${PROJECT_NAME}_generate_messages_cpp)
 
 
 

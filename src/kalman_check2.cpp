@@ -26,6 +26,8 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 
+#include <sobit_follower/target_predict.h>
+
 typedef struct {         /* 構造体の型枠を定義する */
 	geometry_msgs::Point observe_point;
 	geometry_msgs::Point current_pre_point;
@@ -46,6 +48,9 @@ public:
 	ros::Publisher pub_kalman_point;
 	//ros::Publisher cost_grant_point;
 	ros::Publisher pub_cost_marker;
+	//SERVER
+	ros::ServiceServer target_pre_server;
+	//tf
 	tf::TransformListener listener;
 	
 	geometry_msgs::Point observe_target_point;//観測値
@@ -104,51 +109,58 @@ public:
 		this->filtered_target_states.setZero(4,1);
 		this->filtered_dispersion.setZero(4,4);
 		
-		this->sub_target_point = nh.subscribe("/target_states",1,&kalman_filter_class::target_point,this);
+		//this->sub_target_point = nh.subscribe("/target_states",1,&kalman_filter_class::target_point,this);
 		this->pub_point_marker = nh.advertise<visualization_msgs::MarkerArray>( "/point_marker", 1 );
-		this->sub_target_flag = nh.subscribe("/target_judge",1,&kalman_filter_class::target_judge,this);
-		this->pub_pre_target_point = nh.advertise<geometry_msgs::Point>( "/pre_point", 1 );
-		this->pub_kalman_point = nh.advertise<geometry_msgs::Point>( "/kalman_point", 1 );
+		//this->sub_target_flag = nh.subscribe("/target_judge",1,&kalman_filter_class::target_judge,this);
+		//this->pub_pre_target_point = nh.advertise<geometry_msgs::Point>( "/pre_point", 1 );
+		//this->pub_kalman_point = nh.advertise<geometry_msgs::Point>( "/kalman_point", 1 );
+		this->target_pre_server = nh.advertiseService("kalman_check",&kalman_filter_class::target_point,this);
+		
 		//this->sub_info = nh.subscribe("target_info",1,&kalman_filter_class::pp);
 		//this->pub_point_marker = nh.advertise<geometry_msgs::Point>("/publish_state",1);
 	}//public
 
 ~kalman_filter_class(){}
 
-void target_point(const geometry_msgs::Point& msg)
+bool target_point(sobit_follower::target_predict::Request &req,sobit_follower::target_predict::Response &res)
 {
-	//printf("aaaaaaaaaaa\n");
 	this->dt = 0.1;//時間間隔
 	this->seq++;
-
-	//printf("laser基準");
-	//std::cout << "laser_base" << msg << std::endl;
-	/*geometry_msgs::PointStamped odom_base_target_point;//変換後のtargetの座標を格納する
-	geometry_msgs::PointStamped robot_base_target_point;
-	try{
-		robot_base_target_point.header.frame_id = base_frame_name;
-		robot_base_target_point.header.stamp = ros::Time(0);
-		robot_base_target_point.point = msg;
-		this->listener.transformPoint("/odom", robot_base_target_point, odom_base_target_point );
-	}//try
-	catch(tf::TransformException& ex)
+	if(req.target_lost_flag == true)
 	{
-		ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
-		return;
-	}//catch*/
-	this->current_states(0,0) = msg.x;
-	this->current_states(1,0) = msg.y;
-	//this->current_states(0,0) = odom_base_target_point.point.x;
-	//this->current_states(1,0) = odom_base_target_point.point.y;
-	//観測値の更新
-	//this->current_states(0,0) = this->kansoku_x[0] + i * 0.1;
-	//this->current_states(1,0) = this->kansoku_y[0] + i * 0.02;
-	//printf("odom基準");
-	//std::cout << "this->current_states(0,0)" << this->current_states(0,0) << std::endl;
-	//std::cout << "this->current_states(1,0)" << this->current_states(1,0) << std::endl;
+		printf("予測したtargetの位置を用いる\n");
+		res.pre_target_point = this->states.after_pre_point;
+	}
+	else
+	{
+		//odom基準に変換
+		/*geometry_msgs::PointStamped odom_base_target_point;//変換後のtargetの座標を格納する
+		geometry_msgs::PointStamped robot_base_target_point;
+		try{
+			robot_base_target_point.header.frame_id = base_frame_name;
+			robot_base_target_point.header.stamp = ros::Time(0);
+			robot_base_target_point.point = msg;
+			this->listener.transformPoint("/odom", robot_base_target_point, odom_base_target_point );
+		}//try
+		catch(tf::TransformException& ex)
+		{
+			ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
+			return;
+		}//catch*/
 
-	filtering();
+		//とりあえずlaser_基準
+		this->current_states(0,0) = req.target_point.x;
+		this->current_states(1,0) = req.target_point.y;
+		//this->current_states(0,0) = odom_base_target_point.point.x;
+		//this->current_states(1,0) = odom_base_target_point.point.y;
+		//std::cout << "this->current_states(0,0)" << this->current_states(0,0) << std::endl;
+		//std::cout << "this->current_states(1,0)" << this->current_states(1,0) << std::endl;
+		filtering();
 
+		printf("targetの位置を更新\n");
+		res.pre_target_point = this->states.after_pre_point;
+	}
+	return true;
 }//target_point
 
 void filtering()
@@ -280,7 +292,7 @@ void update()//視覚化用に格納
 	this->states.filtered_vel.y = this->filtered_target_states(3,0);
 	this->states.after_pre_point.x = this->pre_dispersion_states_of_rear(0,0);
 	this->states.after_pre_point.y = this->pre_dispersion_states_of_rear(1,0);
-	this->pub_kalman_point.publish(this->states.filtered_point);
+	//this->pub_kalman_point.publish(this->states.filtered_point);
 	//printf("予測値\n");
 	//std::cout << "" << robot_base_target_point.point << std::endl;
 	//target_point_marker(robot_base_target_point.point);
@@ -346,7 +358,7 @@ void kalman()
 	//std::cout << "" << this->kalman_gain << std::endl;
 }//kalman
 
-void target_judge(const std_msgs::Bool& msg)
+/*void target_judge(const std_msgs::Bool& msg)
 {
 	if(msg.data == true) 
 	{
@@ -367,7 +379,7 @@ void target_judge(const std_msgs::Bool& msg)
 		printf("targetを見失ったので予測値をパブします.\n");
 		std::cout << "" << robot_base_target_point.point << std::endl;
 	}
-}//target_judge
+}//target_judge */
 
 /*void target_point_marker(geometry_msgs::Point msg)
 {
@@ -465,7 +477,7 @@ void target_judge(const std_msgs::Bool& msg)
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "kalman_check_node");
+	ros::init(argc, argv, "kalman_check2_node");
 	kalman_filter_class tf_class;
 	ros::spin();
 	return 0;

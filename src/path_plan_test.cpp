@@ -80,12 +80,15 @@ class path_plan_class
 	double current_robot_ang = 0.0;//現在のロボットの角度
 	double current_robot_velo = 0.0;//現在のロボットの速度
 	//追従対象者とロボットの保つ距離
-	double keep_distance = 0.7;
+	double keep_distance = 1.2;//0.7;
 	double stop_distance = 0.0;
 	//ロボットの速度情報をパブリッシュするかの判定フラグ
 	bool cmd_vel_flag = true;
 	bool pre_flag = false;
 	std::string base_frame_name;
+
+	int old_vel_vec_size = 5;
+	std::vector<double> old_vel_vec;
 
 public:
 	path_plan_class(){
@@ -165,6 +168,22 @@ void obstacle_states_cb(const sobit_follower::grouped_points_arrayPtr input)
 	}//else
 	//this->vel.linear.x = 0.0;
 	//this->vel.angular.z = 0.0;
+
+	std::cout << "this->vel.linear.x: " << this->vel.linear.x << std::endl;
+	//速度の平滑処理
+	old_vel_vec.push_back(this->vel.linear.x);//新しい値を入れる
+	if(old_vel_vec.size() > old_vel_vec_size){
+		old_vel_vec.erase(old_vel_vec.begin());//古い値を削除
+	}
+	this->vel.linear.x = 0.0;//一旦０にする
+	for(int temp_count = 0; temp_count < old_vel_vec.size(); temp_count++){
+		this->vel.linear.x += old_vel_vec[temp_count];//過去の値を足しこむ
+	}
+	this->vel.linear.x = this->vel.linear.x / double(old_vel_vec.size());//平均値で書き換え
+	this->current_robot_velo = this->vel.linear.x;
+	//速度の平滑処理　終わり
+
+
 	this->pub_cmd_vel.publish(this->vel);
 	this->pub_goal_flag.publish(goal_flag);
 }//obstacle_states_cb
@@ -176,27 +195,29 @@ void dwa()
 	//int collision_step = pre_step / 10;
 	double samplingtime = 0.2;//[s]	//サンプリングタイム
 
-	double velo_step = 50.0;	//あまり大きくすると処理が重くなる
-	double ang_velo_step = 50.0;	//あまり大きくすると処理が重くなる
+	double velo_step = 50.0;	//(10)あまり大きくすると処理が重くなる
+	double ang_velo_step = 50.0;	//(10)あまり大きくすると処理が重くなる
 	//速度制限
-	double max_velo_def = 1.0;//[m/s]	最高速度(0.4)
+	double max_velo_def = 0.8;//1.0;//[m/s]	最高速度(0.4)
 	double min_velo_def = 0.0;//[m/s]	最低速度(0.0)
 	//回転速度制限
 	double max_ang_def = 20.0;//[rad/s]	最高回転速度(20)
 	double min_ang_def = -20.0;//[rad/s]	最低回転速度(0)
 	//各加速度制御
-	double max_acceration = 1.0;	//最高加速度(0.5)
+	double max_acceration = 0.1;//1.0;	//最高加速度(0.5)
 	double max_ang_acceration = 1.8;	//最高回転加速度(57....度)(1.0)
 
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
-	double min_ang_velo = current_robot_ang - range_ang_velo;
-	double max_ang_velo = current_robot_ang + range_ang_velo;
+	double min_ang_velo = this->current_robot_ang - range_ang_velo;
+	double max_ang_velo = this->current_robot_ang + range_ang_velo;
 
 	//前進加速度を考慮した範囲
 	double range_velo = samplingtime * max_acceration;
-	double min_velo = current_robot_velo - range_velo;
-	double max_velo = current_robot_velo + range_velo;
+	double min_velo = this->current_robot_velo - range_velo;
+	double max_velo = this->current_robot_velo + range_velo;
+
+	std::cout << "###########" << current_robot_velo << " , " << max_velo << std::endl;
 
 	//path_eval_list.size() = velo_step * ang_velo_step
 	double delta_velo = (max_velo - min_velo) / velo_step;
@@ -265,17 +286,29 @@ void dwa()
 	if(pub_propriety == false) {return;}
 }//dwa
 
-void normalization()
+void normalization()//各パスの評価値を正規化
 {
 	//std::cout << "this->es.goal_.min_score :: " << this->es.goal_.min_score << std::endl;
 	//std::cout << "this->es.goal_.max_score :: " << this->es.goal_.max_score << std::endl;
 	for(auto data = this->path_eval_list.begin(); data != this->path_eval_list.end(); data++)//for_4
 	{
 		if(data->collision == true) { continue; }
+		if(this->es.goal_.max_score - this->es.goal_.min_score != 0) {
 		data->goal_.norm_score = (data->goal_.score - this->es.goal_.min_score) / (this->es.goal_.max_score - this->es.goal_.min_score);
+		}
+		else { data->goal_.norm_score = 0; }
+		if(this->es.obs_.max_score - this->es.obs_.min_score != 0) {
 		data->obs_.norm_score = (data->obs_.score - this->es.obs_.min_score) / (this->es.obs_.max_score - this->es.obs_.min_score);
+		}
+		else { data->obs_.norm_score = 0; }
+		if(this->es.angle_.max_score - this->es.angle_.min_score != 0) {
 		data->angle_.norm_score = (data->angle_.score -this->es.angle_.min_score) / (this->es.angle_.max_score - this->es.angle_.min_score);
+		}
+		else { data->angle_.norm_score = 0; }
+		if(this->es.vel_.max_score - this->es.vel_.min_score != 0) {
 		data->vel_.norm_score = (data->vel_.score - this->es.vel_.min_score) / (this->es.vel_.max_score - this->es.vel_.min_score);
+		}
+		else { data->vel_.norm_score = 0; }
 	}//for_4
 }//normalization
 
@@ -325,6 +358,12 @@ void evaluate()
 				this->path_eval_list.push_back(this->es);//※衝突判定前の情報(es)もpush
 				break;
 			}//if
+			else if(this->ph.next_x > this->base_laser_point.point.x)
+			{
+				this->es.collision = true;
+				this->path_eval_list.push_back(this->es);//※衝突判定前の情報(es)もpush
+				break;
+			}
 		}//for_2
 		if(this->es.collision == true) { break; }
 		double obs_to_point_difference = fabs(center_radius - distance_from_center_pre_point);

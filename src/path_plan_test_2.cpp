@@ -66,7 +66,7 @@ class route_planning_class
 	geometry_msgs::PointStamped base_laser_point;//変換前のワールド基準の座標を格納する
 	geometry_msgs::PointStamped base_odom_point;//変換後のロボットの座標を格納する
 	//obstacle_states
-	sobit_follower::grouped_points_array obstacle_states;	//障害物のステート
+	sobit_follower::grouped_points_array points_states;	//障害物のステート
 	//パス配列
 	std::list<pre_states> path_list;	//サンプリングごとの予測パスのステートリスト
 	std::list<std::list<pre_states>> all_paths_list;	//予測した全てのパス(保存用)
@@ -75,18 +75,24 @@ class route_planning_class
 	eval_states es;//各pathの評価値を格納
 	//std::list<eval_states> es_list;//各pathの評価値を格納
 	pre_states ph;
-	//ロボットのステート → 試験用
+	//ロボットの位置と速度
 	double current_robot_x = 0.0;
 	double current_robot_y = 0.0;
 	double current_robot_ang = 0.0;//現在のロボットの角度
 	double current_robot_velo = 0.0;//現在のロボットの速度
 	//追従対象者とロボットの保つ距離
-	double keep_distance = 0.7;
+	double max_keep_distance = 1.2;
+	double min_keep_distance = 0.7;
 	double stop_distance = 0.0;
+ 	double target_distance = 0.0;
+	double max_velo_range = 0.0;
+	double min_velo_range = 0.0;
 	//ロボットの速度情報をパブリッシュするかの判定フラグ
-	bool cmd_vel_flag = true;
 	bool pre_flag = false;
 	std::string base_frame_name;
+
+	int old_vel_vec_size = 5;
+	std::vector<double> old_vel_vec;
 
 public:
 	route_planning_class(){
@@ -97,11 +103,11 @@ public:
 
 	base_frame_name = "base_footprint";
 	//目的値をサブスクライブ
-	this->sub_goal = nh.subscribe("/target_states",1,&route_planning_class::target_OK,this);
-	//obstacle情報をサブスクライブ
-	this->sub_obstacle_states = nh.subscribe( "/obstacle_states", 1, &route_planning_class::obstacle_states_cb, this );
+	//this->sub_goal = nh.subscribe("/target_states",1,&route_planning_class::target_OK,this);
+	//targetとobstacle情報をサブスクライブ
+	this->sub_obstacle_states = nh.subscribe( "/target_and_obstacle_states", 1, &route_planning_class::target_and_obstacle_states,this);
 	//予測位置をサブスクライブ
-	this->sub_pre_goal = nh.subscribe( "/pre_point", 1, &route_planning_class::target_NG, this );
+	//this->sub_pre_goal = nh.subscribe( "/pre_point", 1, &route_planning_class::target_NG, this );
 	//決定パスをパブリッシュ
 	this->pub_path_marker = nh.advertise<visualization_msgs::MarkerArray>( "/path_marker", 1 );
 	//全てのパスをパブリッシュ
@@ -117,19 +123,41 @@ public:
 
 	~route_planning_class(){}
 
-void obstacle_states_cb(const sobit_follower::grouped_points_arrayPtr input)
+void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr input)
 {
 	ros::Time begin = ros::Time::now();
 	if( input->grouped_points_array.size() == 0 ) {return;}
-	this->obstacle_states = *input;
+	this->points_states = *input;
 	std_msgs::Bool goal_flag;
-	if(	this->cmd_vel_flag == false )
+	bool cmd_vel_flag;
+	//速度制限
+	double max_velo_def = 0.8;//[m/s]	最高前進速度(0.4)
+	double min_velo_def = -0.8;//[m/s]	最高後進速度(-0.4)
+	//laser則域距離(多分違う)
+	double max_laser_range = 4.0;
+	double min_laser_range = 0.2;
+	this->target_distance = hypotf(input->target_point.x,input->target_point.y);
+	if(this->target_distance > this->max_keep_distance)//前進
 	{
+		this->max_velo_range = (input->target_point.x - this->max_keep_distance) * max_velo_def / (max_laser_range - this->max_keep_distance);
+		this->min_velo_range = 0.0;
+		cmd_vel_flag = true;
+	}
+	else if(this->target_distance >= this->min_keep_distance && this->target_distance <= this->max_keep_distance)//停止
+	{
+		cmd_vel_flag = false;
+		printf("targetに近いです\n");
+		std::cout << "" << input->target_point << std::endl;
 		this->vel.linear.x = 0.0;
 		this->vel.angular.z = 0.0;
-		goal_flag.data = true;
-	}//if
-	else
+	}
+	else//後進
+	{
+		this->max_velo_range = 0.0;
+		this->min_velo_range = (input->target_point.x - this->min_keep_distance) * min_velo_def / (min_laser_range - this->min_keep_distance);
+		cmd_vel_flag = true;
+	}
+	if(cmd_vel_flag == true)	//パス生成
 	{
 		dwa();	//dwaによるパス生成
 		goal_flag.data = false;
@@ -147,25 +175,38 @@ void obstacle_states_cb(const sobit_follower::grouped_points_arrayPtr input)
 		try{
 			laser_base_point.header.frame_id = base_frame_name;
 			laser_base_point.header.stamp = ros::Time(0);
-			laser_base_point.point = this->base_laser_point.point;
+			laser_base_point.point = this->points_states.target_point;
 			this->listener.transformPoint("/odom", laser_base_point, odom_base_point );
 		}//try
 		catch(tf::TransformException& ex)
 		{
 			ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
 		}//catch
-		geometry_msgs::Point robot_point;//odom基準のロボットの位置座標
+		//odom基準のロボットの位置座標をPoint型に変換
+		geometry_msgs::Point robot_point;
 		robot_point.x = transform.getOrigin().x();
 		robot_point.y = transform.getOrigin().y();
 		robot_point.z = 0.0;
+		//odom基準のロボットとtargetの位置をpoint_states型に変換
 		sobit_follower::point_states states;
 		states.robot_point = robot_point;
 		states.target_point = odom_base_point;
-		states.pre_flag = this->cmd_vel_flag;
 		this->pub_point_states.publish(states);
-	}//else
-	this->vel.linear.x = 0.0;
-	this->vel.angular.z = 0.0;
+	}//if
+
+	std::cout << "this->vel.linear.x: " << this->vel.linear.x << std::endl;
+	//速度の平滑処理
+	old_vel_vec.push_back(this->vel.linear.x);//新しい値を入れる
+	if(old_vel_vec.size() > old_vel_vec_size){
+		old_vel_vec.erase(old_vel_vec.begin());//古い値を削除
+	}
+	this->vel.linear.x = 0.0;//一旦０にする
+	for(int temp_count = 0; temp_count < old_vel_vec.size(); temp_count++){
+		this->vel.linear.x += old_vel_vec[temp_count];//過去の値を足しこむ
+	}
+	this->vel.linear.x = this->vel.linear.x / double(old_vel_vec.size());//平均値で書き換え
+	this->current_robot_velo = this->vel.linear.x;
+
 	this->pub_cmd_vel.publish(this->vel);
 	this->pub_goal_flag.publish(goal_flag);
 }//obstacle_states_cb
@@ -177,18 +218,16 @@ void dwa()
 	//int collision_step = pre_step / 10;
 	double samplingtime = 0.2;//[s]	//サンプリングタイム
 
-	double velo_step = 5.0;	//あまり大きくすると処理が重くなる
-	double ang_velo_step = 5.0;	//あまり大きくすると処理が重くなる
-	//速度制限
-	double max_velo_def = 1.0;//[m/s]	最高速度(0.4)
-	double min_velo_def = 0.0;//[m/s]	最低速度(0.0)
+	double velo_step = 10.0;	//あまり大きくすると処理が重くなる
+	double ang_velo_step = 10.0;	//あまり大きくすると処理が重くなる
+
 	//回転速度制限
 	double max_ang_def = 20.0;//[rad/s]	最高回転速度(20)
 	double min_ang_def = -20.0;//[rad/s]	最低回転速度(0)
 	//各加速度制御
-	double max_acceration = 0.8;	//最高加速度(0.5)
+	double max_acceration = 0.1;	//最高加速度(0.5)
 	double max_ang_acceration = 1.8;	//最高回転加速度(57....度)(1.0)
-
+	
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
 	double min_ang_velo = current_robot_ang - range_ang_velo;
@@ -196,12 +235,8 @@ void dwa()
 
 	//前進加速度を考慮した範囲
 	double range_velo = samplingtime * max_acceration;
-	double min_velo = current_robot_velo - range_velo;
-	double max_velo = current_robot_velo + range_velo;
-
-	//　※path_eval_list.size() = velo_step * ang_velo_step
-	double delta_velo = (max_velo - min_velo) / velo_step;
-	double delta_ang_velo = (max_ang_velo - min_ang_velo) / ang_velo_step;
+	double min_velo = this->current_robot_velo - range_velo;
+	double max_velo = this->current_robot_velo + range_velo;
 
 	//重み付け(モデルや環境によって調整する必要あり)
 	double weighting_goal = 0.1;
@@ -214,8 +249,12 @@ void dwa()
 	//現在の角速度範囲の更新
 	if(min_ang_velo < min_ang_def)	{ min_ang_velo = min_ang_def; }
 	if(max_ang_velo > max_ang_def)	{ max_ang_velo = max_ang_def; }
-	if(min_velo < min_velo_def)	{ min_velo = min_velo_def; }
-	if(max_velo > max_velo_def)	{ max_velo = max_velo_def; }
+	if(min_velo < this->min_velo_range)	{ min_velo = this->min_velo_range; }
+	if(max_velo > this->max_velo_range)	{ max_velo = this->max_velo_range; }
+
+	//　※path_eval_list.size() = velo_step * ang_velo_step
+	double delta_velo = (max_velo - min_velo) / velo_step;
+	double delta_ang_velo = (max_ang_velo - min_ang_velo) / ang_velo_step;
 
 	for(double ang_velo = min_ang_velo; ang_velo < max_ang_velo; ang_velo += delta_ang_velo)//for_2
 	{
@@ -230,7 +269,7 @@ void dwa()
 		}//for_3
 	}//for_2
 
-	normalization();//正規化
+	normalization(); //正規化
 
 	auto path = this->path_eval_list.begin();//scoreが入ったlist
 	optimal_state optimal;
@@ -263,13 +302,17 @@ void dwa()
 	}//for_5
 	auto states = optimal.path.begin();
 	this->optimal_path_list.push_back(optimal);//正直必要ない
+
+	//マーカー表示(確認用)
 	path_marker_array_2(collision_num);
-	path_marker_array(optimal);//確認用
-	bool pub_propriety = update(states);
+	path_marker_array(optimal);
+
+
+	update(states);	//ロボットの速度と各パススコアの更新
+
 	this->all_paths_list.clear();	//全てのpath情報を空にする
 	this->optimal_path_list.clear();//最適pathを空にする(正直必要ない)
 	this->path_eval_list.clear();//各pathの評価ステートを空にする
-	if(pub_propriety == false) {return;}
 }//dwa
 
 void normalization()
@@ -293,10 +336,6 @@ void normalization()
 		data->vel_.norm_score = (data->vel_.score - this->es.vel_.min_score) / (this->es.vel_.max_score - this->es.vel_.min_score);
 		}
 		else { data->vel_.norm_score = 0; }
-		/*std::cout << "data->goal_.norm_score :: " << data->goal_.norm_score << std::endl;
-		std::cout << "data->obs_.norm_score :: " << data->obs_.norm_score << std::endl;
-		std::cout << "data->angle_.norm_score :: " << data->angle_.norm_score << std::endl;
-		std::cout << "data->vel_.norm_score :: " << data->vel_.norm_score << std::endl;*/
 	}//for_4
 }//normalization
 
@@ -330,18 +369,18 @@ bool evaluate(int st,int es_num,pre_states temp,int i)
 	double min_obs_distance_score = DBL_MAX;
 	pre_states base_temp;
 	//各パスの予測した最後の位置情報だけで判断する．(予測した位置全てで判断すると処理が重くなりすぎる)
-	for( int i = 0; i < this->obstacle_states.grouped_points_array.size(); i ++ )//for_1
+	for( int i = 0; i < this->points_states.grouped_points_array.size(); i ++ )//for_1
 	{
-		//if(this->obstacle_states.grouped_points_array[i].center_radius == 0) { continue; }
-		double center_radius = this->obstacle_states.grouped_points_array[i].center_radius;
-		double center_point_x = this->obstacle_states.grouped_points_array[i].center_x;
-		double center_point_y = this->obstacle_states.grouped_points_array[i].center_y;
-		double ob_point_radius = this->obstacle_states.grouped_points_array[i].particle_radius;
+		//if(this->points_states.grouped_points_array[i].center_radius == 0) { continue; }
+		double center_radius = this->points_states.grouped_points_array[i].center_radius;
+		double center_point_x = this->points_states.grouped_points_array[i].center_x;
+		double center_point_y = this->points_states.grouped_points_array[i].center_y;
+		double ob_point_radius = this->points_states.grouped_points_array[i].particle_radius;
 		double distance_from_center_pre_point = hypotf(temp.next_x - center_point_x , temp.next_y - center_point_y);
-		for(int j = 0; j < this->obstacle_states.grouped_points_array[i].particle_x.size(); j++)//for_2
+		for(int j = 0; j < this->points_states.grouped_points_array[i].particle_x.size(); j++)//for_2
 		{
-			double obstacle_point_x = this->obstacle_states.grouped_points_array[i].particle_x[j];
-			double obstacle_point_y = this->obstacle_states.grouped_points_array[i].particle_y[j];
+			double obstacle_point_x = this->points_states.grouped_points_array[i].particle_x[j];
+			double obstacle_point_y = this->points_states.grouped_points_array[i].particle_y[j];
 			double distance_from_ob_point_pre_point = hypotf(temp.next_x - obstacle_point_x , temp.next_y - obstacle_point_y);
 			if(distance_from_ob_point_pre_point <= ob_point_radius) //if pathの位置がobstacleと接触していた場合
 			{
@@ -363,8 +402,8 @@ bool evaluate(int st,int es_num,pre_states temp,int i)
 	else if(this->es.collision == false && i == st - 1) { base_temp = temp; }
 	else { return this->es.collision; }
 	this->es.obs_.score = min_obs_distance_score;//score評価1::障害物との距離
-	double posi_from_pre_to_goal_x = this->base_laser_point.point.x - base_temp.next_x;
-	double posi_from_pre_to_goal_y = this->base_laser_point.point.y - base_temp.next_y;
+	double posi_from_pre_to_goal_x = this->points_states.target_point.x - base_temp.next_x;
+	double posi_from_pre_to_goal_y = this->points_states.target_point.y - base_temp.next_y;
 
 	double frame_from_pre_to_goal_x = posi_from_pre_to_goal_x * cos(base_temp.next_th) - posi_from_pre_to_goal_y * sin(base_temp.next_th);
 	double frame_from_pre_to_goal_y = posi_from_pre_to_goal_x * sin(base_temp.next_th) + posi_from_pre_to_goal_y * cos(base_temp.next_th);
@@ -390,7 +429,7 @@ bool evaluate(int st,int es_num,pre_states temp,int i)
 	return this->es.collision;
 }//evaluate
 
-bool update(std::list<pre_states>::iterator states)
+void update(std::list<pre_states>::iterator states)
 {
 	//if(this->tf_flag == false) {return false;}
 	//double stop_distance_max = this->base_laser_point.point.x - this->keep_distance;
@@ -409,9 +448,9 @@ bool update(std::list<pre_states>::iterator states)
 	this->es.angle_.max_score = DBL_MIN;
 	this->es.vel_.min_score = DBL_MAX;
 	this->es.vel_.max_score = DBL_MIN;
-	return true;
 }//update
 
+/*
 void target_OK(const geometry_msgs::Point::ConstPtr& msg)//人が検出可能な場合
 {
 	geometry_msgs::Point p;
@@ -430,7 +469,7 @@ void target_OK(const geometry_msgs::Point::ConstPtr& msg)//人が検出可能な
 		this->cmd_vel_flag = true;
 	}//else
 	//std::cout << "target :: " << this->base_laser_point.point << std::endl;
-}//target_OK
+}//target_OK 
 
 void target_NG(const geometry_msgs::Point::ConstPtr& msg)//人検出不可な場合
 {
@@ -449,6 +488,8 @@ void target_NG(const geometry_msgs::Point::ConstPtr& msg)//人検出不可な場
 		this->cmd_vel_flag = true;
 	}//else
 }//target_NG
+
+*/
 
 void path_marker_array(optimal_state data)
 {
