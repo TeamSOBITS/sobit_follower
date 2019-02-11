@@ -80,9 +80,7 @@ class route_planning_class
 	double current_robot_y = 0.0;
 	double current_robot_ang = 0.0;//現在のロボットの角度
 	double current_robot_velo = 0.0;//現在のロボットの速度
-	//追従対象者とロボットの保つ距離
-	double max_keep_distance = 1.2;
-	double min_keep_distance = 0.7;
+
 	double stop_distance = 0.0;
  	double target_distance = 0.0;
 	double max_velo_range = 0.0;
@@ -114,8 +112,8 @@ public:
 	this->pub_path_marker_all = nh.advertise<visualization_msgs::MarkerArray>( "/path_marker_all", 1 );
 	//車輪の速度をパブリッシュ
 	this->pub_cmd_vel = nh.advertise<geometry_msgs::Twist>( "/cmd_vel_mux/input/teleop", 1 );
-	//ゴールに到達したかのフラグをパブリッシュ
-	this->pub_goal_flag = nh.advertise<std_msgs::Bool>( "/pub_goal_flag", 1 );
+	//ロボットがゴール付近に到達したかのフラグをパブリッシュ
+	this->pub_goal_flag = nh.advertise<std_msgs::Bool>( "/goal_flag", 1 );
 	//ロボットとtarget情報をパブリッシュ
 	this->pub_point_states = nh.advertise<sobit_follower::point_states>( "/pub_point_states", 1 );
 
@@ -128,6 +126,7 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	ros::Time begin = ros::Time::now();
 	if( input->grouped_points_array.size() == 0 ) {return;}
 	this->points_states = *input;
+	this->target_distance = hypotf(input->target_point.x,input->target_point.y);
 	std_msgs::Bool goal_flag;
 	bool cmd_vel_flag;
 	//速度制限
@@ -136,25 +135,29 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	//laser則域距離(多分違う)
 	double max_laser_range = 4.0;
 	double min_laser_range = 0.2;
-	this->target_distance = hypotf(input->target_point.x,input->target_point.y);
-	if(this->target_distance > this->max_keep_distance)//前進
+	//追従対象者とロボットの保つ距離 ※ max_keep_distance > min_keep_distanceである事
+	double max_keep_distance = 1.2;
+	double min_keep_distance = 0.7;
+
+	if(this->target_distance > max_keep_distance)//前進
 	{
-		this->max_velo_range = (input->target_point.x - this->max_keep_distance) * max_velo_def / (max_laser_range - this->max_keep_distance);
+		this->max_velo_range = (input->target_point.x - max_keep_distance) * max_velo_def / (max_laser_range - max_keep_distance);
 		this->min_velo_range = 0.0;
 		cmd_vel_flag = true;
 	}
-	else if(this->target_distance >= this->min_keep_distance && this->target_distance <= this->max_keep_distance)//停止
+	else if(this->target_distance >= min_keep_distance && this->target_distance <= max_keep_distance)//停止
 	{
-		cmd_vel_flag = false;
 		printf("targetに近いです\n");
 		std::cout << "" << input->target_point << std::endl;
 		this->vel.linear.x = 0.0;
 		this->vel.angular.z = 0.0;
+		cmd_vel_flag = false;
+		goal_flag.data = true;
 	}
 	else//後進
 	{
 		this->max_velo_range = 0.0;
-		this->min_velo_range = (input->target_point.x - this->min_keep_distance) * min_velo_def / (min_laser_range - this->min_keep_distance);
+		this->min_velo_range = (input->target_point.x - min_keep_distance) * min_velo_def / (min_laser_range - min_keep_distance);
 		cmd_vel_flag = true;
 	}
 	if(cmd_vel_flag == true)	//パス生成
@@ -187,14 +190,14 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 		robot_point.x = transform.getOrigin().x();
 		robot_point.y = transform.getOrigin().y();
 		robot_point.z = 0.0;
-		//odom基準のロボットとtargetの位置をpoint_states型に変換
+		//odom基準のロボットとtargetの位置をpoint_states型に変換→txtデータ用
 		sobit_follower::point_states states;
 		states.robot_point = robot_point;
 		states.target_point = odom_base_point;
 		this->pub_point_states.publish(states);
 	}//if
 
-	std::cout << "this->vel.linear.x: " << this->vel.linear.x << std::endl;
+	//std::cout << "this->vel.linear.x: " << this->vel.linear.x << std::endl;
 	//速度の平滑処理
 	old_vel_vec.push_back(this->vel.linear.x);//新しい値を入れる
 	if(old_vel_vec.size() > old_vel_vec_size){
@@ -214,19 +217,22 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 void dwa()
 {
 	//------------------車輪のパラメータ--------------------
-	int pre_step = 30;	//予測回数多次元
+	//多次元の予測回数
+	int pre_step = 30;//(def:30)
 	//int collision_step = pre_step / 10;
-	double samplingtime = 0.2;//[s]	//サンプリングタイム
+	//サンプリングタイム
+	double samplingtime = 0.2;//[s]
 
-	double velo_step = 10.0;	//あまり大きくすると処理が重くなる
-	double ang_velo_step = 10.0;	//あまり大きくすると処理が重くなる
+	//各速度の細分化回数
+	double velo_step = 10.0;	//あまり大きくすると処理が重くなる(def:5)
+	double ang_velo_step = 10.0;	//あまり大きくすると処理が重くなる(def:5)
 
 	//回転速度制限
-	double max_ang_def = 20.0;//[rad/s]	最高回転速度(20)
-	double min_ang_def = -20.0;//[rad/s]	最低回転速度(0)
+	double max_ang_def = 20.0;//[rad/s]	最高回転速度(def:20)
+	double min_ang_def = -20.0;//[rad/s]	最低回転速度(def:0)
 	//各加速度制御
-	double max_acceration = 0.1;	//最高加速度(0.5)
-	double max_ang_acceration = 1.8;	//最高回転加速度(57....度)(1.0)
+	double max_acceration = 0.1;	//最高加速度(def:0.5)
+	double max_ang_acceration = 1.8;	//最高回転加速度(57....度)(def:1.0)
 	
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
@@ -244,9 +250,10 @@ void dwa()
 	double weighting_angle = 0.04;
 	double weighting_vel = 0.2;
 
+	//パス番号
 	int es_num = 0;
 
-	//現在の角速度範囲の更新
+	//現在の各速度範囲の更新
 	if(min_ang_velo < min_ang_def)	{ min_ang_velo = min_ang_def; }
 	if(max_ang_velo > max_ang_def)	{ max_ang_velo = max_ang_def; }
 	if(min_velo < this->min_velo_range)	{ min_velo = this->min_velo_range; }
@@ -256,6 +263,7 @@ void dwa()
 	double delta_velo = (max_velo - min_velo) / velo_step;
 	double delta_ang_velo = (max_ang_velo - min_ang_velo) / ang_velo_step;
 
+	//複数パスの生成
 	for(double ang_velo = min_ang_velo; ang_velo < max_ang_velo; ang_velo += delta_ang_velo)//for_2
 	{
 		for(double velo = min_velo; velo < max_velo; velo += delta_velo)//for_3
@@ -276,6 +284,7 @@ void dwa()
 	optimal_state option;
 	int collision_num = 0;
 	int path_num = 0;
+	//一つのパスを決定
 	for(auto pn = this->all_paths_list.begin(); pn != this->all_paths_list.end(); pn++)//for_5
 	{
 		auto pa = *pn;
@@ -307,9 +316,10 @@ void dwa()
 	path_marker_array_2(collision_num);
 	path_marker_array(optimal);
 
+	//ロボットの速度と各パススコアの更新
+	update(states);
 
-	update(states);	//ロボットの速度と各パススコアの更新
-
+	//パスリストの初期化
 	this->all_paths_list.clear();	//全てのpath情報を空にする
 	this->optimal_path_list.clear();//最適pathを空にする(正直必要ない)
 	this->path_eval_list.clear();//各pathの評価ステートを空にする

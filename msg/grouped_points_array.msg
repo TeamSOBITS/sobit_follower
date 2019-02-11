@@ -1,2 +1,3 @@
 grouped_points[] grouped_points_array
 geometry_msgs/Point target_point
+bool target_lost_flag

@@ -113,6 +113,9 @@ class target_scan_class
 
 	double init_target_distance ;//[m]
 
+	//サービス
+	sobit_follower::target_predict srv_target_info;
+
 	//std::vector<double> old_speed_vec;
 	//bool old_speed_vec_size;
 
@@ -120,18 +123,19 @@ public:
 	target_scan_class(){
 		//old_speed_vec.push_back( 0.0 );
 		lost_target_count = 0;
-		init_target_point_flag = true;
+		this->init_target_point_flag = true;
 		execute_flag = true;
 		this->target_lost_flag = false;
 		this->pub_propriety_flag = true;
+		this->srv_target_info.request.target_lost_flag = false;
 
 
 		max_move_speed = 1.0;//0.7; //[cm/s] //直進速度
 		back_speed = -0.4; //[cm/s] //後退速度
 		max_trun_speed = 120.0; //[deg/s] //回転速度
 		max_move_distance = 5.0;//[m] //これ以上離れたら追跡しない距離（間違って計測されたとき用）
-		keep_distance = 0.70;//[m] 保つ距離
-		init_target_distance = 0.7;//[m]
+		keep_distance = 1.0;//[m] 保つ距離
+		init_target_distance = 1.0;//[m]
 		stop_distance = 0.02;//±[m] 保つ距離から一定距離内の小さな変化は無視して止まる
 		constant_velocity_distance = 2.0;//[m] //この距離以内なら比例的に移動。これ以上離れたら等速で移動
 		constant_velocity_deg = max_trun_speed*0.25;//30.0;//[deg] //この角度以内なら比例的に回転。これ以上の角度なら等速で回転
@@ -177,7 +181,7 @@ public:
     ros::param::get( "obstacle_point_topic_name", obstacle_point_topic_name );
 		//sub_obstacle_point = nh.subscribe( "circle_states", 1, &target_scan_class::obstacle_point_cb, this );
 
-		this->pub_judge = nh.advertise<std_msgs::Bool>("/target_judge",1);
+		//this->pub_judge = nh.advertise<std_msgs::Bool>("/target_judge",1);
 		this->sub_goal_flag = nh.subscribe("/pub_goal_flag",1,&target_scan_class::scan_judge,this);
 		//this->sub_goal = nh.subscribe("/sub_goal",1,&target_scan_class::following_obstacle,this);
 
@@ -215,8 +219,7 @@ public:
 		double min_obstacle_distance_from_last_target_point = DBL_MAX;
 		geometry_msgs::Point nearest_obstacle_point_from_last_target_point;
 		int num = 0;
-		//サービス
-		sobit_follower::target_predict srv;
+
 		if( input->grouped_points_array.size() == 0 )
 		{
 			lost_target_count++;
@@ -255,7 +258,7 @@ public:
 		    ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
 				continue;//return;
 		  }//catch*/
-			if( init_target_point_flag == true )//ターゲットの初期化用
+			if( this->init_target_point_flag == true )//ターゲットの初期化用
 			{
 				geometry_msgs::Point temp_front_point;
 
@@ -297,15 +300,17 @@ public:
 		//ROS_INFO("nearest_obstacle_point_from_last_target_point::%f",nearest_obstacle_point_from_last_target_point);
 		input->grouped_points_array[num].center_radius = 0.0;//target周辺のコストをなくす
 		input->grouped_points_array[num].particle_radius = 0.0;
-		//std::cout << "init_target_point_flag :: " << init_target_point_flag << std::endl;
-		if( init_target_point_flag == true )//ターゲットの初期化用
+		//std::cout << "init_target_point_flag :: " << this->init_target_point_flag << std::endl;
+		if( this->init_target_point_flag == true )//ターゲットの初期化用
 		{
 			if( nearest_obstacle_point.x == 0 && nearest_obstacle_point.y == 0 )//ワールド基準
 			{//うまくターゲットを検出できなかった
 				return;
 			}//if
-			init_target_point_flag = false;//初期化フラグの回収
+			this->init_target_point_flag = false;//初期化フラグの回収
 			last_target_point = nearest_obstacle_point;
+			//人が検出出来た場合
+			this->srv_target_info.request.target_lost_flag = false;
 
 			std_msgs::String speech_word_msg;
 			speech_word_msg.data = "OK I found a target person.";
@@ -319,16 +324,29 @@ public:
 			target_scan_class::last_target_point_pub( last_target_point );
 			int say_lost_num = 3;
 			std_msgs::Bool lost_flag;
-			if( min_obstacle_distance_from_last_target_point > distance_from_last_target_point_limit )//前回のターゲットの位置から離れすぎているので、ターゲットをロストしたと考える
+			if( min_obstacle_distance_from_last_target_point > distance_from_last_target_point_limit )//前のtargetの位置から離れすぎている場合
 			{
 				//ROS_INFO_STREAM( "lost_target_count : " << lost_target_count << "[num]" );
+				//8回刻みでも検出されない場合，targetを見失ったと判断
 				if(lost_target_count > 8)
 				{
-					this->target_lost_flag = true;
+					this->srv_target_info.request.target_lost_flag = true;
 					ROS_WARN_STREAM( "target_lost" );
+					//追従対象者の位置を更新
+					if(this->client.call(this->srv_target_info))//サービス呼び出しが上手くいった場合，カルマンで予測したtargetの位置を更新
+					{
+						ROS_INFO("SERVICE_RESPONSE_OK");
+						input->target_point = this->srv_target_info.response.pre_target_point;
+					}
+					else//サービス呼び出しが上手くいかなかった場合，過去の最も新しいtargetの位置を更新
+					{
+						ROS_INFO("SERVICE_RESPONSE_NO");
+						input->target_point = last_target_point;
+					}
+					input->target_lost_flag = this->srv_target_info.request.target_lost_flag;
+					this->pub_obstacles_states.publish(input);
 				}//if
-				lost_flag.data = this->target_lost_flag;
-				this->pub_judge.publish(lost_flag);
+
 				if( lost_target_count == say_lost_num )
 				//if( (lost_target_count % say_lost_num) == 0 && lost_target_count != 0 )//一回言えばわかるはず
 				{
@@ -342,34 +360,17 @@ public:
 					pub_twist.publish( msg_twist );
 				}//if
 				lost_target_count++;
-
-				//追従対象者を見失った場合
-				srv.request.target_lost_flag = true;
-				//追従対象者の位置を更新
-				if(this->client.call(srv))//サービス呼び出しが上手くいった場合，カルマンで予測したtargetの位置を更新
-				{
-					ROS_INFO("SERVICE_RESPONSE_OK");
-					input->target_point = srv.response.pre_target_point;
-				}
-				else//サービス呼び出しが上手くいかなかった場合，過去の最も新しいtargetの位置を更新
-				{
-					ROS_INFO("SERVICE_RESPONSE_NO");
-					input->target_point = last_target_point;
-				}
-				this->pub_obstacles_states.publish(input);
 				return;
 			}//if
-			if( this->target_lost_flag == true && this->pub_propriety_flag == true )//ターゲットを見失っていたということ→「復帰しました」 lost_target_count > say_lost_num
+			if( this->srv_target_info.request.target_lost_flag == true && this->pub_propriety_flag == true )//ターゲットを見失っていたということ→「復帰しました」 lost_target_count > say_lost_num
 			{
-				init_target_point_flag = true;//初期化し，前に人がいるかを判断
-				this->target_lost_flag = false;
-				lost_flag.data = this->target_lost_flag;
+				this->init_target_point_flag = true;//初期化し，前に人がいるかを判断
 				std_msgs::String speech_word_msg;
 				ROS_INFO_STREAM("target_searching");
 				speech_word_msg.data = "OK, I found you.";
 				//ROS_INFO_STREAM( "\n" << speech_word_msg.data );
-				this->pub_judge.publish(lost_flag);
 				pub_speech_word.publish( speech_word_msg );
+				return;
 			}//if
 			lost_target_count = 0;
 			last_target_point = nearest_obstacle_point_from_last_target_point;//最後のターゲットの位置の更新
@@ -383,11 +384,11 @@ public:
 			//std::cout << "this->target_lost_flag:: " << this->target_lost_flag << std::endl;
 
 			//追従対象者を見失っていないor再度見つけた場合
-			srv.request.target_lost_flag = false;
-			srv.request.target_point = nearest_obstacle_point_from_last_target_point;
+			this->srv_target_info.request.target_lost_flag = false;
+			this->srv_target_info.request.target_point = nearest_obstacle_point_from_last_target_point;
 
 			//追従対象者の位置を更新
-			if(this->client.call(srv))
+			if(this->client.call(this->srv_target_info))
 			{
 				ROS_INFO("SERVICE_RESPONSE_OK");
 			}
@@ -397,6 +398,7 @@ public:
 			}
 			//targetの位置を更新
 			input->target_point = nearest_obstacle_point_from_last_target_point;
+			input->target_lost_flag = this->srv_target_info.request.target_lost_flag;
 			//path生成ノードにパブリッシュ
 			this->pub_obstacles_states.publish(input);
 
@@ -418,11 +420,12 @@ public:
 
 	void scan_judge(const std_msgs::Bool& msg)
 	{
-		if(this->target_lost_flag == true)
+		if(this->target_lost_flag == true)//ロボットが人を見失った状態で目的位置付近まで移動した場合
 		{
+			printf("予測位置に到着\n");
 			this->pub_propriety_flag = msg.data;
 		}
-		else
+		else//ロボットが人を見失わない状態で目的位置付近まで移動した場合
 		{
 			//printf("targetを見失っていません\n");
 		}
@@ -439,7 +442,7 @@ public:
 			speech_word_msg.data = "I follow you.";
 			ROS_INFO_STREAM( "\n" << speech_word_msg.data );
 			pub_speech_word.publish( speech_word_msg );
-			init_target_point_flag = true;
+			this->init_target_point_flag = true;
 		}//if
 		else{
 			//ROS_INFO_STREAM("target_scan_class -> Stopped");
@@ -449,15 +452,9 @@ public:
 			speech_word_msg.data = "I will end following.";
 			ROS_INFO_STREAM( "\n" << speech_word_msg.data );
 			pub_speech_word.publish( speech_word_msg );
-			init_target_point_flag = false;
+			this->init_target_point_flag = false;
 		}//else
 	}//contrl_CB
-
-
-
-
-
-
 
 	void stop_pub()
 	{
@@ -467,145 +464,6 @@ public:
 		pub_twist.publish( msg_twist );//停止命令
 		return;
 	}//stop_pub
-
-
-
-
-	/*double smoothing_speed( double speed )
-	{
-		old_speed_vec.push_back( speed );
-		while(1)//old_speed_vecが大きくなり過ぎないように古いものを消す
-		{
-			if( old_speed_vec.size() > old_speed_vec_size )
-			{
-				old_speed_vec.erase( old_speed_vec.begin() );//一番古いものを削除
-			}//if
-			else
-			{
-				break;//while
-			}//else
-		}//while
-		double ave_speed = 0.0;
-		for(int i = 0 ; i < old_speed_vec.size() ; i++ )
-		{
-			ave_speed += old_speed_vec[i];
-		}
-		ave_speed = ave_speed / ( (double)old_speed_vec.size() );
-
-		//ave_speed = 0.0;
-		return ave_speed;
-	}//smoothing_speed*/
-
-
-
-
-
-	/*bool following_obstacle(double target_rad_2d , double target_distance_2d , double target_x , double target_y)//障害物回避を考慮した移動
-	{
-		geometry_msgs::Point target;
-		target = *goal;
-		double target_rad_2d = atan2f( target.y , target.x );
-		double target_distance_2d = hypotf( target.x , target.y );
-		
-		geometry_msgs::Twist msg_twist;//ロボットの車輪の移動と回転速度
-		if( target_distance_2d > max_move_distance )
-		{
-			msg_twist.linear.x =  0.0 ;
-		}//if
-		
-		double target_deg_2d = rad2deg * target_rad_2d;
-		double necessary_move_distance = target_distance_2d - keep_distance;
-		ROS_INFO_STREAM( "\ntarget_distance_2d =  " << target_distance_2d );
-		ROS_INFO_STREAM( "\nnecessary_move_distance =  " << necessary_move_distance );
-
-		if( fabs( necessary_move_distance ) < stop_distance )
-		{
-			msg_twist.linear.x =  0.0 ;
-			ROS_INFO_STREAM( "\nmsg_twist.linear.x =  stop " << msg_twist.linear.x);
-		}//if
-		else//3
-		{
-			if( target_distance_2d < constant_velocity_distance )//4 距離に比例した速度(ロボットと人との距離が2.0[m]より小さい場合)
-			{
-				if( fabs( target_deg_2d ) < 90.0 )//5
-				{
-					msg_twist.linear.x = max_move_speed * ( necessary_move_distance / (double)(constant_velocity_distance - keep_distance ) ) * cos( target_rad_2d );
-					//ROS_INFO_STREAM( "\nmsg_twist.linear.x =  constant " << msg_twist.linear.x);
-				}//5
-				else//6
-				{
-					msg_twist.linear.x = max_move_speed * ( necessary_move_distance / (double)( keep_distance ) ) * cos( target_rad_2d );
-				}//6
-				ROS_INFO_STREAM( "\nmsg_twist.linear.x =  " << msg_twist.linear.x);
-			}//4
-			else//7 距離に比例した速度(ロボットと人との距離が2.0[m]より大きい場合)
-			{
-				msg_twist.linear.x = max_move_speed;
-				ROS_INFO_STREAM( "\nmsg_twist.linear.x =  constant " << msg_twist.linear.x);
-			}//7
-
-			if(necessary_move_distance <= 0)//8 もし人がロボットに近づいた場合，後退する
-			{
-				msg_twist.linear.x = -1 * msg_twist.linear.x;
-				ROS_INFO_STREAM( "\nnecessary_move_distance <= 0 " << msg_twist.linear.x);
-			}//8
-			
-			double candidate_position_x = msg_twist.linear.x * 1;//移動先の候補
-
-			if(candidate_position_x > Possible_range_x)//9 ロボットが移動する候補の位置が移動可能な領域より外側の場合
-			{
-				msg_twist.linear.x = 0.0;//
-				if(msg_twist.linear.x < 0.0)//後退する場合
-					
-				else//前進する場合
-					
-			}//9
-
-			msg_twist.linear.x =  msg_twist.linear.x ; //smoothing_speed関数へ移動
-
-			//move;
-		}//3
-			ROS_INFO( "\nmsg_twist.linear.x = %f  ", msg_twist.linear.x);//速度の確認
-
-
-
-		if( fabs( target_deg_2d ) > 0 && fabs( target_deg_2d ) <= constant_velocity_deg )//車輪の回転調整
-		{
-			msg_twist.angular.z = ( deg2rad * max_trun_speed ) * ( target_deg_2d / (double)constant_velocity_deg );
-			ROS_INFO_STREAM( "\nangular.z : abs( target_deg_2d ) > 0 && abs( target_deg_2d ) <= constant_velocity_deg " );
-		}//if
-
-		else if( target_deg_2d > constant_velocity_deg )
-		{
-			msg_twist.angular.z = deg2rad * max_trun_speed ;
-			ROS_INFO_STREAM( "\nangular.z : target_deg_2d > constant_velocity_deg " );
-		}//else if
-		else if( target_deg_2d < -constant_velocity_deg )
-		{
-			msg_twist.angular.z = -deg2rad * max_trun_speed ;
-			ROS_INFO_STREAM( "\nangular.z : target_deg_2d < -constant_velocity_deg " );
-		}//else if
-
-		ROS_INFO_STREAM( "\nangular.z = " << msg_twist.angular.z );
-			//move;
-		
-
-		ROS_INFO_STREAM( "\nmsg_twist: " << msg_twist );
-		pub_twist.publish( msg_twist );
-
-
-		return true;
-	}//following_WITHOUT_obstacle_avoidance
-*/
-
-
-	/*void possible_area(const nav_msgs::OccupancyGrid& msg)
-	{
-		double distance_num = 0.5;
-		odom_info = msg;
-		Possible_range_x = fabs(msg.info.origin.position.x - distance_num);
-		Possible_range_y = fabs(msg.info.origin.position.y - distance_num);
-	}*/
 
 	void last_target_point_pub( geometry_msgs::Point world_last_target_point  )
 	{
