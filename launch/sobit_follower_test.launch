@@ -10,11 +10,11 @@
     <!-- Points_grouping -->
     <node pkg="sobit_follower" type="Points_grouping" name="Points_grouping_node" output="screen"/>
     <!-- target_scan -->
-    <node pkg="sobit_follower" type="target_scan" name="target_scan_node" output="screen"/>
+    <node pkg="sobit_follower" type="target_scan_check" name="target_scan_node" output="screen"/>
 	<!-- path_plan -->
-	<node pkg="sobit_follower" type="path_plan_test" name="route_planning_node" output="screen"/>
+	<node pkg="sobit_follower" type="path_plan_test_2" name="route_planning_node" output="screen"/>
 	<!-- kalman -->
-	<node pkg="sobit_follower" type="kalman_check" name="kalman_check_node" output="screen"/>
+	<node pkg="sobit_follower" type="kalman_check2" name="kalman_check2_node" output="screen"/>
 	<!-- rviz -->
 	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/launch/test.rviz"/>
 	<!-- txt -->

@@ -130,34 +130,41 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	std_msgs::Bool goal_flag;
 	bool cmd_vel_flag;
 	//速度制限
-	double max_velo_def = 0.8;//[m/s]	最高前進速度(0.4)
-	double min_velo_def = -0.8;//[m/s]	最高後進速度(-0.4)
+	double max_forward_velo_def = 0.8;//[m/s]	 最高前進速度(def:0.4)
+	double min_forward_velo_def = 0.2;//[m/s]	 最低前進速度(def:0.0)
+	double max_back_velo_def = -0.6;//[m/s]最高後退速度(def:-0.4)
+	double min_back_velo_def = -0.1;//[m/s]	 最低後進速度(def:0.0)
 	//laser則域距離(多分違う)
 	double max_laser_range = 4.0;
 	double min_laser_range = 0.2;
 	//追従対象者とロボットの保つ距離 ※ max_keep_distance > min_keep_distanceである事
-	double max_keep_distance = 1.2;
-	double min_keep_distance = 0.7;
+	double max_keep_distance = 1.3;
+	double min_keep_distance = 0.9;
+	ROS_INFO("target_position");
+	std::cout << "" << input->target_point << std::endl;
 
 	if(this->target_distance > max_keep_distance)//前進
 	{
-		this->max_velo_range = (input->target_point.x - max_keep_distance) * max_velo_def / (max_laser_range - max_keep_distance);
+		printf("前進します\n");
+		this->max_velo_range = (input->target_point.x - max_keep_distance) * max_forward_velo_def / (max_laser_range - max_keep_distance) + min_forward_velo_def;
 		this->min_velo_range = 0.0;
+		printf("最高前進速度:%f\n",this->max_velo_range);
 		cmd_vel_flag = true;
 	}
 	else if(this->target_distance >= min_keep_distance && this->target_distance <= max_keep_distance)//停止
 	{
 		printf("targetに近いです\n");
-		std::cout << "" << input->target_point << std::endl;
 		this->vel.linear.x = 0.0;
 		this->vel.angular.z = 0.0;
 		cmd_vel_flag = false;
 		goal_flag.data = true;
 	}
-	else//後進
+	else//後退
 	{
+		printf("後退します\n");
 		this->max_velo_range = 0.0;
-		this->min_velo_range = (input->target_point.x - min_keep_distance) * min_velo_def / (min_laser_range - min_keep_distance);
+		this->min_velo_range = (input->target_point.x - min_keep_distance) * max_back_velo_def / (min_laser_range - min_keep_distance) + min_back_velo_def;
+		printf("最高後退速度:%f\n",this->min_velo_range);
 		cmd_vel_flag = true;
 	}
 	if(cmd_vel_flag == true)	//パス生成
@@ -210,6 +217,8 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	this->vel.linear.x = this->vel.linear.x / double(old_vel_vec.size());//平均値で書き換え
 	this->current_robot_velo = this->vel.linear.x;
 
+	this->vel.linear.x = 0;
+	this->vel.angular.z = 0;
 	this->pub_cmd_vel.publish(this->vel);
 	this->pub_goal_flag.publish(goal_flag);
 }//obstacle_states_cb
@@ -231,8 +240,8 @@ void dwa()
 	double max_ang_def = 20.0;//[rad/s]	最高回転速度(def:20)
 	double min_ang_def = -20.0;//[rad/s]	最低回転速度(def:0)
 	//各加速度制御
-	double max_acceration = 0.1;	//最高加速度(def:0.5)
-	double max_ang_acceration = 1.8;	//最高回転加速度(57....度)(def:1.0)
+	double max_acceration = 0.1;	//最高加速度(def:0.1)
+	double max_ang_acceration = 0.2;	//最高回転加速度(57....度)(def:1.0)
 	
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
@@ -378,7 +387,6 @@ bool evaluate(int st,int es_num,pre_states temp,int i)
 	this->es.collision = false;//初期化
 	double min_obs_distance_score = DBL_MAX;
 	pre_states base_temp;
-	//各パスの予測した最後の位置情報だけで判断する．(予測した位置全てで判断すると処理が重くなりすぎる)
 	for( int i = 0; i < this->points_states.grouped_points_array.size(); i ++ )//for_1
 	{
 		//if(this->points_states.grouped_points_array[i].center_radius == 0) { continue; }
@@ -459,47 +467,6 @@ void update(std::list<pre_states>::iterator states)
 	this->es.vel_.min_score = DBL_MAX;
 	this->es.vel_.max_score = DBL_MIN;
 }//update
-
-/*
-void target_OK(const geometry_msgs::Point::ConstPtr& msg)//人が検出可能な場合
-{
-	geometry_msgs::Point p;
-	p = *msg;
-	this->base_laser_point.point = p;
-	this->pre_flag = false;
-	if(hypotf(p.x,p.y) <= this->keep_distance)//停止
-	{
-		printf("targetに近いです\n");
-		std::cout << "target :: " << this->base_laser_point.point << std::endl;
-		this->cmd_vel_flag = false;
-	}//if
-	else
-	{
-		//printf("targetを追従します\n");
-		this->cmd_vel_flag = true;
-	}//else
-	//std::cout << "target :: " << this->base_laser_point.point << std::endl;
-}//target_OK 
-
-void target_NG(const geometry_msgs::Point::ConstPtr& msg)//人検出不可な場合
-{
-	geometry_msgs::Point p;
-	p = *msg;
-	this->pre_flag = true;
-	if(hypotf(p.x,p.y) <= this->keep_distance)//停止
-	{
-		this->cmd_vel_flag = false;
-		printf("予測位置に到着．\n");
-	}//if
-	else
-	{
-		printf("targetを見失ったので予測位置まで移動します．\n");
-		this->base_laser_point.point = p;
-		this->cmd_vel_flag = true;
-	}//else
-}//target_NG
-
-*/
 
 void path_marker_array(optimal_state data)
 {

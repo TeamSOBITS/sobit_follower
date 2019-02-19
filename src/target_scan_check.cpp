@@ -223,6 +223,7 @@ public:
 		if( input->grouped_points_array.size() == 0 )
 		{
 			lost_target_count++;
+			ROS_INFO_STREAM( "There are no Points_info\n");
 			return;
 		}//if
 		/*for( int i = 0 ; i < input->grouped_points_array.size() ; i ++ )
@@ -255,7 +256,7 @@ public:
 			}//try
 			catch(tf::TransformException& ex)
 			{
-		    ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
+		    	ROS_ERROR("Received an exception trying to transform a point.: \n%s", ex.what());
 				continue;//return;
 		  }//catch*/
 			if( this->init_target_point_flag == true )//ターゲットの初期化用
@@ -268,6 +269,7 @@ public:
 				double distance_from_front_robot_point = hypotf( footprint_base_obstacle_point.point.x - temp_front_point.x , footprint_base_obstacle_point.point.y - temp_front_point.y );
 				if( distance_from_front_robot_point > distance_from_last_target_point_limit )
 				{
+					//std::cout << "distance_from_front_robot_point :: " << distance_from_front_robot_point << std::endl;
 					continue;//targetがdistance_from_last_target_point_limitよりも距離が遠ければ，以下の処理をスキップする
 				}//if
 				if( nearest_obstacle_distance > distance_from_front_robot_point )
@@ -288,23 +290,17 @@ public:
 				{
 					min_obstacle_distance_from_last_target_point = obstacle_distance_from_last_target_point;
 					nearest_obstacle_point_from_last_target_point = footprint_base_obstacle_point.point;
-					//std::cout << "min_obstacle_distance_from_last_target_point :: " << min_obstacle_distance_from_last_target_point << std::endl;
-					//ROS_INFO_STREAM("target : \n" << footprint_base_obstacle_point.point );	
 					num = i;
 				}//if
 			}//else
 		}//for
-		//ROS_INFO("nearest_obstacle_point_from_last_target_point::%f",nearest_obstacle_point_from_last_target_point.x);
-		//std::cout << "last_target_point :: " << last_target_point << std::endl;
-		//std::cout << "nearest_obstacle_point_from_last_target_point :: " << nearest_obstacle_point_from_last_target_point << std::endl;
-		//ROS_INFO("nearest_obstacle_point_from_last_target_point::%f",nearest_obstacle_point_from_last_target_point);
 		input->grouped_points_array[num].center_radius = 0.0;//target周辺のコストをなくす
 		input->grouped_points_array[num].particle_radius = 0.0;
-		//std::cout << "init_target_point_flag :: " << this->init_target_point_flag << std::endl;
 		if( this->init_target_point_flag == true )//ターゲットの初期化用
 		{
 			if( nearest_obstacle_point.x == 0 && nearest_obstacle_point.y == 0 )//ワールド基準
 			{//うまくターゲットを検出できなかった
+				ROS_INFO_STREAM( "Can't detect a target person\n");
 				return;
 			}//if
 			this->init_target_point_flag = false;//初期化フラグの回収
@@ -314,7 +310,7 @@ public:
 
 			std_msgs::String speech_word_msg;
 			speech_word_msg.data = "OK I found a target person.";
-			//ROS_INFO_STREAM( "\n" << speech_word_msg.data );
+			ROS_INFO_STREAM( "\n" << speech_word_msg.data );
 			pub_speech_word.publish( speech_word_msg );
 			return;
 		}//if
@@ -327,12 +323,13 @@ public:
 			if( min_obstacle_distance_from_last_target_point > distance_from_last_target_point_limit )//前のtargetの位置から離れすぎている場合
 			{
 				//ROS_INFO_STREAM( "lost_target_count : " << lost_target_count << "[num]" );
+
 				//8回刻みでも検出されない場合，targetを見失ったと判断
 				if(lost_target_count > 8)
 				{
 					this->srv_target_info.request.target_lost_flag = true;
 					ROS_WARN_STREAM( "target_lost" );
-					//追従対象者の位置を更新
+					//targetの位置を更新
 					if(this->client.call(this->srv_target_info))//サービス呼び出しが上手くいった場合，カルマンで予測したtargetの位置を更新
 					{
 						ROS_INFO("SERVICE_RESPONSE_OK");
@@ -348,11 +345,10 @@ public:
 				}//if
 
 				if( lost_target_count == say_lost_num )
-				//if( (lost_target_count % say_lost_num) == 0 && lost_target_count != 0 )//一回言えばわかるはず
 				{
 					std_msgs::String speech_word_msg;
 					speech_word_msg.data = "Come back in front of me.";
-					//ROS_INFO_STREAM( "\n" << speech_word_msg.data );
+					ROS_INFO_STREAM( "\n" << speech_word_msg.data );
 					pub_speech_word.publish( speech_word_msg );
 
 					geometry_msgs::Twist msg_twist;
@@ -367,7 +363,7 @@ public:
 				this->init_target_point_flag = true;//初期化し，前に人がいるかを判断
 				std_msgs::String speech_word_msg;
 				ROS_INFO_STREAM("target_searching");
-				speech_word_msg.data = "OK, I found you.";
+				speech_word_msg.data = "Ok, found you.";
 				//ROS_INFO_STREAM( "\n" << speech_word_msg.data );
 				pub_speech_word.publish( speech_word_msg );
 				return;
@@ -383,18 +379,18 @@ public:
 			//std::cout << "this->pub_propriety_flag:: " << this->pub_propriety_flag << std::endl;
 			//std::cout << "this->target_lost_flag:: " << this->target_lost_flag << std::endl;
 
-			//追従対象者を見失っていないor再度見つけた場合
+			//targetを見失っていないor再度見つけた場合
 			this->srv_target_info.request.target_lost_flag = false;
 			this->srv_target_info.request.target_point = nearest_obstacle_point_from_last_target_point;
 
-			//追従対象者の位置を更新
+			//サービスを行い，targetの位置を更新
 			if(this->client.call(this->srv_target_info))
 			{
-				ROS_INFO("SERVICE_RESPONSE_OK");
+				ROS_INFO_STREAM("Update a target person\n");
 			}
 			else
 			{
-				ROS_INFO("SERVICE_RESPONSE_NO");
+				ROS_INFO_STREAM("Can't update a target person\n");
 			}
 			//targetの位置を更新
 			input->target_point = nearest_obstacle_point_from_last_target_point;

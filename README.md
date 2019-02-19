@@ -1,27 +1,29 @@
-# sobit_followerセットアップ手順
+# setup
+https://gitlab.com/TeamSOBITS/sobits-setup.git　←参照
 
-# turtlebot_eduのインストール
+# install sobit_follower 
+cd ~/catkin_ws/src
+
+git clone https://gitlab.com/TeamSOBITS/sobit_follower.git
+
+# install turtlebot_edu
 roscd sobit_follower
 
-chmod 755 install_turtlebot_edu.sh
+chmod 755 *
 
 sudo ./install_turtlebot_edu.sh
 
 roscd turtlebot_edu
 
-chmod 755 install.sh
+chmod 755 *
 
 sudo ./install.sh
 
 # 人追従プログラムの実行コマンド
 
-roscd sobit_follower
-
-chmod 755 *
-
 roslaunch turtlebot_edu minimal.launch
 
-roslaunch sobit_follower sobit_follower_test_2.launch
+roslaunch sobit_follower sobit_follower_test.launch
 
 
 
