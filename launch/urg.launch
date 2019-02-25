@@ -1,0 +1,15 @@
+<!-- urg.launch -->
+<launch>
+
+	<!--node name="urg_setup" pkg="target_scan_follower" type="urg_bringup.py">
+	</node-->
+	<arg name="scan_topic_name" default="/scan"/>
+
+	<node name="urg_node" pkg="urg_node" type="urg_node">
+		<param name="frame_id" value="base_laser_link"/>
+		<param name="serial_port" type="string" value="/dev/urg"/>
+		<param name="angle_min" value= "-1.57"/>
+		<param name="angle_max" value= "1.57"/>
+		<remap from="/scan" to="$(arg scan_topic_name)"/>
+	</node>
+</launch>

@@ -1,12 +1,9 @@
 <!-- sobit_follower.launch -->
 <launch>
-
-	<!-- minimal -->
-	<!--include file="$(find turtlebot_edu)/launch/minimal.launch"/-->
 	<!-- urg -->
-	<include file="$(find turtlebot_edu)/launch/urg.launch"/>
+	<include file="$(find sobit_follower)/launch/urg.launch"/>
 	<!-- velocity smoother -->
-	<include file="$(find sobit_follower)/launch/velocity_smoother.launch"/>
+	<include file="$(find sobit_follower)/launch/velocity_smoother_2.launch"/>
     <!-- Points_grouping -->
     <node pkg="sobit_follower" type="Points_grouping" name="Points_grouping_node" output="screen"/>
     <!-- target_scan -->

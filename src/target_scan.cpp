@@ -214,15 +214,7 @@ public:
 			lost_target_count++;
 			return;
 		}//if
-		/*for( int i = 0 ; i < input->grouped_points_array.size() ; i ++ )
-		{
-			geometry_msgs::Point obstacle_point_from_robot;
-			obstacle_point_from_robot.x = input->grouped_points_array[i].center_x;
-			obstacle_point_from_robot.y = input->grouped_points_array[i].center_y;
-			obstacle_point_from_robot.z = 0.0;
-			if((input->grouped_points_array[i].center_x > 0.0 && input->grouped_points_array[i].center_x <= 0.7) &&(input->grouped_points_array[i].center_y >= -0.2 && input->grouped_points_array[i].center_y <= 0.2))
-			std::cout << "obstacle_point_from_robot :: " << obstacle_point_from_robot << std::endl;
-		}//*/
+		
 		for( int i = 0 ; i < input->grouped_points_array.size() ; i ++ )
 		{
 			geometry_msgs::Point temp_obstacle_point;//ワールド基準
@@ -269,16 +261,10 @@ public:
 			else//ターゲットの追跡用
 			{
 				double obstacle_distance_from_last_target_point = hypotf( footprint_base_obstacle_point.point.x  - last_target_point.x , footprint_base_obstacle_point.point.y - last_target_point.y );
-				/*if( distance_from_front_robot_point > distance_from_last_target_point_limit )
-				{
-					continue;//targetがdistance_from_last_target_point_limitよりも距離が遠ければ，以下の処理をスキップする
-				}//if*/
 				if( min_obstacle_distance_from_last_target_point > obstacle_distance_from_last_target_point )
 				{
 					min_obstacle_distance_from_last_target_point = obstacle_distance_from_last_target_point;
 					nearest_obstacle_point_from_last_target_point = footprint_base_obstacle_point.point;
-					//std::cout << "min_obstacle_distance_from_last_target_point :: " << min_obstacle_distance_from_last_target_point << std::endl;
-					//ROS_INFO_STREAM("target : \n" << footprint_base_obstacle_point.point );	
 					num = i;
 				}//if
 			}//else
@@ -311,7 +297,8 @@ public:
 			target_scan_class::last_target_point_pub( last_target_point );
 			int say_lost_num = 3;
 			std_msgs::Bool lost_flag;
-			if( min_obstacle_distance_from_last_target_point > distance_from_last_target_point_limit )//前回のターゲットの位置から離れすぎているので、ターゲットをロストしたと考える
+			//前回のターゲットの位置から離れすぎているので、ターゲットをロストしたと考える
+			if( min_obstacle_distance_from_last_target_point > distance_from_last_target_point_limit )
 			{
 				//ROS_INFO_STREAM( "lost_target_count : " << lost_target_count << "[num]" );
 				if(lost_target_count > 8)
@@ -322,7 +309,6 @@ public:
 				lost_flag.data = this->target_lost_flag;
 				this->pub_judge.publish(lost_flag);
 				if( lost_target_count == say_lost_num )
-				//if( (lost_target_count % say_lost_num) == 0 && lost_target_count != 0 )//一回言えばわかるはず
 				{
 					std_msgs::String speech_word_msg;
 					speech_word_msg.data = "Come back in front of me.";
@@ -365,15 +351,6 @@ public:
 			}//if
 			//else {	printf("targetを見失っているので，パス生成を外します\n");}
 			this->pub_obstacles_states.publish(input);
-
-			/*double target_rad_2d = atan2f( footprint_base_obstacle_point.point.y , footprint_base_obstacle_point.point.x );
-			double target_distance_2d = hypotf( footprint_base_obstacle_point.point.x , footprint_base_obstacle_point.point.y );
-			double target_deg_2d = target_rad_2d * rad2deg;
-			double target_x = footprint_base_obstacle_point.point.x;
-			double target_y = footprint_base_obstacle_point.point.y;
-			ROS_INFO_STREAM( "\ntarget_deg: "      << target_deg_2d << "[deg]" );
-			ROS_INFO_STREAM( "\ntarget_distance: " << target_distance_2d << "[m]" );*/
-
 			//target_scan_class::following_obstacle( target_rad_2d, target_distance_2d , target_x , target_y );//障害物回避を考慮した移動
 			return;
 		}//else

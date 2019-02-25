@@ -276,7 +276,10 @@ add_dependencies(path_plan_test_2 ${PROJECT_NAME}_generate_messages_cpp)
 
 add_executable(target_scan_check src/target_scan_check.cpp)
 target_link_libraries(target_scan_check ${catkin_LIBRARIES})
-add_dependencies(target_scan_check ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(target_scan_check ${PROJECT_NAME}_generate_messages_cpp) 
 
+#add_executable(sample src/sample.cpp)
+#target_link_libraries(sample ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+#add_dependencies(sample ${PROJECT_NAME}_generate_messages_cpp)
 
 

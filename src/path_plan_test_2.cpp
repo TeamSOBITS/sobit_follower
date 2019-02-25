@@ -131,7 +131,7 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	bool cmd_vel_flag;
 	//速度制限
 	double max_forward_velo_def = 0.8;//[m/s]	 最高前進速度(def:0.4)
-	double min_forward_velo_def = 0.2;//[m/s]	 最低前進速度(def:0.0)
+	double min_forward_velo_def = 0.1;//[m/s]	 最低前進速度(def:0.0)
 	double max_back_velo_def = -0.6;//[m/s]最高後退速度(def:-0.4)
 	double min_back_velo_def = -0.1;//[m/s]	 最低後進速度(def:0.0)
 	//laser則域距離(多分違う)
@@ -145,15 +145,14 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 
 	if(this->target_distance > max_keep_distance)//前進
 	{
-		printf("前進します\n");
-		this->max_velo_range = (input->target_point.x - max_keep_distance) * max_forward_velo_def / (max_laser_range - max_keep_distance) + min_forward_velo_def;
+		this->max_velo_range = (this->target_distance - max_keep_distance) * max_forward_velo_def / (max_laser_range - max_keep_distance) + min_forward_velo_def;
 		this->min_velo_range = 0.0;
-		printf("最高前進速度:%f\n",this->max_velo_range);
+		printf("前進します:%f\n",this->max_velo_range);
 		cmd_vel_flag = true;
 	}
 	else if(this->target_distance >= min_keep_distance && this->target_distance <= max_keep_distance)//停止
 	{
-		printf("targetに近いです\n");
+		printf("停止\n");
 		this->vel.linear.x = 0.0;
 		this->vel.angular.z = 0.0;
 		cmd_vel_flag = false;
@@ -161,10 +160,9 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	}
 	else//後退
 	{
-		printf("後退します\n");
 		this->max_velo_range = 0.0;
-		this->min_velo_range = (input->target_point.x - min_keep_distance) * max_back_velo_def / (min_laser_range - min_keep_distance) + min_back_velo_def;
-		printf("最高後退速度:%f\n",this->min_velo_range);
+		this->min_velo_range = (this->target_distance - min_keep_distance) * max_back_velo_def / (min_laser_range - min_keep_distance) + min_back_velo_def;
+		printf("後退します:%f\n",this->min_velo_range);
 		cmd_vel_flag = true;
 	}
 	if(cmd_vel_flag == true)	//パス生成
@@ -217,8 +215,8 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 	this->vel.linear.x = this->vel.linear.x / double(old_vel_vec.size());//平均値で書き換え
 	this->current_robot_velo = this->vel.linear.x;
 
-	this->vel.linear.x = 0;
-	this->vel.angular.z = 0;
+	//this->vel.linear.x = 0;
+	//this->vel.angular.z = 0;
 	this->pub_cmd_vel.publish(this->vel);
 	this->pub_goal_flag.publish(goal_flag);
 }//obstacle_states_cb
@@ -241,7 +239,7 @@ void dwa()
 	double min_ang_def = -20.0;//[rad/s]	最低回転速度(def:0)
 	//各加速度制御
 	double max_acceration = 0.1;	//最高加速度(def:0.1)
-	double max_ang_acceration = 0.2;	//最高回転加速度(57....度)(def:1.0)
+	double max_ang_acceration = 0.5;	//最高回転加速度(57....度)(def:1.0)
 	
 	//回転加速度を考慮した範囲	
 	double range_ang_velo = samplingtime * max_ang_acceration;
@@ -257,7 +255,7 @@ void dwa()
 	double weighting_goal = 0.1;
 	double weighting_obs = 0.0;//障害物の距離による評価はなし
 	double weighting_angle = 0.04;
-	double weighting_vel = 0.2;
+	double weighting_vel = 0.1;
 
 	//パス番号
 	int es_num = 0;
@@ -268,6 +266,10 @@ void dwa()
 	if(min_velo < this->min_velo_range)	{ min_velo = this->min_velo_range; }
 	if(max_velo > this->max_velo_range)	{ max_velo = this->max_velo_range; }
 
+	std::cout << "min_ang_velo :: " << min_ang_velo << std::endl;
+	std::cout << "max_ang_velo :: " << max_ang_velo << std::endl;
+	std::cout << "max_velo :: " << max_velo << std::endl;
+	std::cout << "min_velo :: " << min_velo << std::endl;
 	//　※path_eval_list.size() = velo_step * ang_velo_step
 	double delta_velo = (max_velo - min_velo) / velo_step;
 	double delta_ang_velo = (max_ang_velo - min_ang_velo) / ang_velo_step;
@@ -318,6 +320,7 @@ void dwa()
 			path++;
 		//}//else
 	}//for_5
+	
 	auto states = optimal.path.begin();
 	this->optimal_path_list.push_back(optimal);//正直必要ない
 
@@ -395,6 +398,8 @@ bool evaluate(int st,int es_num,pre_states temp,int i)
 		double center_point_y = this->points_states.grouped_points_array[i].center_y;
 		double ob_point_radius = this->points_states.grouped_points_array[i].particle_radius;
 		double distance_from_center_pre_point = hypotf(temp.next_x - center_point_x , temp.next_y - center_point_y);
+		//std::cout << "ob_point_radius :: " << ob_point_radius << std::endl;
+		//printf("obstacle_num%d\n",i);
 		for(int j = 0; j < this->points_states.grouped_points_array[i].particle_x.size(); j++)//for_2
 		{
 			double obstacle_point_x = this->points_states.grouped_points_array[i].particle_x[j];
@@ -457,6 +462,8 @@ void update(std::list<pre_states>::iterator states)
 	this->vel.linear.x = states->canditate_velo;
 	this->vel.angular.z = states->canditate_th;
 
+	std::cout << "this->vel.linear.x :: " << states->canditate_velo << std::endl;
+	std::cout << "this->vel.angular.z :: " << states->canditate_th << std::endl;
 	//各基準スコアの更新→書き方汚い
 	this->es.obs_.min_score = DBL_MAX;
 	this->es.obs_.max_score = DBL_MIN;

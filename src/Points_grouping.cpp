@@ -183,8 +183,8 @@ void decision_of_grouping()
 				point_number++;
 			}//for_sg_t
 			group_number++;
-			printf("点の数%d\n",point_number);
-			printf("グループの数%d\n",group_number);
+			//printf("点の数%d\n",point_number);
+			//printf("グループの数%d\n",group_number);
 		}//for_sg
 
 		test_marker();

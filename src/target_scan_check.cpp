@@ -296,6 +296,7 @@ public:
 		}//for
 		input->grouped_points_array[num].center_radius = 0.0;//target周辺のコストをなくす
 		input->grouped_points_array[num].particle_radius = 0.0;
+		//printf("target_num%d\n",num);
 		if( this->init_target_point_flag == true )//ターゲットの初期化用
 		{
 			if( nearest_obstacle_point.x == 0 && nearest_obstacle_point.y == 0 )//ワールド基準
