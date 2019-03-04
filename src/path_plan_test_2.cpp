@@ -85,6 +85,7 @@ class route_planning_class
  	double target_distance = 0.0;
 	double max_velo_range = 0.0;
 	double min_velo_range = 0.0;
+	int success_num = 0;
 	//ロボットの速度情報をパブリッシュするかの判定フラグ
 	bool pre_flag = false;
 	std::string base_frame_name;
@@ -201,8 +202,10 @@ void target_and_obstacle_states(const sobit_follower::grouped_points_arrayPtr in
 		states.target_point = odom_base_point;
 		this->pub_point_states.publish(states);
 	}//if
-
-	//std::cout << "this->vel.linear.x: " << this->vel.linear.x << std::endl;
+	if(this->vel.angular.z == 1.3)	{
+		ROS_ERROR("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	}
+	std::cout << "this->vel: " << this->vel << std::endl;
 	//速度の平滑処理
 	old_vel_vec.push_back(this->vel.linear.x);//新しい値を入れる
 	if(old_vel_vec.size() > old_vel_vec_size){
@@ -255,7 +258,7 @@ void dwa()
 	double weighting_goal = 0.1;
 	double weighting_obs = 0.0;//障害物の距離による評価はなし
 	double weighting_angle = 0.04;
-	double weighting_vel = 0.1;
+	double weighting_vel = 0.2;
 
 	//パス番号
 	int es_num = 0;
@@ -275,14 +278,17 @@ void dwa()
 	double delta_ang_velo = (max_ang_velo - min_ang_velo) / ang_velo_step;
 
 	//複数パスの生成
-	for(double ang_velo = min_ang_velo; ang_velo < max_ang_velo; ang_velo += delta_ang_velo)//for_2
+	for(double ang_velo = min_ang_velo; ang_velo <= max_ang_velo; ang_velo += delta_ang_velo)//for_2
 	{
-		for(double velo = min_velo; velo < max_velo; velo += delta_velo)//for_3
+		for(double velo = min_velo; velo <= max_velo; velo += delta_velo)//for_3
 		{
 			this->ph.canditate_velo = velo;
 			this->ph.canditate_th = ang_velo;
+			std::cout << "this->ph.canditate_th :: " << this->ph.canditate_th << std::endl;
+			std::cout << "this->ph.canditate_velo :: " << this->ph.canditate_velo << std::endl;
 			predict_state(ang_velo,velo,current_robot_x,current_robot_y,current_robot_ang,samplingtime,pre_step,es_num);
 			es_num++;
+			this->success_num++;
 			this->all_paths_list.push_back(this->path_list);	//生成したpathを追加
 			path_list.clear();	//path追加後，path_listを空にする→これをfor_2&for_3分だけループさせる
 		}//for_3
@@ -293,6 +299,7 @@ void dwa()
 	auto path = this->path_eval_list.begin();//scoreが入ったlist
 	optimal_state optimal;
 	optimal_state option;
+	pre_states debug_states;
 	int collision_num = 0;
 	int path_num = 0;
 	//一つのパスを決定
@@ -309,19 +316,23 @@ void dwa()
 		//else {
 			auto paths = *pn;//複数pathの先頭アドレス
 			double sum_score = weighting_goal * path->goal_.norm_score + weighting_obs * path->obs_.norm_score + weighting_angle * path->angle_.norm_score + weighting_vel * path->vel_.norm_score;
-			//printf("path_num%d\n",path_num);
+			//printf("path_num_3 = %d\n",path_num);
 			//std::cout << "sum_score :: " << sum_score << std::endl;
 			if(optimal.score < sum_score)
 			{
 				optimal.path = paths;
 				optimal.score = sum_score;
+				auto states = optimal.path.begin();
 			}//if
 			path_num++;
 			path++;
 		//}//else
 	}//for_5
-	
 	auto states = optimal.path.begin();
+	std::cout << "path_num :: " << path_num << std::endl;
+	std::cout << "paths_th :: " << states->canditate_th << std::endl;
+	std::cout << "paths_velo :: " << states->canditate_velo << std::endl;
+	//std::cout << "states :: " << states->canditate_th << std::endl;
 	this->optimal_path_list.push_back(optimal);//正直必要ない
 
 	//マーカー表示(確認用)
@@ -364,14 +375,19 @@ void normalization()
 void predict_state(double ang_velo,double velo,double x,double y,double th,double dt,int st,int es_num)	//pathを予測する
 {
 	//eval_states es_list[st] = {};//パスリスト
-	bool ph_flag;
+	bool ph_flag = false;
 	//printf("パス%d\n",es_num);
+	int tk_num = 0;
+	this->ph.next_x = 0.0;
+	this->ph.next_y = 0.0;
+	this->ph.next_th = 0.0;
 	for(int i = 0; i < st; i++)
 	{
 		pre_states temp;
 		temp.next_x = velo * cos(th) * dt + x;
 		temp.next_y = velo * sin(th) * dt + y;
 		temp.next_th = ang_velo * dt + th;
+		//printf("path_num_1 = %d\n",i);
 		ph_flag = evaluate(st,es_num,temp,i);
 		if(ph_flag == true) { break; }
 		this->ph.next_x = temp.next_x;
@@ -433,8 +449,9 @@ bool evaluate(int st,int es_num,pre_states temp,int i)
 	double theta_from_pre_to_goal = fabs(atan2(frame_from_pre_to_goal_y,frame_from_pre_to_goal_x));
 
 	this->es.goal_.score = 10.0 - hypotf(posi_from_pre_to_goal_x , posi_from_pre_to_goal_y);	//score評価2::ゴールとpathの距離
-	this->es.angle_.score = (M_PI / 2) - theta_from_pre_to_goal; //score評価3::goalとpathの角度間隔
+	this->es.angle_.score = M_PI - theta_from_pre_to_goal; //score評価3::goalとpathの角度間隔
 	this->es.vel_.score = fabs(base_temp.canditate_velo);//score評価4::車輪の前進速度がどの程度かを判定
+	printf("path_num_2 = %d\n",es_num);
 	this->path_eval_list.push_back(this->es);//push
 
 	//全パスにおける最大値と最小値を更新(正直書き方が下手)
@@ -462,8 +479,8 @@ void update(std::list<pre_states>::iterator states)
 	this->vel.linear.x = states->canditate_velo;
 	this->vel.angular.z = states->canditate_th;
 
-	std::cout << "this->vel.linear.x :: " << states->canditate_velo << std::endl;
-	std::cout << "this->vel.angular.z :: " << states->canditate_th << std::endl;
+	//std::cout << "this->vel.linear.x :: " << states->canditate_velo << std::endl;
+	//std::cout << "this->vel.angular.z :: " << states->canditate_th << std::endl;
 	//各基準スコアの更新→書き方汚い
 	this->es.obs_.min_score = DBL_MAX;
 	this->es.obs_.max_score = DBL_MIN;

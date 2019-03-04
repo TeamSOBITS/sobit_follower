@@ -13,7 +13,7 @@
 	<!-- kalman -->
 	<node pkg="sobit_follower" type="kalman_check2" name="kalman_check2_node" output="screen"/>
 	<!-- rviz -->
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/launch/test.rviz"/>
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/rviz/test.rviz"/>
 	<!-- txt -->
 	<!--node pkg="sobit_follower" type="file_wr.py" name="point_listener" output="screen"/-->
 </launch>

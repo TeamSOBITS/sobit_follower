@@ -387,7 +387,7 @@ public:
 			//サービスを行い，targetの位置を更新
 			if(this->client.call(this->srv_target_info))
 			{
-				ROS_INFO_STREAM("Update a target person\n");
+				//ROS_INFO_STREAM("Update a target person\n");
 			}
 			else
 			{
