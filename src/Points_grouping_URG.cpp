@@ -56,6 +56,7 @@ class Points_grouping_class
 	ros::Publisher pub_circle_states_part;
 	ros::Publisher pub_cost_marker;
 	ros::Publisher pub_points_states;
+	ros::Publisher pub_points_states_test;
 	ros::Publisher pub_test_marker;
 	//list
 	std::list<point_set> points_list;
@@ -71,10 +72,11 @@ class Points_grouping_class
 	double min_circle_radius = 0.04;//中心点からの最小半径
 	double correction_of_radius = 0.05;//各円の半径を微調整
 	int pp;
-	double base_radius = 0.20;//0.45
+	double base_radius = 0.25;//0.45
 	//struct
 	circle_set correction_values;
 	tp_set all_set;
+	tp_set specific_set;
 	
 public:
 	Points_grouping_class(){
@@ -82,8 +84,10 @@ public:
 	this->sub_laser_scan = nh.subscribe("/scan",1,&Points_grouping_class::laser_points,this);
 	//points_statesをパブリッシュ
 	this->pub_points_states = nh.advertise<sobit_follower::grouped_points_array>("/points_states", 1 );
+	//this->pub_points_states_test = nh.advertise<sobit_follower::grouped_points_array>("/points_states_test", 1 );
 	this->pub_cost_marker = nh.advertise<visualization_msgs::MarkerArray>( "/point_marker", 1 );
 	this->pub_test_marker = nh.advertise<visualization_msgs::MarkerArray>( "/test_marker", 1 );
+	
 	}//public
 
 ~Points_grouping_class(){}
@@ -139,6 +143,7 @@ void decision_of_grouping()
 				double end_point_y = end_set->y;
 				Points_grouping_class::linear_regression();//回帰
 				this->sample_group.push_back(this->all_set);
+				//this->sample_group.push_back(this->specific_set);
 				i++;
 				//保存用としてgroup_listに挿入
 				circle_set temp_circle_set;
@@ -148,6 +153,7 @@ void decision_of_grouping()
 				group_list.push_back(temp_circle_set);
 
 				this->all_set.buf.clear();
+				this->specific_set.buf.clear();
 				this->group_points_list.clear();//空にする
 			}//if_1
 			past_point = point;	//過去の点を更新
@@ -158,7 +164,6 @@ void decision_of_grouping()
 		int group_number = 0;
 		sobit_follower::grouped_points_array group_lists;
 		group_lists.grouped_points_array.resize(this->sample_group.size());	
-
 		for(auto sg_num = this->sample_group.begin(); sg_num != this->sample_group.end(); sg_num++)//for_sg
 		{
 			auto sg_point_num = *sg_num;//全てのステートの初期化
@@ -178,16 +183,20 @@ void decision_of_grouping()
 				point_number++;
 			}//for_sg_t
 			group_number++;
+			//printf("点の数%d\n",point_number);
+			//printf("グループの数%d\n",group_number);
 		}//for_sg
-		test_marker();
 
+		test_marker();
 		this->pub_points_states.publish(group_lists);
+		//this->pub_points_states_test.publish(group_lists);
 		this->sample_group.clear();
 		this->points_list.clear();//空にする
 	}//decision_of_grouping
 
 void linear_regression()
 	{
+		//初期化
 		int dimension_size = 1;
 		float A[group_points_list.size()][dimension_size + 1] = {};	//確認用
 		float B[group_points_list.size()][dimension_size] = {};	//確認用
@@ -206,6 +215,9 @@ void linear_regression()
 		double estimated_error = 0.0;
 		auto end_point = this->group_points_list.begin();
 		auto begin_point = this->group_points_list.begin();
+		auto base_point = this->group_points_list.begin();
+		auto past_point = this->group_points_list.begin();
+		double base_distance_of_between_points = 0.0;
 		//ROS_INFO("group_size:: %f",this->group_lists.grouped_points_array.size());
 		if(group_points_list.size() == 1)
 		{
@@ -215,13 +227,31 @@ void linear_regression()
 			return;
 		}//if
 
-		for(auto point = group_points_list.begin(); point != group_points_list.end(); point++)//for_1
+		for(auto point = this->group_points_list.begin(); point != this->group_points_list.end(); point++)//for_1
 		{
 			auto l =  group_points_list.end();
-			if(point_c == group_points_list.size()-1) { end_point = point; }//if
+			if(point_c == this->group_points_list.size()-1) { end_point = point; }//if
 			//group_lists.grouped_points_array[group_size].particle_x[point_c] = point->x;
 			//group_lists.grouped_points_array[group_size].particle_y[point_c] = point->y;
+			//初期の点を更新
+			if(point_c == 0) { this->specific_set.buf.push_back(*point); }
 
+			//基準点と更新される点との距離
+			base_distance_of_between_points += hypotf(point->x - past_point->x , point->y - past_point->y);
+
+			if(base_distance_of_between_points >= base_radius)//コスト半径よりも離れていた場合，更新
+			{
+				base_distance_of_between_points = 0.0;
+				this->specific_set.buf.push_back(*past_point);
+			}
+			else if(point_c == this->group_points_list.size()-1)//終点で更新されていない場合，強制的に更新(結構重要)
+			{
+				this->specific_set.buf.push_back(*end_point);
+			}
+			//過去の点を更新
+			past_point = point;
+
+			//グループ内の点のカウント
 			point_c++;
 			this->all_set.buf.push_back(*point);//1グループ内の点を一つずつpush
 			for(int step = 0; step < dimension_size + 1; step++)
@@ -312,10 +342,11 @@ void linear_regression()
 		p6.x = (3.0 - intercept) / slope;
 		p6.y = (slope * 3.0) + intercept;
 
+		//回帰直線で求めた点群の中心を求めた場合
 		//this->correction_values.center_x = (intersection_begin.x + intersection_end.x) / 2.0;
 		//this->correction_values.center_y = (intersection_begin.y + intersection_end.y) / 2.0;
 		//this->correction_values.radius = hypotf(intersection_begin.x - intersection_end.x , intersection_begin.y - intersection_end.y) / 2.0;
-
+		//点群の端点から位置座標を求めた場合
 		this->correction_values.center_x = (begin_point->x + end_point->x) / 2.0;
 		this->correction_values.center_y = (begin_point->y + end_point->y) / 2.0;
 		this->correction_values.radius = hypotf(begin_point->x - end_point->x , begin_point->y - end_point->y) / 2.0;
@@ -324,6 +355,11 @@ void linear_regression()
 		this->all_set.center_radius = this->correction_values.radius;
 		this->all_set.center_y = this->correction_values.center_y;
 		this->all_set.center_x = this->correction_values.center_x;
+		
+		this->specific_set.radius = this->base_radius;
+		this->specific_set.center_radius = this->correction_values.radius;
+		this->specific_set.center_y = this->correction_values.center_y;
+		this->specific_set.center_x = this->correction_values.center_x;
 	}//linear_regression
 
 void cost_marker(geometry_msgs::Point p1,geometry_msgs::Point p2,geometry_msgs::Point p3,geometry_msgs::Point p4,geometry_msgs::Point p5,geometry_msgs::Point p6)

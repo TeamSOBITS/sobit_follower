@@ -134,12 +134,12 @@ public:
 		back_speed = -0.4; //[cm/s] //後退速度
 		max_trun_speed = 120.0; //[deg/s] //回転速度
 		max_move_distance = 5.0;//[m] //これ以上離れたら追跡しない距離（間違って計測されたとき用）
-		keep_distance = 1.0;//[m] 保つ距離
-		init_target_distance = 1.0;//[m]
+		keep_distance = 1.1;//[m] 保つ距離
+		init_target_distance = 0.9;//[m]
 		stop_distance = 0.02;//±[m] 保つ距離から一定距離内の小さな変化は無視して止まる
 		constant_velocity_distance = 2.0;//[m] //この距離以内なら比例的に移動。これ以上離れたら等速で移動
 		constant_velocity_deg = max_trun_speed*0.25;//30.0;//[deg] //この角度以内なら比例的に回転。これ以上の角度なら等速で回転
-		distance_from_last_target_point_limit = 0.30; //[m]
+		distance_from_last_target_point_limit = 0.40; //[m]
 		ros::param::get( "max_move_speed", max_move_speed );
 		ros::param::get( "back_speed", back_speed );
 		ros::param::get( "max_trun_speed", max_trun_speed );
@@ -160,9 +160,9 @@ public:
 
 		//std::string pub_twist_topic_name = "/cmd_vel_mux/input/teleop";
 		//std::string pub_twist_topic_name = "/cmd_vel_mux/input/safety_controller";
-		std::string pub_twist_topic_name = "/turtlebot_velocity_smoother/raw_cmd_vel";
-		ros::param::get( "pub_twist_topic_name", pub_twist_topic_name );
-		pub_twist = nh.advertise<geometry_msgs::Twist>( pub_twist_topic_name, 1 );
+		//std::string pub_twist_topic_name = "/turtlebot_velocity_smoother/raw_cmd_vel";
+		//ros::param::get( "pub_twist_topic_name", pub_twist_topic_name );
+		//pub_twist = nh.advertise<geometry_msgs::Twist>( pub_twist_topic_name, 1 );
 
 		std::string pub_speech_word_topic_name = "/speech_word";
     ros::param::get( "pub_speech_word_topic_name", pub_speech_word_topic_name );
@@ -218,6 +218,7 @@ public:
 		//ターゲットの追跡用
 		double min_obstacle_distance_from_last_target_point = DBL_MAX;
 		geometry_msgs::Point nearest_obstacle_point_from_last_target_point;
+		int wait_lost_count = 8;//targetを見失ってから待つ最大カウント数
 		int num = 0;
 
 		if( input->grouped_points_array.size() == 0 )
@@ -326,7 +327,7 @@ public:
 				//ROS_INFO_STREAM( "lost_target_count : " << lost_target_count << "[num]" );
 
 				//8回刻みでも検出されない場合，targetを見失ったと判断
-				if(lost_target_count > 8)
+				if(lost_target_count > wait_lost_count)
 				{
 					this->srv_target_info.request.target_lost_flag = true;
 					ROS_WARN_STREAM( "target_lost" );
@@ -345,16 +346,16 @@ public:
 					this->pub_obstacles_states.publish(input);
 				}//if
 
-				if( lost_target_count == say_lost_num )
+				if( lost_target_count >= say_lost_num && lost_target_count <= wait_lost_count )
 				{
 					std_msgs::String speech_word_msg;
 					speech_word_msg.data = "Come back in front of me.";
 					ROS_INFO_STREAM( "\n" << speech_word_msg.data );
 					pub_speech_word.publish( speech_word_msg );
 
-					geometry_msgs::Twist msg_twist;
-					msg_twist.linear.x =  0.0 ;
-					pub_twist.publish( msg_twist );
+					//geometry_msgs::Twist msg_twist;
+					//msg_twist.linear.x =  0.0 ;
+					//pub_twist.publish( msg_twist );
 				}//if
 				lost_target_count++;
 				return;
