@@ -9,6 +9,8 @@ $ cd ~/catkin_ws/src
 $ git clone https://gitlab.com/TeamSOBITS/sobit_follower.git
 $ cd ~/catkin_ws/src/sobit_follower
 $ chmod 755 *
+$ cd ~/catkin_ws
+$ catkin_make
 ```
 ## install sobit_education_bringup
 ### 基本的にsobit_education_bringupをインストールするだけで大丈夫です.(turtlebot_eduはしなくてok)
