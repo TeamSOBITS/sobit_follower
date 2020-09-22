@@ -1,7 +1,6 @@
 <!-- sobit_follower.launch -->
 <launch>
-	<!-- urg -->
-	<include file="$(find sobit_follower)/launch/urg.launch"/>
+
 	<!-- velocity smoother -->
 	<include file="$(find sobit_follower)/launch/velocity_smoother_2.launch"/>
     <!-- Points_grouping -->

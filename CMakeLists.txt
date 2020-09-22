@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   tf
   message_generation
+  sobit_follower2
 )
 #find_package(catkin REQUIRED COMPONENTS actionlib_msgs)
 
@@ -246,9 +247,9 @@ add_executable(target_scan src/target_scan.cpp)
 target_link_libraries(target_scan ${catkin_LIBRARIES})
 add_dependencies(target_scan ${PROJECT_NAME}_generate_messages_cpp)
 
-#add_executable(Points_grouping_URG src/Points_grouping_URG.cpp)
-#target_link_libraries(Points_grouping_URG ${catkin_LIBRARIES})
-#add_dependencies(Points_grouping_URG ${PROJECT_NAME}_generate_messages_cpp)
+add_executable(Points_grouping_URG src/Points_grouping_URG.cpp)
+target_link_libraries(Points_grouping_URG ${catkin_LIBRARIES})
+add_dependencies(Points_grouping_URG ${PROJECT_NAME}_generate_messages_cpp)
 
 add_executable(Points_grouping src/Points_grouping.cpp)
 target_link_libraries(Points_grouping ${catkin_LIBRARIES})
@@ -294,4 +295,6 @@ add_dependencies(target_scan_check ${PROJECT_NAME}_generate_messages_cpp)
 #target_link_libraries(sample ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 #add_dependencies(sample ${PROJECT_NAME}_generate_messages_cpp)
 
-
+add_executable(target_scan_check2 src/target_scan_check2.cpp)
+target_link_libraries(target_scan_check2 ${catkin_LIBRARIES})
+add_dependencies(target_scan_check2 ${PROJECT_NAME}_generate_messages_cpp) 

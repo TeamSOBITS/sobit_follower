@@ -1,0 +1,17 @@
+<!-- sobit_follower.launch -->
+<launch>
+	<!-- urg -->
+	<!--nclude file="$(find sobit_follower)/launch/urg.launch"/-->
+	<!-- velocity smoother -->
+	<include file="$(find sobit_follower)/launch/velocity_smoother_2.launch"/>
+    <!-- Points_grouping -->
+    <node pkg="sobit_follower" type="Points_grouping" name="Points_grouping_node" output="screen"/>
+    <!-- target_scan -->
+    <node pkg="sobit_follower" type="target_scan_check2" name="target_scan_node" output="screen"/>
+    <!-- path_generator -->
+    <include file="$(find sobit_follower2)/launch/follow_me/path_generator.launch"/>
+	<!-- kalman -->
+	<node pkg="sobit_follower" type="kalman_check2" name="kalman_check2_node" output="screen"/>
+	<!-- rviz -->
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find sobit_follower)/rviz/test2.rviz"/>
+</launch>
