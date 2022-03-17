@@ -132,7 +132,13 @@ catkin_package(
 #set(catkin_INCLUDE_DIR_2 "/home/sobit-x4/catkin_ws/devel" )#"/home/sobit-x4/catkin_ws/devel;" $
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-find_package(OpenCV 3.4.0 REQUIRED)
+set(OpenCV_DIR /opt/opencv/opencv_3.4.2/share/OpenCV/)  # for ros melodic
+find_package(OpenCV 3.4.2 REQUIRED #4.0.0
+  NO_MODULE
+  PATHS /usr/local
+  NO_DEFAULT_PATH
+)
+
 include_directories(
   SYSTEM
   ${OpenCV_INCLUDE_DIRS}
