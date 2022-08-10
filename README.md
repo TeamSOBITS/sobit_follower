@@ -7,7 +7,7 @@
 - 詳細は[こちら](multiple_sensor_person_tracking)
 
 <div align="center">
-    <img src="multiple_sensor_person_tracking\doc\img\tracker.png" width="1080">
+    <img src="multiple_sensor_person_tracking/doc/img/tracker.png" width="1080">
 </div>
 
 ## Person Following Control
@@ -15,5 +15,5 @@
 - 詳細は[こちら](person_following_control)
 
 <div align="center">
-    <img src="person_following_control\doc\img\person_following_control.png" width="1080">
+    <img src="person_following_control/doc/img/person_following_control.png" width="1080">
 </div>
