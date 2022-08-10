@@ -87,7 +87,7 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
 void person_following_control::PersonFollowing::callbackData (
     const person_following_control::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
-
+    if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
     geometry_msgs::TwistPtr vel ( new  geometry_msgs::Twist );
     if ( following_method_ == FollowingMethod::VSM_DWA ) {
         geometry_msgs::TwistPtr vsm_vel ( new  geometry_msgs::Twist );

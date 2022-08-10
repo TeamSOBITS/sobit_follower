@@ -3,7 +3,7 @@
 sudo apt update
 
 echo -e "\e[34m\n Install ros-noetic-pointcloud-to-laserscan \e[m"
-sudo apt install ros-noetic-pointcloud-to-laserscan -y
+sudo apt install ros-${ROS_DISTRO}-pointcloud-to-laserscan -y
 
 cd ~/catkin_ws/src/
 
@@ -27,6 +27,25 @@ git clone https://gitlab.com/TeamSOBITS/following_control_methods.git
 
 # echo -e "\e[34m\n Git Clone SOBIT PRO \e[m"
 # git clone https://gitlab.com/TeamSOBITS/sobit_pro.git
+
+echo -e "\e[34m\n Install: Sobit Common (STARTING) \e[m"
+sudo apt-get update
+sudo apt-get install -y \
+    ros-${ROS_DISTRO}-kobuki-* \
+    ros-${ROS_DISTRO}-ecl-streams \
+    ros-${ROS_DISTRO}-joy \
+    ros-${ROS_DISTRO}-joint-state-publisher* \
+    ros-${ROS_DISTRO}-ros-control \
+    ros-${ROS_DISTRO}-ros-controllers
+
+sudo cp ~/catkin_ws/src/sobit_common/turtlebot2/turtlebot_simulator/turtlebot_gazebo/libgazebo_ros_kobuki.so /opt/ros/${ROS_DISTRO}/lib
+
+# 関係ない
+sudo apt-get install -y \
+    ros-${ROS_DISTRO}-pcl-* \
+    ros-${ROS_DISTRO}-openni2-*
+
+echo -e "\e[34m\n Install: Sobit Common (FINISHED) \e[m"
 
 cd
 
@@ -110,7 +129,7 @@ sudo udevadm trigger
 sudo /etc/init.d/udev reload
 
 cd
-cd ~/catkin_ws/src/multiple_sensor_person_tracking/2d_lidar_person_detection/dr_spaam/
+cd ~/catkin_ws/src/sobit_follower/multiple_sensor_person_tracking/2d_lidar_person_detection/dr_spaam/
 sudo python3 setup.py install
 
 # cd ~/catkin_ws/
