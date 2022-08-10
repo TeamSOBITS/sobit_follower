@@ -2,6 +2,7 @@ ssd_img_show_flag : false
 ssd_execute_default : true
 ssd_pub_result_image : true
 rqt_image_view_flag : false
+use_tf : false
 
 ssd_image_topic_name : /camera/rgb/image_raw
 

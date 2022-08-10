@@ -1,7 +1,9 @@
 <launch>
     <arg name="use_rotate"              default="false"/>
+    <arg name="rviz"                    default="true"/>
     <include file="$(find sobit_follower)/launch/sobit_follower.launch">
         <arg name="use_rotate"          value="$(arg use_rotate)"/>
+        <arg name="rviz"                value="$(arg rviz)"/>
     </include>
     <include file="$(find virtual_multiple_sensor_publisher)/launch/sensor_data_publisher.launch" />
 </launch>

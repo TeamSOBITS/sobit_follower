@@ -327,7 +327,6 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
     srv.request.scan = *scan_msg;
     if (client_legs_detection_.call(srv)) {
         NODELET_INFO("DR-SPAAM Result : %zu", srv.response.leg_pose_array.poses.size());
-
     } else {
         NODELET_ERROR("Failed to call service /dr_spaam_ros_server\n");
         return;
@@ -335,20 +334,32 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
 
     // Person detection by RGB-D sensor（SSD（Single Shot Multibox Detector））
     ssd_->conpute( img_raw, cloud, img_msg->header, cloud_msg->header, detect_object_name, object_bbox_array, body_pose_array, result_img_msg);
+    pub_result_img_.publish( result_img_msg );
     NODELET_INFO("SSD Result :      %zu", body_pose_array->object_poses.size());
+    if ( !exists_target_ && body_pose_array->object_poses.size() == 0 ) {
+        NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
+        exists_target_ = false;
+        return;
+    }
 
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
     int result = findTwoObservationValue( srv.response.leg_pose_array.poses, body_pose_array->object_poses, &leg_observed_value, &body_observed_value );
     if ( result == NO_EXISTS ) {
+        NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
         exists_target_ = false;
         return;
     }
+
     // Tracking by Kalman Filter
-    if ( !exists_target_ ) {
+    if ( !exists_target_ && result == EXISTS_LEG_AND_BODY ) {
         kf_->init( body_observed_value );
         exists_target_ = true;
-    } else {
+    } else if ( !exists_target_ && result != EXISTS_LEG_AND_BODY ) {
+        NODELET_ERROR("Result :          NO_EXISTS" );
+        exists_target_ = false;
+        return;
+    }else {
         if( result == EXISTS_LEG ) kf_->compute( dt, leg_observed_value, &estimated_value );
         else if( result == EXISTS_BODY ) kf_->compute( dt, body_observed_value, &estimated_value );
         else if ( result == EXISTS_LEG_AND_BODY ) kf_->compute( dt, leg_observed_value, body_observed_value, &estimated_value );
@@ -374,7 +385,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
     NODELET_INFO("Result :          %s", ( result == EXISTS_LEG ? "EXISTS_LEG" : ( result == EXISTS_BODY ? "EXISTS_BODY" : "EXISTS_LEG_AND_BODY")) );
     NODELET_INFO("Tracker: x = %8.3f [m],\ty = %8.3f [m]", following_position->pose.position.x, following_position->pose.position.y);
 
-    pub_result_img_.publish( result_img_msg );
+
     pub_obstacles_.publish( following_position->obstacles );
     marker_array->markers.push_back( makeLegPoseMarker(srv.response.leg_pose_array.poses) );
     marker_array->markers.push_back( makeLegAreaMarker(srv.response.leg_pose_array.poses) );
@@ -383,7 +394,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
     pub_marker_.publish ( marker_array );
     previous_target_ = following_position->pose.position;
 
-    NODELET_INFO("dt     : %.4f [sec] ( %.4f [Hz] )\n", dt, 1.0/dt );
+    // NODELET_INFO("dt     : %.4f [sec] ( %.4f [Hz] )\n", dt, 1.0/dt );
     return;
 }
 

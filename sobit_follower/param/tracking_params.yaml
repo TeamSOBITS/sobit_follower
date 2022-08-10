@@ -1,5 +1,5 @@
-leg_tracking_range : 0.75
-body_tracking_range : 0.75
+leg_tracking_range : 1.0
+body_tracking_range : 1.0
 target_cloud_radius : 0.4
 outlier_radius : 0.1
 outlier_min_pts : 2
