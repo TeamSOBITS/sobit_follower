@@ -1,5 +1,5 @@
 # Person Following Control
-仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ手法
+- 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ手法
 
 ## About
 ### Virtual Spring Model
