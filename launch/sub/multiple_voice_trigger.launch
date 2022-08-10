@@ -1,0 +1,9 @@
+<launch>
+    <node pkg="julius_ros" name="julius_exec" type="julius_exec.py"/>
+    <node pkg="julius_ros" name="multiple_voice_trigger" type="multiple_voice_trigger.py"/>
+    <rosparam>
+        multiple_voice_trigger:
+            trigger_words: ["ストップ", "フォロー"]
+            pub_words: ["stop", "follow"]
+    </rosparam>
+</launch>

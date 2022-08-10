@@ -1,0 +1,47 @@
+<launch>
+    <node pkg="tf" type="static_transform_publisher" name="robot2camera" args="0 0 0.8 -1.57 0 -1.25 base_footprint camera_rgb_optical_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="robot2camera_pan" args="0 0 0 0 0 0 camera_rgb_optical_frame xtion_pan_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="robot2senser" args="0.05 -0.1 0.3 0 0 0 base_footprint base_laser_link sobit_follower 100" />
+    <node pkg="tf" type="static_transform_publisher" name="odom2robot" args="0 0 0 0 0 0 odom base_footprint 100" />
+    <!-- rviz -->
+    <!--node pkg="rviz" type="rviz" name="rviz" args= "-d $(find sobit_follower)/config/rviz/sensor_data_publisher.rviz"/-->
+    <!-- sensor_data_publisher -->
+    <group ns = "sensor_data_publisher">
+        <node pkg="sobit_follower" type="sf_sensor_data_publisher" name="sensor_data_publisher" launch-prefix="xterm -font r16 -bg darkblue -e">
+        <param name="publish_data_path" type="str" value="$(find sobit_follower)/sensor_data/02/"/>
+            <rosparam>
+                initial_number_of_data : 0
+                last_number_of_data : 30
+                switching_time : 0.5
+                hz : 30
+            </rosparam>
+        </node>
+    </group>
+
+    <!-- run pointcloud_to_laserscan node -->
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+        <remap from="cloud_in" to="/sensor_data_publisher/cloud_laserscan"/>
+        <!-- <remap from="scan" to="$(arg camera)/scan"/> -->
+        <rosparam>
+            target_frame: base_laser_link # Leave disabled to output scan in pointcloud frame
+            transform_tolerance: 0.01
+            min_height: 0.0
+            max_height: 1.0
+
+            angle_min: -1.5708 # -M_PI/2
+            angle_max: 1.5708 # M_PI/2
+            angle_increment: 0.0087 # M_PI/360.0
+            scan_time: 0.3333
+            range_min: 0.45
+            range_max: 4.0
+            use_inf: true
+
+            # Concurrency level, affects number of pointclouds queued for processing and number of threads used
+            # 0 : Detect number of cores
+            # 1 : Single threaded
+            # 2->inf : Parallelism level
+            concurrency_level: 1
+        </rosparam>
+    </node>
+
+</launch>

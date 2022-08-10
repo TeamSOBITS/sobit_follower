@@ -1,1 +1,0 @@
-/usr/bin/gfortran    -O3 -DNDEBUG -O3 CMakeFiles/sblat2.dir/sblat2.f.o  -o sblat2 -Wl,-rpath,/home/iwami/eigen-eigen-b3f3d4950030/build/blas  ../libeigen_blas.so 

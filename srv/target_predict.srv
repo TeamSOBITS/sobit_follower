@@ -1,4 +1,0 @@
-geometry_msgs/Point target_point
-bool target_lost_flag
----
-geometry_msgs/Point pre_target_point

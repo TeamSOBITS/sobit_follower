@@ -1,9 +1,0 @@
-<launch>
-    <!-- sensor_data_publisher -->
-    <include file="$(find sobit_follower2)/launch/simulator/sensor_data_publisher.launch"/>
-    <!-- follow_position_recoder -->
-    <include file="$(find sobit_follower2)/launch/simulator/follow_position_recoder.launch"/>
-    <!-- person_tracker -->
-    <include file="$(find sobit_follower)/launch/new_sobit_follower.launch"/>
-
-</launch>

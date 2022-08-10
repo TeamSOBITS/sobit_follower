@@ -1,0 +1,7 @@
+<launch>
+    <!-- xtion -->
+        <include file="$(find sobit_education_bringup)/launch/3dsensor.launch"/>
+    <!-- urg -->
+        <include file="$(find sobit_education_bringup)/launch/urg.launch"/>
+        <!--include file="$(find sobit_mini_bringup)/launch/urg.launch"/-->
+</launch>

@@ -1,9 +1,0 @@
-
-
-map(odom,world)
-
-basefoot_print(robot)
-
-urg(baselaser_link)
-
-

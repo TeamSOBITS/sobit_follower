@@ -1,3 +1,0 @@
-geometry_msgs/Point robot_point
-geometry_msgs/PointStamped target_point
-bool pre_flag

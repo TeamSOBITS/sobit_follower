@@ -1,306 +1,111 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sobit_follower)
 
-## Compile as C++11, supported in ROS Kinetic and newer
- add_compile_options(-std=c++11)
+add_compile_options(-std=c++14 -O2 -g -Wall)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
+find_package(OpenCV REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
   roscpp
   rospy
-  pcl_conversions
-  pcl_ros
   std_msgs
-  sensor_msgs
-  dynamic_reconfigure
   geometry_msgs
-  tf
+  sensor_msgs
+  visualization_msgs
+  trajectory_msgs
+  message_filters
+  pcl_ros
+  laser_geometry
+  ssd_node
+  sobit_common_msg
   message_generation
-  sobit_follower2
+  cv_bridge
+  sobit_education_library
+  sobit_mini_library
 )
-#find_package(catkin REQUIRED COMPONENTS actionlib_msgs)
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
-##     but can be declared for certainty nonetheless:
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   grouped_points.msg
-   grouped_points_array.msg
-   point_states.msg
-#   Message1.msg
-#   Message2.msg
+add_message_files(
+  FILES
+  FollowPosition.msg
+  Obstacle.msg
 )
-
-## Generate services in the 'srv' folder
- add_service_files(
-   FILES
-   target_predict.srv
+# add_service_files(
+#   FILES
 #   Service1.srv
 #   Service2.srv
- )
-
-## Generate actions in the 'action' folder
+# )
 # add_action_files(
 #   FILES
 #   Action1.action
 #   Action2.action
 # )
-
-## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
-   geometry_msgs
-   #sobit_follower
- )
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-## To declare and build dynamic reconfigure parameters within this
-## package, follow these steps:
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
-## * In this file (CMakeLists.txt):
-##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * uncomment the "generate_dynamic_reconfigure_options" section below
-##     and list every .cfg file to be processed
-
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
-
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if your package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  #INCLUDE_DIRS include 
-#  LIBRARIES sobit_follower
-  CATKIN_DEPENDS roscpp rospy std_msgs rospy message_generation message_runtime
-  #DEPENDS system_lib
+generate_messages(
+  DEPENDENCIES
+  geometry_msgs
+  sensor_msgs
+  std_msgs
 )
 
-
-###########
-## Build ##
-###########
-#set(catkin_INCLUDE_DIR_2 "/home/sobit-x4/catkin_ws/devel" )#"/home/sobit-x4/catkin_ws/devel;" $
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-set(OpenCV_DIR /opt/opencv/opencv_3.4.2/share/OpenCV/)  # for ros melodic
-find_package(OpenCV 3.4.2 REQUIRED #4.0.0
-  NO_MODULE
-  PATHS /usr/local
-  NO_DEFAULT_PATH
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES sobit_follower
+  CATKIN_DEPENDS geometry_msgs message_filters pcl_ros roscpp rospy sensor_msgs ssd_node std_msgs visualization_msgs sobit_education_library sobit_mini_library
+#  DEPENDS system_lib
 )
 
 include_directories(
+  include
   SYSTEM
   ${OpenCV_INCLUDE_DIRS}
-  include
   ${catkin_INCLUDE_DIRS}
-  ../../devel/include
-  ../../../devel/include
-  #/home/sobit-x4/catkin_ws/devel/include
-  #/opt/ros/kinetic/include/
-
 )
- #message("\n\n sobit_follower \n catkin_INCLUDE_DIRS: ${catkin_INCLUDE_DIRS}")
-message("\n\n sobit_follower \n catkin_LIBRARIES: ${catkin_LIBRARIES}")
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/sobit_follower.cpp
-# )
+add_executable(sf_person_tracker src/person_tracker/person_tracker.cpp
+                              src/person_tracker/person_detector.cpp
+                              src/person_tracker/follow_position_handle.cpp
+                              src/sub_functions/standard_point_cloud_handle.cpp
+                              src/sub_functions/point_cloud_tracker.cpp
+                              src/sub_functions/laser_scan_handle.cpp)
+target_link_libraries(sf_person_tracker  ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(sf_person_tracker ${PROJECT_NAME}_generate_messages_cpp)
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(sf_person_aim_xtion_rotator src/sub_functions/person_aim_xtion_rotator.cpp)
+target_link_libraries(sf_person_aim_xtion_rotator ${catkin_LIBRARIES})
+add_dependencies(sf_person_aim_xtion_rotator ${PROJECT_NAME}_generate_messages_cpp)
 
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/sobit_follower_node.cpp)
+add_executable(sf_path_generator src/path_generator/path_generator.cpp
+                              src/path_generator/dynamic_window_approach.cpp
+                              src/path_generator/pid_controller.cpp)
+target_link_libraries(sf_path_generator  ${catkin_LIBRARIES})
+add_dependencies(sf_path_generator ${PROJECT_NAME}_generate_messages_cpp)
 
-## Rename C++ executable without prefix
-## The above recommended prefix causes long target names, the following renames the
-## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+add_executable(sf_follow_simulator src/follow_simulator/follow_simulator.cpp)
+target_link_libraries(sf_follow_simulator  ${catkin_LIBRARIES})
+add_dependencies(sf_follow_simulator ${PROJECT_NAME}_generate_messages_cpp)
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(sf_robot_pose_broadcaster src/follow_simulator/robot_pose_broadcaster.cpp)
+target_link_libraries(sf_robot_pose_broadcaster  ${catkin_LIBRARIES})
+add_dependencies(sf_robot_pose_broadcaster ${PROJECT_NAME}_generate_messages_cpp)
 
-## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+add_executable(sf_sensor_data_saver src/follow_simulator/sensor_data_saver.cpp
+                                  src/sub_functions/standard_point_cloud_handle.cpp)
+target_link_libraries(sf_sensor_data_saver ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(sf_sensor_data_saver ${PROJECT_NAME}_generate_messages_cpp)
 
-#############
-## Install ##
-#############
+add_executable(sf_sensor_data_publisher src/follow_simulator/sensor_data_publisher.cpp
+                                  src/sub_functions/standard_point_cloud_handle.cpp)
+target_link_libraries(sf_sensor_data_publisher ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(sf_sensor_data_publisher ${PROJECT_NAME}_generate_messages_cpp)
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+add_executable(sf_follow_position_recoder src/follow_simulator/follow_position_recoder.cpp)
+target_link_libraries(sf_follow_position_recoder  ${catkin_LIBRARIES})
+add_dependencies(sf_follow_position_recoder ${PROJECT_NAME}_generate_messages_cpp)
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+add_executable(sf_follow_me_handle src/sub_functions/follow_me_handle.cpp)
+target_link_libraries(sf_follow_me_handle  ${catkin_LIBRARIES})
+add_dependencies(sf_follow_me_handle ${PROJECT_NAME}_generate_messages_cpp)
 
-## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_sobit_follower.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
-
-
-#add_executable(sobit_follower src/sobit_follower.cpp)
-#target_link_libraries(sobit_follower ${catkin_LIBRARIES})
-
-#add_executable(urg src/urg.cpp)
-#target_link_libraries(urg ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-
-#add_executable(sample src/sample.cpp)
-#target_link_libraries(sample ${catkin_LIBRARIES})
-
-#add_executable(urg_0707_backup_target_delete src/urg_0707_backup_target_delete.cpp)
-#target_link_libraries(urg_0707_backup_target_delete ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-
-#add_executable(sobit_follower_sub src/sobit_follower_sub.cpp)
-#target_link_libraries(sobit_follower_sub ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-
-#-------------------------------------------------------------------------------------
-
-add_executable(target_scan src/target_scan.cpp)
-target_link_libraries(target_scan ${catkin_LIBRARIES})
-add_dependencies(target_scan ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(Points_grouping_URG src/Points_grouping_URG.cpp)
-target_link_libraries(Points_grouping_URG ${catkin_LIBRARIES})
-add_dependencies(Points_grouping_URG ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(Points_grouping src/Points_grouping.cpp)
-target_link_libraries(Points_grouping ${catkin_LIBRARIES})
-add_dependencies(Points_grouping ${PROJECT_NAME}_generate_messages_cpp)
-
-#add_executable(Points_grouping_PCL src/Points_grouping_PCL.cpp)
-#target_link_libraries(Points_grouping_PCL ${catkin_LIBRARIES})
-#add_dependencies(Points_grouping_PCL ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(path_plan_test src/path_plan_test.cpp)
-target_link_libraries(path_plan_test ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(path_plan_test ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(kalman_check src/kalman_check.cpp)
-target_link_libraries(kalman_check ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(kalman_check ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(kalman_check2 src/kalman_check2.cpp)
-target_link_libraries(kalman_check2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(kalman_check2 ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(kalman src/kalman.cpp)
-target_link_libraries(kalman ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(kalman ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(target_following src/target_following.cpp)
-target_link_libraries(target_following ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(target_following ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(path_plan_test_2 src/path_plan_test_2.cpp)
-target_link_libraries(path_plan_test_2 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(path_plan_test_2 ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(path_plan_test_3 src/path_plan_test_3.cpp)
-target_link_libraries(path_plan_test_3 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(path_plan_test_3 ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(target_scan_check src/target_scan_check.cpp)
-target_link_libraries(target_scan_check ${catkin_LIBRARIES})
-add_dependencies(target_scan_check ${PROJECT_NAME}_generate_messages_cpp) 
-
-#add_executable(sample src/sample.cpp)
-#target_link_libraries(sample ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-#add_dependencies(sample ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(target_scan_check2 src/target_scan_check2.cpp)
-target_link_libraries(target_scan_check2 ${catkin_LIBRARIES})
-add_dependencies(target_scan_check2 ${PROJECT_NAME}_generate_messages_cpp) 
+add_executable(sf_follow_me_talker src/sub_functions/follow_me_talker.cpp)
+target_link_libraries(sf_follow_me_talker  ${catkin_LIBRARIES})
+add_dependencies(sf_follow_me_talker ${PROJECT_NAME}_generate_messages_cpp)

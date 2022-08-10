@@ -1,8 +1,0 @@
-<!-- follow_me_trigger.launch -->
-<launch>
-
-	<node pkg="target_scan_follower" type="follow_me_trigger_test.py" name="follow_me_trigger_test" output="screen"/>
-
-	<include file="$(find voice_trigger)/launch/voice_trigger.launch"/>
-
-</launch>
