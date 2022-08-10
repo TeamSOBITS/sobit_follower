@@ -1,4 +1,7 @@
 <launch>
-    <include file="$(find sobit_follower)\launch\sobit_follower.launch" />
-    <include file="$(find virtual_multiple_sensor_publisher)\launch\sensor_data_publisher.launch" />
+    <arg name="use_rotate"              default="false"/>
+    <include file="$(find sobit_follower)/launch/sobit_follower.launch">
+        <arg name="use_rotate"          value="$(arg use_rotate)"/>
+    </include>
+    <include file="$(find virtual_multiple_sensor_publisher)/launch/sensor_data_publisher.launch" />
 </launch>

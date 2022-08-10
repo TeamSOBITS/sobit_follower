@@ -330,6 +330,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
 
     } else {
         NODELET_ERROR("Failed to call service /dr_spaam_ros_server\n");
+        return;
     }
 
     // Person detection by RGB-D sensor（SSD（Single Shot Multibox Detector））

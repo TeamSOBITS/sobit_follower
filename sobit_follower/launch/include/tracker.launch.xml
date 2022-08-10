@@ -1,8 +1,8 @@
 <launch>
-    <arg name="manager_name" default="nodelet_manager" />
-    <arg name="manager_threads" default="4" />
+    <arg name="manager_name"            default="nodelet_manager" />
+    <arg name="manager_threads"         default="4" />
 
-    <arg name="use_rotate"              default="false"/>
+    <arg name="use_rotate"              default="true"/>
 
     <include file="$(find multiple_sensor_person_tracking)\launch\dr_spaam\dr_spaam_ros_service.launch" />
 
