@@ -1,0 +1,58 @@
+#ParticlePersonTracker : radius search 
+search_radius : 0.25 
+
+#ParticlePersonTracker : allowable_distance
+detect_allowable_distance : 3.0
+tracking_allowable_distance : 0.3
+prediction_allowable_distance : 0.5
+
+# ParticlePersonTracker : cluster_size
+cluster_size_large_obstacle : [0.5, 0.5] 
+
+# ParticlePersonTracker : Time
+#track_update_time : 2.0
+predicted_execution_time : 2.0
+
+# ParticlePersonTracker : flag
+should_output_marker : true
+
+# PCLHandle
+laser_clustering_tolerance : 0.15
+laser_clustering_points_min_size : 1
+laser_clustering_points_max_size : 1000
+large_laser_clustering_tolerance : 0.15
+large_laser_clustering_points_min_size : 30
+large_laser_clustering_points_max_size : 1000
+neighborhood_search_radius : 0.1
+number_of_nearest_neighbors_radius : 2
+keep_organized : false
+
+# PointCloudTracker
+# Ref : https://pointclouds.org/documentation/classpcl_1_1tracking_1_1_k_l_d_adaptive_particle_filter_tracker.html
+bin_size :
+  x : 0.1
+  y : 0.1
+  z : 0.1
+  roll : 0.1
+  pitch : 0.1
+  yaw : 0.1
+kld_adaptive_particle_filter_omp_tracker :
+  max_particle_num : 1000
+  delta : 0.99
+  epsilon : 0.2
+
+# Ref : https://pointclouds.org/documentation/classpcl_1_1tracking_1_1_particle_filter_tracker.html
+particle_filter :
+  iteration_num : 1
+  init_particle_num : 600
+  resample_likelihood_thr : 0.00
+  use_normal : false
+  use_change_detector : true
+
+# Ref : https://pointclouds.org/documentation/classpcl_1_1tracking_1_1_distance_coherence.html
+coherence :
+  resolution : 0.05
+  max_distance : 0.05
+
+#FollowPositionHandle
+nearby_obstacle_distance : 0.3 

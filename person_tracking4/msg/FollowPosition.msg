@@ -1,0 +1,6 @@
+geometry_msgs/Point target
+float64 target_distance
+float64 target_angle
+sensor_msgs/PointCloud2 obstacles
+bool exists_target
+int64 process_flag

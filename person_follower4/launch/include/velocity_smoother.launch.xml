@@ -1,0 +1,16 @@
+<!-- 
+        Velocity smoother
+-->
+<launch>
+    <arg name="manager_name"                default="nodelet_manager" />
+
+    <node pkg="nodelet" type="nodelet" name="velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet $(arg manager_name)">
+        <rosparam file="$(find person_follower4)/param/velocity_smoother.yaml" command="load"/>
+        <!-- velocity commands I/O -->
+        <remap from="/person_follower/velocity_smoother/smooth_cmd_vel" to="/mobile_base/commands/velocity"/>
+
+        <!-- Robot velocity feedbacks -->
+        <remap from="/person_follower/velocity_smoother/odometry"       to="/odom"/>
+        <remap from="/person_follower/velocity_smoother/raw_cmd_vel" to="/person_follower/velocity"/>        
+    </node>
+</launch>

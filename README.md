@@ -1,5 +1,6 @@
-# SOBIT Follower3
-RGB-Dセンサ(xtion)とLRF(URG)を組み合わせた人追従プログラム
+# SOBIT Follower4
+
+RGB-Dセンサ(xtion)とLRF(URG)を組み合わせた人追従プログラム(Nodelet版)
 
 ## Before Use
 必要なパッケージをインストール
@@ -12,7 +13,7 @@ RGB-Dセンサ(xtion)とLRF(URG)を組み合わせた人追従プログラム
 - ssd_node
 
 ```bash
-$ bash ~/catkin_ws/src/sobit_follower3/install.sh 
+$ bash ~/catkin_ws/src/sobit_follower4/install.sh 
 ```
 
 ## How to Use
@@ -24,7 +25,7 @@ $ bash ~/catkin_ws/src/sobit_follower3/install.sh
     ロボットの「minimal.launch」「3dsensor.launch」「urg.launch」を起動すること
 
 ```bash
-$ roslaunch person_follower3 particle_person_follower.launch 
+$ roslaunch person_follower4 particle_person_follower.launch
 ```
 
 ### 2. Single Shot MultiBox Detector × Particle Filter × Support Vector Data Description([Paper]())
@@ -36,5 +37,7 @@ $ roslaunch person_follower3 particle_person_follower.launch
     ロボットの「minimal.launch」「3dsensor.launch」「urg.launch」を起動すること
 
 ```bash
-$ roslaunch person_follower3 svdd_particle_person_follower.launch 
+$ roslaunch person_follower4 svdd_particle_person_follower.launch
 ```
+
+<div align="center"><img src="img/rosgraph.png"></div>
