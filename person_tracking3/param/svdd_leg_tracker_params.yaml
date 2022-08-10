@@ -1,0 +1,30 @@
+# preprocessing Parameter
+clustering_tolerance : 0.05
+clustering_points_min_size : 5
+clustering_points_max_size : 1000
+cluster_size_min : [0.05, 0.05, 0.05]
+cluster_size_max : [0.2, 0.2, 0.2]
+neighborhood_search_radius : 0.1
+number_of_nearest_neighbors_radius : 2
+keep_organized : false
+
+# SVDDLegTracker Parameter
+sac_threshold : 0.01
+sac_probability : 0.95
+finish_inliers_size : 60
+person_distance_range : [0.1, 0.7]
+stop_decision_distance : 0.3
+possible_motion_body_distance : 1.0
+possible_motion_body_angle_degree : 70
+possible_motion_leg_distance : 1.0
+possible_motion_leg_angle_degree : 70
+is_output_msg : false
+
+# LegTracker Parameter
+has_remove_line : true
+tracking_reset_count : 30
+
+#SVDDPersonTracker : allowable_distance
+detect_allowable_distance : 4.0
+tracking_allowable_distance : 0.3
+svdd_allowable_distance : 0.3

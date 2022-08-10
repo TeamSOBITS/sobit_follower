@@ -1,7 +1,0 @@
-geometry_msgs/Point target
-float64 target_distance
-float64 target_angle
-sobit_follower/Obstacle[] obstacles
-bool is_nearby_obstacle
-bool exists_target
-int64 process_flag

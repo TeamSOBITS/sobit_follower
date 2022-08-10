@@ -1,0 +1,22 @@
+# DWA : Step Value
+predict_step : 30 
+sampling_time : 0.1 
+velocity_step : 7.0 
+angle_velocity_step : 15.0 
+# Velocity Limit
+velocity_range : [ 0.0 , 1.5 ]
+angle_range : [ -1.0 , 1.0 ] 
+max_acceration : 1.5 
+max_ang_acceration : 1.5 
+acceleration_gain : 1.1 
+# DWA : Weight
+weight_goal : 1.0 
+weight_obstacle : 5.0 
+weight_angle : 1.0 
+weight_velocity : 1.0 
+# DWA : Cost Distance
+obstacle_center_radius : 0.45
+obstacle_points_radius : 0.45 
+# DWA : Display Flag
+is_display_path : true
+is_display_all_path : true 

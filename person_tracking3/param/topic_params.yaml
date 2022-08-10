@@ -1,0 +1,4 @@
+ssd_topic_name : /ssd_object_detect/objects_rect
+cloud_topic_name : /camera/depth/points
+laser_topic_name : /scan
+target_frame : base_footprint

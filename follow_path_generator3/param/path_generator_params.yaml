@@ -1,0 +1,6 @@
+# Path Generator : Target and robot position
+max_keep_distance : 1.0 
+min_keep_distance : 0.7 
+angle_rotate_stop : 0.1 
+angle_rotate_move : 0.65 
+allows_reverse : false

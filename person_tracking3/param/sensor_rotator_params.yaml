@@ -1,0 +1,3 @@
+is_sobit_mini : false
+camera2person_height : 0.6
+tilt_angle_range : [ 0.0, 0.3 ]

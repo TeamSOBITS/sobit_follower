@@ -1,9 +1,0 @@
-<launch>
-    <include file="$(find text_to_speech)/launch/japanese.launch"/>
-    <group ns = "follow_me_handle">
-        <node pkg="sobit_follower" type="sf_follow_me_handle" name="follow_me_handle" launch-prefix="xterm -font r16 -bg darkblue -e"/>
-    </group>
-    <group ns = "follow_me_talker">
-        <node pkg="sobit_follower" type="sf_follow_me_talker" name="follow_me_talker" launch-prefix="xterm -font r16 -bg darkblue -e"/>
-    </group>
-</launch>

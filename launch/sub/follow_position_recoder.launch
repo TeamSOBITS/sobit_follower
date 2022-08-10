@@ -1,7 +1,0 @@
-<launch>
-    <group ns = "follow_position_recoder">
-        <node pkg="sobit_follower" type="sf_follow_position_recoder" name="follow_position_recoder" launch-prefix="xterm -font r16 -bg darkblue -e"/>
-        <!--param name="filename" type="str" value="/home/sobit-x3/catkin_ws/src/sobit_follower/ex_data/2020_1123/new/new_1.txt"/-->  
-        <param name="filename" type="str" value="/home/sobit-x3/catkin_ws/src/sobit_follower/ex_data/2_1.txt"/>  
-    </group>
-</launch>
