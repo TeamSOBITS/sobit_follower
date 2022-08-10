@@ -1,0 +1,5 @@
+<library path="lib/libperson_following_control">
+    <class name="person_following_control/qt_twist_panel" type="person_following_control::TwistPanel" base_class_type="rviz::Panel">
+        <description>twist panel</description>
+    </class>
+</library>

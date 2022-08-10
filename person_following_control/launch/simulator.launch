@@ -1,0 +1,22 @@
+<launch>
+    <arg name="obstacle_number"         default="50"/>
+    <arg name="observation_noise"       default="0.0"/>
+    <arg name="following_method"        default="0" />
+    <!--# 0 : virtual_spring_model_dynamic_window_approach
+        # 1 : virtual_spring_model
+        # 2 : dynamic_window_approach -->
+
+    <node pkg="rviz" type="rviz" name="rviz" args= "-d $(find person_following_control)/config/rviz/person_following_control.rviz"/>
+    <group ns = "virtual_environment">
+        <node pkg="person_following_control" type="person_following_control_robot_pose_broadcaster" name="person_following_control_robot_pose_broadcaster">
+        </node>
+        <node pkg="person_following_control" type="person_following_control_virtual_environment" name="person_following_control_virtual_environment">
+            <param name="obstacle_number"         type="int"       value="$(arg obstacle_number)"/>
+            <param name="observation_noise"       type="double"    value="$(arg observation_noise)"/>
+        </node>
+    </group>
+
+    <include file="$(find person_following_control)\launch\person_following_control.launch">
+        <arg name="following_method"         value="$(arg following_method)" />
+    </include>
+</launch>

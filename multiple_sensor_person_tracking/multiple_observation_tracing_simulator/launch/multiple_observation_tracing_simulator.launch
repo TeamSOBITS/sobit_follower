@@ -1,0 +1,21 @@
+<launch>
+    <node pkg="rviz" type="rviz" name="rviz" args= "-d $(find multiple_observation_tracing_simulator)/config/rviz/virtual_environment.rviz"/>
+    <group ns = "multiple_observation_tracing_simulator">
+        <node pkg="multiple_observation_tracing_simulator" type="multiple_observation_tracing_simulator_virtual_environment" name="virtual_environment" output="screen">
+        </node>
+        <node pkg="multiple_observation_tracing_simulator" type="multiple_observation_tracing_simulator_observed_publisher" name="observed_publisher" output="screen">
+        </node>
+        <node pkg="multiple_observation_tracing_simulator" type="multiple_observation_tracing_simulator_robot_pose_broadcaster" name="robot_pose_broadcaster" output="screen">
+        </node>
+        <node pkg="multiple_observation_tracing_simulator" type="multiple_observation_tracing_simulator_target_controller" name="target_controller" output="screen">
+        </node>
+        <node pkg="multiple_observation_tracing_simulator" type="multiple_observation_tracing_simulator_tracker" name="tracker" output="screen">
+        </node>
+        <node pkg="multiple_observation_tracing_simulator" type="multiple_observation_tracing_simulator_following_control" name="following_control">
+            <rosparam file="$(find multiple_observation_tracing_simulator)/param/virtual_spring_model_params.yaml" command="load"/>
+        </node>
+    </group>
+    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+    <!-- <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard" launch-prefix="xterm -font r16 -bg darkblue -e"> -->
+    <!-- </node>  -->
+</launch>

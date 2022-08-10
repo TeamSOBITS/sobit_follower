@@ -1,0 +1,3 @@
+sensor_msgs/LaserScan scan
+---
+geometry_msgs/PoseArray leg_pose_array

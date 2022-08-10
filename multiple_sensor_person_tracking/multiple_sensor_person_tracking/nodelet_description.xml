@@ -1,0 +1,14 @@
+<library path="lib/libmultiple_sensor_person_tracking">
+    <class name="multiple_sensor_person_tracking/PersonTracker"
+        type="multiple_sensor_person_tracking::PersonTracker"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/PersonAimSensorRotator"
+        type="multiple_sensor_person_tracking::PersonAimSensorRotator"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+</library>
