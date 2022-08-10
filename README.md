@@ -17,3 +17,26 @@
 <div align="center">
     <img src="person_following_control/doc/img/person_following_control.png" width="1080">
 </div>
+
+## How to Use
+### sobit_follower.launch
+- [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
+    - [tracker.launch.xml](sobit_follower/launch/include/tracker.launch.xml)
+    - [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
+- Parameter file
+    - [topic_params.yaml](sobit_follower/param/topic_params.yaml)
+    - [tracking_params.yaml](sobit_follower/param/tracking_params.yaml)
+    - [ssd_params.yaml](sobit_follower/param/ssd_params.yaml)
+    - [kalman_filter_params.yaml](sobit_follower/param/kalman_filter_params.yaml)
+    - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
+    - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
+```bash
+$ roslaunch sobit_follower sobit_follower.launch
+```
+### simulator.launch
+```bash
+$ roslaunch sobit_follower simulator.launch
+```
+<div align="center">
+    <img src="sobit_follower/doc/img/sobit_follower.png" width="1080">
+</div>

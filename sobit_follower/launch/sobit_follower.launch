@@ -1,0 +1,12 @@
+<launch>
+    <arg name="rviz"                    default="true"/>
+    <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    <arg name="rqt_reconfigure"         default="true"/>
+
+    <include file="$(find sobit_follower)\launch\include\tracker.launch.xml" />
+    <include file="$(find sobit_follower)\launch\include\person_following_control.launch.xml" />
+
+    <node if="$(arg rqt_reconfigure)" pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+</launch>

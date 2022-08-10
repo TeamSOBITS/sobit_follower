@@ -1,0 +1,6 @@
+leg_tracking_range : 0.75
+body_tracking_range : 0.75
+target_cloud_radius : 0.4
+outlier_radius : 0.1
+outlier_min_pts : 2
+leaf_size : 0.1

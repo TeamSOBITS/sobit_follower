@@ -1,0 +1,20 @@
+<launch>
+    <arg name="manager_name"            default="nodelet_manager" />
+    <arg name="manager_threads"         default="4" />
+
+    <arg name="following_method"        default="0" />
+    <!--# 0 : virtual_spring_model_dynamic_window_approach
+        # 1 : virtual_spring_model
+        # 2 : dynamic_window_approach -->
+
+    <group ns = "person_following_control">
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+            <param name="num_worker_threads" value="$(arg manager_threads)" />
+        </node>
+
+        <node pkg="nodelet" type="nodelet" name="person_following_control" args="load person_following_control/PersonFollowing $(arg manager_name)" >
+            <rosparam file="$(find sobit_follower)/param/following_control_param.yaml" command="load" />
+            <param name="following_method" value="$(arg following_method)" />
+        </node>
+    </group>
+</launch>

@@ -1,0 +1,42 @@
+# Following Control
+following_position_topic_name : /multiple_sensor_person_tracking/following_position
+odom_topic_name : /odom
+
+base_footprint_name         : base_footprint
+following_distance          : 0.7
+
+# Virtual Spring Model
+following_angle_deg         : 0.0       # theta_sh [deg]
+spring_constant_linear      : 30.0      # k_1 [N/m]
+spring_constant_angular     : 0.01      # k_2 [N・m/rad]
+weight_robot                : 30.0      # M [Kg]
+moment_inertia              : 15.0      # I [Kg・m^2]
+viscous_friction_linear     : 1.00      # k_3 [N・s/m]
+viscous_friction_angular    : 1.00      # k_4 [N・s/rad]
+radius_robot                : 0.3       # L [m]
+display_vsm_path            : true
+display_vsm_target          : false
+
+# Dynamic Window Approach :Velocity Limit
+min_velocity : 0.0
+max_velocity : 1.2
+min_angle_velocity_deg : -90.0
+max_angle_velocity_deg : 90.0
+# Dynamic Window Approach : Step Value
+predict_step : 15
+sampling_time : 0.1     # Predicted time[s] = predict_step[step] * sampling_time[s]
+velocity_step : 7.0
+angle_velocity_step : 30.0
+# Dynamic Window Approach : Weight
+weight_goal : 5.0
+weight_obstacle : 5.0
+weight_angle : 1.0
+weight_velocity : 0.5
+# Dynamic Window Approach : VSM-DWA Weight
+weight_vsm_angular : 1.0
+weight_vsm_linear : 2.0
+# Dynamic Window Approach : Cost Distance
+obstacle_cost_radius : 0.35
+# Dynamic Window Approach : Display Flag
+display_optimal_path : true
+display_all_path : true

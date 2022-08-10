@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>sobit_follower</name>
+  <version>0.0.0</version>
+  <description>The sobit_follower package</description>
+
+  <maintainer email="sobits@todo.todo">sobits</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>multiple_sensor_person_tracking</build_depend>
+  <build_depend>person_following_control</build_depend>
+  <build_export_depend>multiple_sensor_person_tracking</build_export_depend>
+  <build_export_depend>person_following_control</build_export_depend>
+  <exec_depend>multiple_sensor_person_tracking</exec_depend>
+  <exec_depend>person_following_control</exec_depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>
