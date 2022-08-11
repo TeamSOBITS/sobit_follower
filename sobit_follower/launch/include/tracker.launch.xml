@@ -3,8 +3,19 @@
     <arg name="manager_threads"         default="4" />
 
     <arg name="use_rotate"              default="true"/>
+    <arg name="display_marker"          default="true"/>
 
-    <include file="$(find multiple_sensor_person_tracking)\launch\dr_spaam\dr_spaam_ros_service.launch" />
+    <include file="$(find multiple_sensor_person_tracking)\launch\dr_spaam\dr_spaam_ros.launch">
+        <arg name="rviz"                        value="false" />
+    </include>
+    <include file="$(find multiple_sensor_person_tracking)\launch\ssd\ssd_pose_ros.launch">
+        <arg name="rviz"                        value="false" />
+        <arg name="ssd_img_show_flag"           value="false" />
+        <arg name="ssd_execute_default"         value="true" />
+        <arg name="ssd_pub_result_image"        value="true" />
+        <arg name="rqt_image_view_flag"         value="false" />
+        <arg name="use_tf"                      value="false" />
+    </include>
 
     <group ns = "multiple_sensor_person_tracking">
         <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
@@ -12,10 +23,8 @@
         </node>
 
         <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/PersonTracker $(arg manager_name)" >
-            <rosparam file="$(find sobit_follower)/param/topic_params.yaml" command="load" />
-            <rosparam file="$(find sobit_follower)/param/ssd_params.yaml" command="load" />
-            <rosparam file="$(find sobit_follower)/param/kalman_filter_params.yaml" command="load" />
-            <rosparam file="$(find sobit_follower)/param/tracking_params.yaml" command="load" />
+            <rosparam file="$(find sobit_follower)/param/tracker_params.yaml" command="load" />
+            <param name="display_marker" value="$(arg display_marker)" />
         </node>
 
         <node pkg="nodelet" type="nodelet" name="sensor_rotator" args="load multiple_sensor_person_tracking/PersonAimSensorRotator $(arg manager_name)" >

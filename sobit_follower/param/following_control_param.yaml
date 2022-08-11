@@ -14,7 +14,7 @@ moment_inertia              : 15.0      # I [Kg・m^2]
 viscous_friction_linear     : 1.00      # k_3 [N・s/m]
 viscous_friction_angular    : 1.00      # k_4 [N・s/rad]
 radius_robot                : 0.3       # L [m]
-display_vsm_path            : true
+# display_vsm_path            : true
 display_vsm_target          : false
 
 # Dynamic Window Approach :Velocity Limit
@@ -36,7 +36,7 @@ weight_velocity : 0.5
 weight_vsm_angular : 1.0
 weight_vsm_linear : 2.0
 # Dynamic Window Approach : Cost Distance
-obstacle_cost_radius : 0.35
+obstacle_cost_radius : 0.5
 # Dynamic Window Approach : Display Flag
-display_optimal_path : true
-display_all_path : true
+# display_optimal_path : true
+# display_all_path : true

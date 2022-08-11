@@ -5,7 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /PointCloud22
+        - /SSD1
       Splitter Ratio: 0.6805555820465088
     Tree Height: 303
   - Class: rviz/Selection
@@ -95,7 +95,7 @@ Visualization Manager:
       Axes Radius: 0.009999999776482582
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
       Name: DR-SPAAM_Detections
@@ -105,13 +105,13 @@ Visualization Manager:
       Shape: Arrow (Flat)
       Topic: /dr_spaam_detections
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /dr_spaam_rviz
       Name: DR-SPAAM_Rviz
       Namespaces:
-        {}
+        dr_spaam_ros: true
       Queue Size: 100
       Value: true
     - Class: rviz/Image
@@ -156,7 +156,7 @@ Visualization Manager:
       Value: false
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /multiple_sensor_person_tracking/detect_result
+      Image Topic: /ssd_object_detect/detect_result
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -172,8 +172,6 @@ Visualization Manager:
       Name: MarkerArray
       Namespaces:
         body_marker: true
-        leg_area_marker: true
-        leg_marker: true
         target_marker: true
       Queue Size: 100
       Value: true
@@ -281,5 +279,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1667
-  X: 2005
-  Y: 64
+  X: 2060
+  Y: 117

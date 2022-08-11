@@ -7,6 +7,8 @@
         # 1 : virtual_spring_model
         # 2 : dynamic_window_approach -->
 
+    <arg name="display_marker"          default="true"/>
+
     <group ns = "person_following_control">
         <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
             <param name="num_worker_threads" value="$(arg manager_threads)" />
@@ -14,7 +16,10 @@
 
         <node pkg="nodelet" type="nodelet" name="person_following_control" args="load person_following_control/PersonFollowing $(arg manager_name)" >
             <rosparam file="$(find sobit_follower)/param/following_control_param.yaml" command="load" />
-            <param name="following_method" value="$(arg following_method)" />
+            <param name="following_method"      value="$(arg following_method)" />
+            <param name="display_vsm_path"      value="$(arg display_marker)" />
+            <param name="display_optimal_path"  value="$(arg display_marker)" />
+            <param name="display_all_path"      value="$(arg display_marker)" />
         </node>
     </group>
 </launch>

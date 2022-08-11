@@ -41,7 +41,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::LaserScan, sensor_msgs::Image, sensor_msgs::PointCloud2> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::LaserScan, geometry_msgs::PoseArray, sobit_common_msg::ObjectPoseArray> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     class PersonTracker : public nodelet::Nodelet {
@@ -49,20 +49,17 @@ namespace multiple_sensor_person_tracking {
             ros::NodeHandle nh_;
             ros::NodeHandle pnh_;
             ros::Publisher pub_following_position_;
-            ros::Publisher pub_result_img_;
             ros::Publisher pub_marker_;
             ros::Publisher pub_obstacles_;
-            ros::ServiceClient client_legs_detection_;
 
             std::unique_ptr<message_filters::Subscriber<sensor_msgs::LaserScan>> sub_laser_;
-            std::unique_ptr<message_filters::Subscriber<sensor_msgs::Image>> sub_img_;
-            std::unique_ptr<message_filters::Subscriber<sensor_msgs::PointCloud2>> sub_cloud_;
+            std::unique_ptr<message_filters::Subscriber<geometry_msgs::PoseArray>> sub_dr_spaam_;
+            std::unique_ptr<message_filters::Subscriber<sobit_common_msg::ObjectPoseArray>> sub_ssd_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>::CallbackType f_;
 
-            std::unique_ptr<ssd_nodelet::SingleShotMultiboxDetector> ssd_;
             std::unique_ptr<multiple_sensor_person_tracking::KalmanFilter> kf_;
             laser_geometry::LaserProjection projector_;
             cv_bridge::CvImagePtr cv_ptr_;
@@ -79,7 +76,9 @@ namespace multiple_sensor_person_tracking {
             bool exists_target_;
             double leg_tracking_range_;
             double body_tracking_range_;
+            double target_range_;
             double target_cloud_radius_;
+            bool display_marker_;
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
@@ -96,11 +95,7 @@ namespace multiple_sensor_person_tracking {
 
             void searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles );
 
-            void callbackSenserData (
-                const sensor_msgs::LaserScanConstPtr &scan_msg,
-                const sensor_msgs::ImageConstPtr &img_msg,
-                const sensor_msgs::PointCloud2ConstPtr &cloud_msg
-            );
+            void callbackSenserData ( const sensor_msgs::LaserScanConstPtr &scan_msg, const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg );
 
         public:
             virtual void onInit();
@@ -199,6 +194,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure(
     kf_->changeParameter( config.process_noise, config.system_noise );
     leg_tracking_range_ = config.leg_tracking_range;
     body_tracking_range_ = config.body_tracking_range;
+    target_range_ = config.target_range;
+    display_marker_ = config.display_marker;
 
     outrem_.setRadiusSearch( config.outlier_radius );
     outrem_.setMinNeighborsInRadius ( config.outlier_min_pts );
@@ -216,7 +213,7 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     Eigen::Vector2f* body_observed_value )
 {
     geometry_msgs::Point search_pt, leg_pt, body_pt;
-    double min_distance = ( exists_target_ ) ? leg_tracking_range_ : DBL_MAX;
+    double min_distance = ( exists_target_ ) ? leg_tracking_range_ : target_range_;
     bool exists_leg_pt = false, exists_body_pt = false;
     int result;
     if ( !exists_target_ ) {
@@ -237,7 +234,7 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
             exists_leg_pt = true;
         }
     }
-    min_distance = ( exists_target_ ) ? body_tracking_range_ : DBL_MAX;
+    min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
     for ( const auto& pose : body_poses ) {
         double distance = std::hypotf( pose.pose.position.x - search_pt.x, pose.pose.position.y - search_pt.y );
         if ( min_distance > distance ) {
@@ -282,69 +279,37 @@ void multiple_sensor_person_tracking::PersonTracker::searchObstacles( const geom
     return;
 }
 
-void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
-    const sensor_msgs::LaserScanConstPtr &scan_msg,
-    const sensor_msgs::ImageConstPtr &img_msg,
-    const sensor_msgs::PointCloud2ConstPtr &cloud_msg ) {
+void multiple_sensor_person_tracking::PersonTracker::callbackSenserData ( const sensor_msgs::LaserScanConstPtr &scan_msg, const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg ) {
+    std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
     sensor_msgs::PointCloud2Ptr cloud_scan_msg ( new sensor_msgs::PointCloud2 );
     PointCloud::Ptr cloud_scan (new PointCloud());
-    PointCloud::Ptr cloud (new PointCloud());
-    cv::Mat img_raw;
-    sobit_common_msg::StringArrayPtr detect_object_name(new sobit_common_msg::StringArray);
-    sobit_common_msg::BoundingBoxesPtr object_bbox_array(new sobit_common_msg::BoundingBoxes);
-    sobit_common_msg::ObjectPoseArrayPtr body_pose_array(new sobit_common_msg::ObjectPoseArray);
-    sensor_msgs::ImagePtr result_img_msg(new sensor_msgs::Image);
     visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
     person_following_control::FollowingPositionPtr following_position( new person_following_control::FollowingPosition );
     double dt = ( scan_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
     previous_time_ = scan_msg->header.stamp.toSec();
+
     // Sensor data to TF conversion
     try {
         tf_listener_.waitForTransform( target_frame, scan_msg->header.frame_id, scan_msg->header.stamp, ros::Duration(5.0) );
         projector_.transformLaserScanToPointCloud( target_frame, *scan_msg, *cloud_scan_msg, tf_listener_ );
         pcl::fromROSMsg<PointT>( *cloud_scan_msg, *cloud_scan);
-        pcl::fromROSMsg<PointT>( *cloud_msg, *cloud );
-        tf_listener_.waitForTransform( target_frame, cloud->header.frame_id, ros::Time(0), ros::Duration(1.0));
-        pcl_ros::transformPointCloud( target_frame, ros::Time(0), *cloud, cloud->header.frame_id,  *cloud, tf_listener_ );
         cloud_scan->header.frame_id = target_frame;
-        cloud->header.frame_id = target_frame;
     } catch ( const tf::TransformException& ex ) {
         ROS_ERROR("%s", ex.what());
         return;
     }
-    try {
-        cv_ptr_ = cv_bridge::toCvCopy( img_msg, sensor_msgs::image_encodings::BGR8 );
-        img_raw = cv_ptr_->image.clone();
-    } catch ( const cv_bridge::Exception& ex ) {
-        NODELET_ERROR("cv_bridge exception: %s", ex.what());
-        return;
-    }
-    // Person detection by 2D-LiDAR（DR-SPAAM（Distance Robust SPatial Attention and Auto-regressive Model））
-    multiple_sensor_person_tracking::LegDetection srv;
-    srv.request.scan = *scan_msg;
-    if (client_legs_detection_.call(srv)) {
-        NODELET_INFO("DR-SPAAM Result : %zu", srv.response.leg_pose_array.poses.size());
-    } else {
-        NODELET_ERROR("Failed to call service /dr_spaam_ros_server\n");
-        return;
-    }
 
-    // Person detection by RGB-D sensor（SSD（Single Shot Multibox Detector））
-    ssd_->conpute( img_raw, cloud, img_msg->header, cloud_msg->header, detect_object_name, object_bbox_array, body_pose_array, result_img_msg);
-    pub_result_img_.publish( result_img_msg );
-    NODELET_INFO("SSD Result :      %zu", body_pose_array->object_poses.size());
-    if ( !exists_target_ && body_pose_array->object_poses.size() == 0 ) {
+    if ( !exists_target_ && ssd_msg->object_poses.size() == 0 ) {
         NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
         exists_target_ = false;
         return;
     }
-
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
-    int result = findTwoObservationValue( srv.response.leg_pose_array.poses, body_pose_array->object_poses, &leg_observed_value, &body_observed_value );
+    int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
     if ( result == NO_EXISTS ) {
         NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
         exists_target_ = false;
@@ -372,29 +337,31 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData (
     geometry_msgs::Quaternion geometry_quat;
     quaternionTFToMsg(quat, geometry_quat);
     following_position->pose.orientation = geometry_quat;
+
     // following_position : obstacles :
     outrem_.setInputCloud( cloud_scan );
     outrem_.filter ( *cloud_scan );
     voxel_.setInputCloud( cloud_scan );
     voxel_.filter ( *cloud_scan );
     searchObstacles( following_position->pose.position, cloud_scan, &following_position->obstacles );
+
     // following_position : header :
     following_position->header.stamp = ros::Time::now();
     pub_following_position_.publish( following_position );
-
     NODELET_INFO("Result :          %s", ( result == EXISTS_LEG ? "EXISTS_LEG" : ( result == EXISTS_BODY ? "EXISTS_BODY" : "EXISTS_LEG_AND_BODY")) );
     NODELET_INFO("Tracker: x = %8.3f [m],\ty = %8.3f [m]", following_position->pose.position.x, following_position->pose.position.y);
 
-
-    pub_obstacles_.publish( following_position->obstacles );
-    marker_array->markers.push_back( makeLegPoseMarker(srv.response.leg_pose_array.poses) );
-    marker_array->markers.push_back( makeLegAreaMarker(srv.response.leg_pose_array.poses) );
-    marker_array->markers.push_back( makeBodyPoseMarker(body_pose_array->object_poses) );
-    marker_array->markers.push_back( makeTargetPoseMarker(estimated_value) );
-    pub_marker_.publish ( marker_array );
+    if ( display_marker_ ) {
+        pub_obstacles_.publish( following_position->obstacles );
+        marker_array->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
+        // marker_array->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
+        marker_array->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
+        marker_array->markers.push_back( makeTargetPoseMarker(estimated_value) );
+        pub_marker_.publish ( marker_array );
+    }
     previous_target_ = following_position->pose.position;
-
     // NODELET_INFO("dt     : %.4f [sec] ( %.4f [Hz] )\n", dt, 1.0/dt );
+
     return;
 }
 
@@ -405,29 +372,17 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
     // message_filters :
     sub_laser_ .reset ( new message_filters::Subscriber<sensor_msgs::LaserScan> ( nh_, pnh_.param<std::string>( "laser_topic_name", "/scan" ), 1 ) );
-    sub_img_ .reset ( new message_filters::Subscriber<sensor_msgs::Image> ( nh_, pnh_.param<std::string>( "image_topic_name", "/camera/rgb/image_raw" ), 1 ) );
-    sub_cloud_ .reset ( new message_filters::Subscriber<sensor_msgs::PointCloud2> ( nh_, pnh_.param<std::string>( "cloud_topic_name", "/camera/depth/points" ), 1 ) );
+    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::PoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
+    sub_ssd_ .reset ( new message_filters::Subscriber<sobit_common_msg::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
 
-    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_laser_, *sub_img_, *sub_cloud_ ) );
+    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_laser_, *sub_dr_spaam_, *sub_ssd_ ) );
     sync_ ->registerCallback ( boost::bind( &PersonTracker::callbackSenserData, this, _1, _2, _3 ) );
 
     pub_following_position_ = nh_.advertise< person_following_control::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );
-    pub_result_img_ = nh_.advertise<sensor_msgs::Image>("detect_result", 1);
     pub_obstacles_ = nh_.advertise<sensor_msgs::PointCloud2>("obstacles", 1);
-    // ros::service::waitForService("/dr_spaam_ros_server", ros::Duration(5.0));
-    client_legs_detection_ = nh_.serviceClient<multiple_sensor_person_tracking::LegDetection>("/dr_spaam_ros_server");
 
-    std::string model_configuration_path = ros::package::getPath("ssd_nodelet") + "/models/" + pnh_.param<std::string>("ssd_prototxt_name", "voc_object.prototxt");
-    std::string model_binary_path = ros::package::getPath("ssd_nodelet") + "/models/" + pnh_.param<std::string>("ssd_caffemodel_name", "voc_object.caffemodel");
-    std::string class_names_file_path = ros::package::getPath("ssd_nodelet") + "/models/" + pnh_.param<std::string>("ssd_class_names_file", "voc_object_names.txt");
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
-
-    ssd_.reset( new ssd_nodelet::SingleShotMultiboxDetector( model_configuration_path, model_binary_path, class_names_file_path ) );
-    ssd_->setDNNParametr( pnh_.param<double>("ssd_in_scale_factor", 0.007843), pnh_.param<double>("ssd_confidence_threshold", 0.5) );
-    ssd_->setImgShowFlag( pnh_.param<bool>("ssd_img_show_flag", true) );
-    ssd_->setUseTF( pnh_.param<bool>("use_tf", true), target_frame_ );
-    ssd_->specifyDetectionObject( pnh_.param<bool>("object_specified_enabled", false), pnh_.param<std::string>("specified_object_name", "None") );
 
     kf_.reset( new multiple_sensor_person_tracking::KalmanFilter( 0.033, 1000, 1.0 ) );
 

@@ -8,8 +8,11 @@
 
     <include file="$(find sobit_follower)/launch/include/tracker.launch.xml">
         <arg name="use_rotate"          value="$(arg use_rotate)"/>
+        <arg name="display_marker"      value="$(arg rviz)"/>
     </include>
-    <include file="$(find sobit_follower)/launch/include/person_following_control.launch.xml" />
+    <include file="$(find sobit_follower)/launch/include/person_following_control.launch.xml" >
+        <arg name="display_marker"      value="$(arg rviz)"/>
+    </include>
 
     <node if="$(arg rqt_reconfigure)" pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
 </launch>

@@ -1,4 +1,4 @@
 laser_topic_name : /scan
-image_topic_name : /camera/rgb/image_raw
-cloud_topic_name : /camera/depth/points
+dr_spaam_topic_name : /dr_spaam_detections
+ssd_topic_name : /ssd_object_detect/object_pose
 target_frame : base_footprint

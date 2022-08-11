@@ -1,4 +1,0 @@
-laser_topic_name : /scan
-image_topic_name : /camera/rgb/image_raw
-cloud_topic_name : /camera/depth/points
-target_frame : base_footprint

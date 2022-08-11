@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /TF1/Frames1
       Splitter Ratio: 0.5
-    Tree Height: 367
+    Tree Height: 491
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -56,91 +56,15 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        arm_base_link:
-          Value: false
-        arm_flex_link:
-          Value: false
-        arm_flex_link_rgt_lft:
-          Value: false
-        arm_roll_link:
-          Value: false
         base_footprint:
           Value: true
         base_laser_link:
           Value: true
-        base_link:
-          Value: false
-        base_pole_link:
-          Value: false
-        base_urg_sup_link:
-          Value: false
-        camera_depth_optical_frame:
-          Value: false
-        camera_link:
-          Value: false
         camera_rgb_optical_frame:
-          Value: false
-        caster_back_link:
-          Value: false
-        caster_front_link:
-          Value: false
-        cliff_sensor_front_link:
-          Value: false
-        cliff_sensor_left_link:
-          Value: false
-        cliff_sensor_right_link:
-          Value: false
-        depth_link:
-          Value: false
-        elbow_flex_link:
-          Value: false
-        elbow_flex_link_rgt_lft:
-          Value: false
-        gyro_link:
-          Value: false
-        hand_motor_center_link:
-          Value: false
-        hand_motor_dummy_link:
-          Value: false
-        hand_motor_l_link:
-          Value: false
-        hand_motor_link:
-          Value: false
-        hand_motor_r_link:
-          Value: false
-        matrix:
-          Value: false
-        matrix_base_link:
-          Value: false
-        matrix_board_link:
-          Value: false
-        mic:
-          Value: false
-        mic_stand_link:
           Value: false
         odom:
           Value: false
-        plate_bottom_link:
-          Value: false
-        plate_middle_link:
-          Value: false
-        plate_top_link:
-          Value: false
-        rgb_link:
-          Value: true
-        wheel_left_link:
-          Value: false
-        wheel_right_link:
-          Value: false
-        wrist_flex_dummy_link:
-          Value: false
-        wrist_flex_link:
-          Value: false
-        xtion_double_sided_tape_link:
-          Value: false
         xtion_pan_link:
-          Value: false
-        xtion_tilt_link:
           Value: false
       Marker Alpha: 1
       Marker Scale: 1
@@ -151,67 +75,10 @@ Visualization Manager:
       Tree:
         odom:
           base_footprint:
-            base_link:
-              caster_back_link:
-                {}
-              caster_front_link:
-                {}
-              cliff_sensor_front_link:
-                {}
-              cliff_sensor_left_link:
-                {}
-              cliff_sensor_right_link:
-                {}
-              gyro_link:
-                {}
-              plate_bottom_link:
-                base_urg_sup_link:
-                  base_laser_link:
-                    {}
-              plate_middle_link:
-                {}
-              plate_top_link:
-                arm_base_link:
-                  arm_roll_link:
-                    arm_flex_link:
-                      elbow_flex_link:
-                        wrist_flex_dummy_link:
-                          wrist_flex_link:
-                            hand_motor_center_link:
-                              {}
-                            hand_motor_dummy_link:
-                              hand_motor_l_link:
-                                {}
-                              hand_motor_link:
-                                {}
-                              hand_motor_r_link:
-                                {}
-                      elbow_flex_link_rgt_lft:
-                        {}
-                    arm_flex_link_rgt_lft:
-                      {}
-                base_pole_link:
-                  matrix_base_link:
-                    matrix_board_link:
-                      matrix:
-                        {}
-                  mic_stand_link:
-                    mic:
-                      {}
-                  xtion_pan_link:
-                    xtion_tilt_link:
-                      xtion_double_sided_tape_link:
-                        rgb_link:
-                          camera_link:
-                            {}
-                          camera_rgb_optical_frame:
-                            {}
-                          depth_link:
-                            camera_depth_optical_frame:
-                              {}
-              wheel_left_link:
-                {}
-              wheel_right_link:
+            base_laser_link:
+              {}
+            camera_rgb_optical_frame:
+              xtion_pan_link:
                 {}
       Update Interval: 0
       Value: true
@@ -229,7 +96,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /multiple_sensor_person_tracking/detect_result
+      Image Topic: /ssd_object_detect/detect_result
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -301,7 +168,6 @@ Visualization Manager:
       Name: Tracker
       Namespaces:
         body_marker: true
-        leg_area_marker: true
         leg_marker: true
         target_marker: true
       Queue Size: 100
@@ -311,7 +177,7 @@ Visualization Manager:
       Marker Topic: /dwa_path_marker
       Name: DWA
       Namespaces:
-        {}
+        optimal_path: true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -319,7 +185,7 @@ Visualization Manager:
       Marker Topic: /dwa_path_marker_all
       Name: DWA(ALL)
       Namespaces:
-        {}
+        all_path: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -327,7 +193,15 @@ Visualization Manager:
       Marker Topic: /vsm_path_marker
       Name: VSM
       Namespaces:
-        {}
+        virtual_spring_path: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /dr_spaam_rviz
+      Name: Marker
+      Namespaces:
+        dr_spaam_ros: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -367,20 +241,20 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 141.16793823242188
+      Scale: 135.15687561035156
       Target Frame: <Fixed Frame>
       X: 1.666855812072754
       Y: -0.01653756946325302
     Saved: ~
 Window Geometry:
   Displays:
-    collapsed: true
+    collapsed: false
   Height: 1016
-  Hide Left Dock: true
+  Hide Left Dock: false
   Hide Right Dock: true
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000015600000221fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000012900000221000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000325fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000039000003250000009d00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000003a4000000eafc0100000003fb000000060053005300440100000000000001e70000004c00fffffffb0000000a0049006d00610067006501000001ed000001b70000005600fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000003a40000003efc0100000002fb0000000800540069006d00650100000000000003a40000020400fffffffb0000000800540069006d00650100000000000004500000000000000000000003a40000027200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000015600000272fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000012900000272000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000325fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000039000003250000009d00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000748000000eafc0100000003fb000000060053005300440100000000000003530000004c00fffffffb0000000a0049006d0061006700650100000359000003ef0000005600fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007480000003efc0100000002fb0000000800540069006d00650100000000000007480000020400fffffffb0000000800540069006d00650100000000000004500000000000000000000005ec0000027200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   SSD:
     collapsed: false
   Selection:
@@ -391,6 +265,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: true
-  Width: 932
-  X: 56
+  Width: 1864
+  X: 1976
   Y: 27

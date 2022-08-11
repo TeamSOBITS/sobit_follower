@@ -45,7 +45,7 @@
             <param name="ssd_prototxt_name"         type="str"      value="$(arg ssd_prototxt_name)"/>
             <param name="ssd_caffemodel_name"       type="str"      value="$(arg ssd_caffemodel_name)"/>
             <param name="ssd_class_names_file"      type="str"      value="$(arg ssd_class_names_file)"/>
-        </node>  
-    </group>  
+        </node>
+    </group>
     <node if="$(arg rqt_image_view_flag)" pkg="rqt_image_view" type="rqt_image_view" name="image_view_debug" args="/ssd_object_detect/detect_result"/>
 </launch>
