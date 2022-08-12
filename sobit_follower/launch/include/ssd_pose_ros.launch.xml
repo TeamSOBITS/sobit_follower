@@ -1,0 +1,21 @@
+<launch>
+    <arg name="manager_name"                default="ssd_nodelet_manager" />
+    <arg name="manager_threads"             default="8" />
+    <arg name="rqt_image_view_flag"         default="false"/>
+    <!-- rviz -->
+    <arg name="rviz"                    default="false"/>
+    <arg name="rviz_cfg"                default="$(find ssd_nodelet)/config/rviz/ssd_nodelet.rviz"/>
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    <group ns = "ssd_object_detect">
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+            <param name="num_worker_threads" value="$(arg manager_threads)" />
+        </node>
+
+        <node pkg="nodelet" type="nodelet" name="ssd_nodelet" args="load ssd_nodelet/ImageCloudSubscriber $(arg manager_name)" >
+            <rosparam file="$(find sobit_follower)/param/ssd_param.yaml" command="load" />
+            <param name="rqt_image_view_flag"   value="$(arg rqt_image_view_flag)" />
+        </node>
+    </group>
+    <node if="$(arg rqt_image_view_flag)" pkg="rqt_image_view" type="rqt_image_view" name="image_view_debug" args="/ssd_object_detect/detect_result"/>
+</launch>

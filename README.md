@@ -22,16 +22,17 @@
 ### sobit_follower.launch
 - [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
     - [tracker.launch.xml](sobit_follower/launch/include/tracker.launch.xml)
+    - [ssd_pose_ros.launch.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.launch.xml)
+    - [dr_spaam_ros.launch.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.launch.xml)
     - [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
 - Parameter file
-    - [topic_params.yaml](sobit_follower/param/topic_params.yaml)
-    - [tracking_params.yaml](sobit_follower/param/tracking_params.yaml)
-    - [ssd_params.yaml](sobit_follower/param/ssd_params.yaml)
-    - [kalman_filter_params.yaml](sobit_follower/param/kalman_filter_params.yaml)
+    - [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
+    - [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
+    - [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
     - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
     - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
 ```bash
-$ roslaunch sobit_follower sobit_follower.launch
+$ roslaunch sobit_follower sobit_follower.launch rviz:=false rqt_reconfigure:=false
 ```
 ### simulator.launch
 ```bash
