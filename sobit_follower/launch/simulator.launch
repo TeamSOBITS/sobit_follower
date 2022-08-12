@@ -5,5 +5,10 @@
         <arg name="use_rotate"          value="$(arg use_rotate)"/>
         <arg name="rviz"                value="$(arg rviz)"/>
     </include>
-    <include file="$(find virtual_multiple_sensor_publisher)/launch/sensor_data_publisher.launch" />
+    <include file="$(find virtual_multiple_sensor_publisher)/launch/sensor_data_publisher.launch">
+        <arg name="initial_number_of_data"          value="0" />
+        <arg name="last_number_of_data"             value="30" />
+        <arg name="switching_time"                  value="0.1" />
+        <arg name="hz"                              value="20" />
+    </include>
 </launch>

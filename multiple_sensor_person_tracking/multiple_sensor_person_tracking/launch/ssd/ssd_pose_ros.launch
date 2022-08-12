@@ -1,6 +1,6 @@
 <launch>
-    <arg name="manager_name"                default="nodelet_manager" />
-    <arg name="manager_threads"             default="4" />
+    <arg name="manager_name"                default="ssd_nodelet_manager" />
+    <arg name="manager_threads"             default="8" />
 
     <arg name="ssd_img_show_flag"           default="false" />
     <arg name="ssd_execute_default"         default="true" />
@@ -18,6 +18,9 @@
     <arg name="ssd_prototxt_name"           default="voc_object.prototxt" />
     <arg name="ssd_caffemodel_name"         default="voc_object.caffemodel" />
     <arg name="ssd_class_names_file"        default="voc_object_names.txt" />
+
+    <arg name="object_specified_enabled"     default="true" />
+    <arg name="specified_object_name"        default="person" />
 
     <!-- rviz -->
     <arg name="rviz"                    default="true"/>
@@ -45,6 +48,9 @@
             <param name="ssd_prototxt_name"         type="str"      value="$(arg ssd_prototxt_name)"/>
             <param name="ssd_caffemodel_name"       type="str"      value="$(arg ssd_caffemodel_name)"/>
             <param name="ssd_class_names_file"      type="str"      value="$(arg ssd_class_names_file)"/>
+
+            <param name="object_specified_enabled"   type="bool"     value="$(arg object_specified_enabled)"/>
+            <param name="specified_object_name"      type="str"      value="$(arg specified_object_name)"/>
         </node>
     </group>
     <node if="$(arg rqt_image_view_flag)" pkg="rqt_image_view" type="rqt_image_view" name="image_view_debug" args="/ssd_object_detect/detect_result"/>

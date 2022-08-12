@@ -1,5 +1,5 @@
 <launch>
-    <arg name="manager_name" default="nodelet_manager" />
+    <arg name="manager_name" default="tracker_nodelet_manager" />
     <arg name="manager_threads" default="4" />
 
     <arg name="rviz"                    default="true"/>
