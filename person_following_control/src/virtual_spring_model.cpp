@@ -35,6 +35,7 @@ void VirtualSpringModel::displayVirtualSpringPathMarker ( double vel, double ang
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
+    marker.lifetime = ros::Duration(0.5);
     pub_mrk_path_.publish ( marker );
 }
 

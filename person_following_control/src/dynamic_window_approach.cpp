@@ -35,6 +35,7 @@ void DynamicWindowApproach::displayOptimalPathMarker ( double optimal_vel, doubl
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
+    marker.lifetime = ros::Duration(0.5);
     pub_path_marker_.publish ( marker );
 }
 
@@ -80,6 +81,7 @@ void DynamicWindowApproach::displayAllPathMarker ( std::vector< EvaluatedPath >&
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
+        marker.lifetime = ros::Duration(0.5);
         marker_num++;
         marker_all.markers.push_back( marker );
     }
