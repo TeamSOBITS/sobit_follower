@@ -20,8 +20,8 @@ display_vsm_target          : false
 # Dynamic Window Approach :Velocity Limit
 min_velocity : 0.0
 max_velocity : 1.2
-min_angle_velocity_deg : -90.0
-max_angle_velocity_deg : 90.0
+min_angle_velocity_deg : -150.0
+max_angle_velocity_deg : 150.0
 # Dynamic Window Approach : Step Value
 predict_step : 15
 sampling_time : 0.1     # Predicted time[s] = predict_step[step] * sampling_time[s]
