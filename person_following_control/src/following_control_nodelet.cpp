@@ -97,7 +97,7 @@ void person_following_control::PersonFollowing::callbackData (
         double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
         vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vsm_vel );
         NODELET_INFO("VirtualSpringModel    =\t%5.3f [m/s]\t%5.3f [rad/s]", vsm_vel->linear.x, vsm_vel->angular.z );
-        if ( vsm_vel->linear.x <= 0.0 ) {
+        if ( vsm_vel->linear.x <= 0.0 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
             NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
         } else {
