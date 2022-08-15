@@ -18,7 +18,7 @@ void DynamicWindowApproach::displayOptimalPathMarker ( double optimal_vel, doubl
     marker.lifetime = ros::Duration(0.1);
 
     int predict_step = dwap_->predict_step;
-    double theta = optimal_ang_vel;
+    double theta = 0.0;
     double sampling_time = dwap_->sampling_time;
     geometry_msgs::Point pt, pre_pt;
     pt.z = 0.1;
@@ -65,7 +65,7 @@ void DynamicWindowApproach::displayAllPathMarker ( std::vector< EvaluatedPath >&
             marker.color.g = 1.0;
             marker.color.b = 1.0;
         }
-        double theta = path.ang_vel;
+        double theta = 0.0;
         geometry_msgs::Point pt, pre_pt;
         pt.z = 0.1;
         for ( int step = 0; step < predict_step; ++step) {
@@ -139,7 +139,7 @@ bool DynamicWindowApproach::generatePath2Target (
 
             Path path, pre_path;
             bool is_collision = false;
-            double theta = ang_vel;
+            double theta = 0.0;
             // 衝突チェック
             for ( int step = 0; step < predict_step; ++step) {
                 pre_path = path;
@@ -155,7 +155,7 @@ bool DynamicWindowApproach::generatePath2Target (
                 } else {
                     ROS_ERROR("No Obstacle");
                 }
-                //theta = path.theta;
+                theta = path.theta;
             }
             eval.is_collision = is_collision;
             if ( !is_collision ) {
@@ -273,7 +273,7 @@ bool DynamicWindowApproach::generatePath2Target (
 
             Path path, pre_path;
             bool is_collision = false;
-            double theta = ang_vel;
+            double theta = 0.0;
             // 衝突チェック
             for ( int step = 0; step < predict_step; ++step) {
                 pre_path = path;
@@ -289,7 +289,7 @@ bool DynamicWindowApproach::generatePath2Target (
                 } else {
                     ROS_ERROR("No Obstacle");
                 }
-                //theta = path.theta;
+                theta = path.theta;
             }
             eval.is_collision = is_collision;
             if ( !is_collision ) {
