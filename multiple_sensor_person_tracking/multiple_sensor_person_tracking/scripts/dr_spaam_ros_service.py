@@ -9,7 +9,7 @@ from geometry_msgs.msg import Point, Pose, PoseArray
 from visualization_msgs.msg import Marker
 
 from dr_spaam.detector import Detector
-from multiple_sensor_person_tracking.srv import LegDetection, LegDetectionResponse
+from multiple_sensor_person_tracking.srv import LegDetectionService, LegDetectionServiceResponse
 
 class DrSpaamROS:
     """ROS node to detect pedestrian using DROW3 or DR-SPAAM."""
@@ -48,7 +48,7 @@ class DrSpaamROS:
         """
         # server
         service = self._read_server_param("scan")
-        self._leg_detect_srv = rospy.Service(service, LegDetection, self._scan_callback)
+        self._leg_detect_srv = rospy.Service(service, LegDetectionService, self._scan_callback)
 
     def _scan_callback(self, req):
         # todo check the computation here
@@ -56,7 +56,7 @@ class DrSpaamROS:
             self._detector.set_laser_fov(
                 np.rad2deg(req.scan.angle_increment * len(req.scan.ranges))
             )
-        res = LegDetectionResponse()
+        res = LegDetectionServiceResponse()
         scan = np.array(req.scan.ranges)
         scan[scan == 0.0] = 29.99
         scan[np.isinf(scan)] = 29.99

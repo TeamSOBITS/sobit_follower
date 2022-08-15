@@ -1,9 +1,4 @@
 <launch>
-
-    <arg name="rviz"                    default="true"/>
-    <arg name="rviz_cfg"                default="$(find multiple_sensor_person_tracking)/config/rviz/dr_spaam.rviz"/>
-    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
-
     <arg name="weight_file"                 default="$(find dr_spaam_ros)/weight_file/ckpt_jrdb_pl_dr_spaam_phce_mixup_e20.pth"/>
     <arg name="detector_model"              default="DR-SPAAM"/>    <!-- DROW3 or DR-SPAAM -->
     <arg name="conf_thresh"                 default="0.9"/>
@@ -11,7 +6,7 @@
     <arg name="panoramic_scan"              default="true"/>    <!-- Set to true if the scan covers 360 degree -->
 
     <group ns = "dr_spaam">
-        <node pkg="dr_spaam_ros" type="node.py" name="dr_spaam_ros" output="screen">
+        <node pkg="multiple_sensor_person_tracking" type="dr_spaam_ros.py" name="dr_spaam_ros" output="screen">
             <param name="weight_file"               value="$(arg weight_file)" />
             <param name="detector_model"            value="$(arg detector_model)" />
             <param name="conf_thresh"               value="$(arg conf_thresh)" />
@@ -21,11 +16,6 @@
                 publisher:
                     detections:
                         topic: /dr_spaam_detections
-                        queue_size: 1
-                        latch: false
-
-                    rviz:
-                        topic: /dr_spaam_rviz
                         queue_size: 1
                         latch: false
 

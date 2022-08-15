@@ -10,12 +10,13 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseArray.h>
 #include <sobit_common_msg/StringArray.h>
 #include <sobit_common_msg/BoundingBoxes.h>
 #include <sobit_common_msg/ObjectPoseArray.h>
-#include <multiple_sensor_person_tracking/LegDetection.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <geometry_msgs/PointStamped.h>
+#include <multiple_sensor_person_tracking/LegPoseArray.h>
 #include <person_following_control/FollowingPosition.h>
 
 #include <tf/transform_listener.h>
@@ -41,7 +42,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::LaserScan, geometry_msgs::PoseArray, sobit_common_msg::ObjectPoseArray> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::LegPoseArray, sobit_common_msg::ObjectPoseArray> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     class PersonTracker : public nodelet::Nodelet {
@@ -52,8 +53,7 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_marker_;
             ros::Publisher pub_obstacles_;
 
-            std::unique_ptr<message_filters::Subscriber<sensor_msgs::LaserScan>> sub_laser_;
-            std::unique_ptr<message_filters::Subscriber<geometry_msgs::PoseArray>> sub_dr_spaam_;
+            std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray>> sub_dr_spaam_;
             std::unique_ptr<message_filters::Subscriber<sobit_common_msg::ObjectPoseArray>> sub_ssd_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
@@ -95,7 +95,7 @@ namespace multiple_sensor_person_tracking {
 
             void searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles );
 
-            void callbackSenserData ( const sensor_msgs::LaserScanConstPtr &scan_msg, const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg );
+            void callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg );
 
         public:
             virtual void onInit();
@@ -190,7 +190,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeT
     return target_marker;
 }
 
-void multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure(multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level) {
+void multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level) {
     kf_->changeParameter( config.process_noise, config.system_noise );
     leg_tracking_range_ = config.leg_tracking_range;
     body_tracking_range_ = config.body_tracking_range;
@@ -279,23 +279,23 @@ void multiple_sensor_person_tracking::PersonTracker::searchObstacles( const geom
     return;
 }
 
-void multiple_sensor_person_tracking::PersonTracker::callbackSenserData ( const sensor_msgs::LaserScanConstPtr &scan_msg, const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg ) {
+void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
-    sensor_msgs::PointCloud2Ptr cloud_scan_msg ( new sensor_msgs::PointCloud2 );
+    sensor_msgs::PointCloud2 cloud_scan_msg;
     PointCloud::Ptr cloud_scan (new PointCloud());
     visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
     person_following_control::FollowingPositionPtr following_position( new person_following_control::FollowingPosition );
-    double dt = ( scan_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
-    previous_time_ = scan_msg->header.stamp.toSec();
+    double dt = ( dr_spaam_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
+    previous_time_ = dr_spaam_msg->header.stamp.toSec();
 
     // Sensor data to TF conversion
     try {
-        tf_listener_.waitForTransform( target_frame, scan_msg->header.frame_id, scan_msg->header.stamp, ros::Duration(5.0) );
-        projector_.transformLaserScanToPointCloud( target_frame, *scan_msg, *cloud_scan_msg, tf_listener_ );
-        pcl::fromROSMsg<PointT>( *cloud_scan_msg, *cloud_scan);
+        tf_listener_.waitForTransform( target_frame, dr_spaam_msg->header.frame_id, dr_spaam_msg->header.stamp, ros::Duration(5.0) );
+        projector_.transformLaserScanToPointCloud( target_frame, dr_spaam_msg->scan, cloud_scan_msg, tf_listener_ );
+        pcl::fromROSMsg<PointT>( cloud_scan_msg, *cloud_scan);
         cloud_scan->header.frame_id = target_frame;
     } catch ( const tf::TransformException& ex ) {
         ROS_ERROR("%s", ex.what());
@@ -354,7 +354,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackSenserData ( const 
     if ( display_marker_ ) {
         pub_obstacles_.publish( following_position->obstacles );
         marker_array->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
-        // marker_array->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
+        marker_array->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
         marker_array->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
         marker_array->markers.push_back( makeTargetPoseMarker(estimated_value) );
         pub_marker_.publish ( marker_array );
@@ -371,12 +371,11 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
 
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
     // message_filters :
-    sub_laser_ .reset ( new message_filters::Subscriber<sensor_msgs::LaserScan> ( nh_, pnh_.param<std::string>( "laser_topic_name", "/scan" ), 1 ) );
-    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::PoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
+    sub_dr_spaam_ .reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<sobit_common_msg::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
 
-    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_laser_, *sub_dr_spaam_, *sub_ssd_ ) );
-    sync_ ->registerCallback ( boost::bind( &PersonTracker::callbackSenserData, this, _1, _2, _3 ) );
+    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
+    sync_ ->registerCallback ( boost::bind( &PersonTracker::callbackPoseArray, this, _1, _2 ) );
 
     pub_following_position_ = nh_.advertise< person_following_control::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );

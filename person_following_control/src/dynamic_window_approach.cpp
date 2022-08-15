@@ -155,7 +155,7 @@ bool DynamicWindowApproach::generatePath2Target (
                 } else {
                     ROS_ERROR("No Obstacle");
                 }
-                theta = path.theta;
+                //theta = path.theta;
             }
             eval.is_collision = is_collision;
             if ( !is_collision ) {
@@ -289,7 +289,7 @@ bool DynamicWindowApproach::generatePath2Target (
                 } else {
                     ROS_ERROR("No Obstacle");
                 }
-                theta = path.theta;
+                //theta = path.theta;
             }
             eval.is_collision = is_collision;
             if ( !is_collision ) {
@@ -342,7 +342,6 @@ bool DynamicWindowApproach::generatePath2Target (
             exists_path = true;
         }
     }
-
     // 最適な経路の速度を出力
     if ( exists_path ) {
         output_path->linear.x = optimal_vel;

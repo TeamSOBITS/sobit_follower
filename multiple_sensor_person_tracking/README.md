@@ -42,8 +42,10 @@ $ bash install.sh
 DR-SPAAMによる人検出を行う
 ```bash
 $ roslaunch multiple_sensor_person_tracking dr_spaam_ros.launch
-# scan2d_data_publisher.launchを使うことで，擬似的にスキャンデータをパブリッシュすることができる
-$ roslaunch multiple_sensor_person_tracking scan2d_data_publisher.launch
+```
+```bash
+# デモ用
+$ roslaunch multiple_sensor_person_tracking dr_spaam_demo.launch
 ```
 <div align="center">
     <img src="doc/img/dr_spaam_ros.png" width="1080">
