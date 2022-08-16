@@ -112,13 +112,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 	sobit_edu_ctr_.reset( new sobit_education::SobitEducationController );
 	tracking_position_.reset( new geometry_msgs::Point );
 
-	tilt_angle_min_ = pnh_.param<double>( "tilt_angle_min_deg", 0.0 ) * M_PI / 180.0;
-	tilt_angle_max_ = pnh_.param<double>( "tilt_angle_max_deg", 20.0 ) * M_PI / 180.0;
-	person_height_ = pnh_.param<double>( "camera2person_height", 0.5 );
-	smoothing_gain_ = pnh_.param<double>( "smoothing_gain", 0.95 );
-	use_rotate_ = pnh_.param<bool>( "use_rotate", true );
-	use_smoothing_ = pnh_.param<bool>( "use_smoothing", true );
-
     server_ = new dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>(pnh_);
     f_ = boost::bind(&multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicReconfigure, this, _1, _2);
     server_->setCallback(f_);

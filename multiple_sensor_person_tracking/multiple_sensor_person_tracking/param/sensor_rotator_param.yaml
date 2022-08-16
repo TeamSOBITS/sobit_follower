@@ -1,6 +1,6 @@
 # use_rotate : true
 tilt_angle_min_deg : 0.0
-tilt_angle_max_deg : 20.0
-camera2person_height : 0.5
+tilt_angle_max_deg : 90.0
+camera2person_height : 0.7
 use_smoothing : true
 smoothing_gain : 0.8
