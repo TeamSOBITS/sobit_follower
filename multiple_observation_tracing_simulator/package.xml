@@ -16,7 +16,7 @@
   <depend>std_msgs</depend>
   <depend>tf</depend>
   <depend>visualization_msgs</depend>
-  <depend>multiple_sensor_person_tracking</depend>
+  <depend>multiple_observation_kalman_filter</depend>
   <depend>message_filters</depend>
 
   <!-- The export tag contains other, unspecified, tags -->

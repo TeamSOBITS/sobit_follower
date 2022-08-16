@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   message_filters
   rviz
+  multiple_observation_kalman_filter
 )
 
 set(CMAKE_AUTOMOC ON)

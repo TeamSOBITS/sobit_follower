@@ -7,7 +7,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <iostream>
-#include <multiple_sensor_person_tracking/multiple_observation_kalman_filter.hpp>
+#include <multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp>
 #include <dynamic_reconfigure/server.h>
 #include <multiple_observation_tracing_simulator/TrackerParameterConfig.h>
 
@@ -28,7 +28,7 @@ namespace multiple_observation_tracing_simulator {
             dynamic_reconfigure::Server<multiple_observation_tracing_simulator::TrackerParameterConfig>::CallbackType f_;
             geometry_msgs::PointPtr target_smooth_;
             tf::TransformListener tf_listener_;
-            std::unique_ptr<multiple_sensor_person_tracking::KalmanFilter> kf_;
+            std::unique_ptr<multiple_observation_kalman_filter::KalmanFilter> kf_;
             visualization_msgs::Marker trajectory_;
             visualization_msgs::Marker trajectory_smooth_;
             bool exists_target_;
@@ -179,7 +179,7 @@ multiple_observation_tracing_simulator::Tracker::Tracker( ) : nh_(), pnh_("~") {
     sub_observed_value_add_ .reset ( new message_filters::Subscriber<geometry_msgs::PointStamped> ( nh_, "/observed_value_add", 1 ) );
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_true_value_, *sub_observed_value_, *sub_observed_value_add_ ) );
     sync_ ->registerCallback ( boost::bind( &Tracker::callbackMessage, this, _1, _2, _3 ) );
-    kf_.reset( new multiple_sensor_person_tracking::KalmanFilter( 0.033, 1000, 1.0 ) );
+    kf_.reset( new multiple_observation_kalman_filter::KalmanFilter( 0.033, 1000, 1.0 ) );
     target_smooth_.reset( new geometry_msgs::Point );
     exists_target_ = false;
 

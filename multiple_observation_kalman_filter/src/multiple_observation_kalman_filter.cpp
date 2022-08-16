@@ -1,7 +1,7 @@
-#include <multiple_sensor_person_tracking/multiple_observation_kalman_filter.hpp>
+#include <multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp>
 
 // https://github.com/JunshengFu/tracking-with-Extended-Kalman-Filter/blob/master/src/tracking.cpp
-multiple_sensor_person_tracking::KalmanFilter::KalmanFilter( const double dt, const double process_noise, const double system_noise ) {
+multiple_observation_kalman_filter::KalmanFilter::KalmanFilter( const double dt, const double process_noise, const double system_noise ) {
     // x : 推定値(正規分布の平均値) -> x, y, v_x. v_y
     estimated_value_ << 0.0, 0.0, 0.0, 0.0;
     // u : 外部要素
@@ -36,7 +36,7 @@ multiple_sensor_person_tracking::KalmanFilter::KalmanFilter( const double dt, co
                                         0,              system_noise;
 }
 
-void multiple_sensor_person_tracking::KalmanFilter::changeParameter( const double process_noise, const double system_noise ) {
+void multiple_observation_kalman_filter::KalmanFilter::changeParameter( const double process_noise, const double system_noise ) {
     process_noise_ = process_noise;
 
     // R : システムノイズ(カルマンゲイン算出で使用)
@@ -44,12 +44,12 @@ void multiple_sensor_person_tracking::KalmanFilter::changeParameter( const doubl
                                         0,              system_noise;
 }
 
-void multiple_sensor_person_tracking::KalmanFilter::init( const Eigen::Vector2f& observed_value ) {
+void multiple_observation_kalman_filter::KalmanFilter::init( const Eigen::Vector2f& observed_value ) {
     // x : 推定値(正規分布の平均値)
     estimated_value_ << observed_value[0], observed_value[1], 0.0, 0.0;
 }
 
-void multiple_sensor_person_tracking::KalmanFilter::compute( const double dt, const Eigen::Vector2f& observed_value1, const Eigen::Vector2f& observed_value2, Eigen::Vector4f* estimated_value ) {
+void multiple_observation_kalman_filter::KalmanFilter::compute( const double dt, const Eigen::Vector2f& observed_value1, const Eigen::Vector2f& observed_value2, Eigen::Vector4f* estimated_value ) {
     // Q : プロセスノイズ(予測ステップで使用) https://gordiustears.net/process-noise-covariance-matrix-of-kalman-filter/
     double noise_ax = process_noise_;
     double noise_ay = process_noise_;
@@ -103,7 +103,7 @@ void multiple_sensor_person_tracking::KalmanFilter::compute( const double dt, co
     return;
 }
 
-void multiple_sensor_person_tracking::KalmanFilter::compute( const double dt, const Eigen::Vector2f& observed_value1, Eigen::Vector4f* estimated_value ) {
+void multiple_observation_kalman_filter::KalmanFilter::compute( const double dt, const Eigen::Vector2f& observed_value1, Eigen::Vector4f* estimated_value ) {
     // Q : プロセスノイズ(予測ステップで使用) https://gordiustears.net/process-noise-covariance-matrix-of-kalman-filter/
     double noise_ax = process_noise_;
     double noise_ay = process_noise_;

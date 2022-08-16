@@ -14,7 +14,7 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <person_following_control/VirtualEnvironmentParameterConfig.h>
-// #include <multiple_sensor_person_tracking/multiple_observation_kalman_filter.hpp>
+#include <multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;

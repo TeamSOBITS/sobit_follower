@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   visualization_msgs
-  multiple_sensor_person_tracking
+  multiple_observation_kalman_filter
   message_filters
 )
 
@@ -53,7 +53,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES multiple_observation_tracing_simulator
-  CATKIN_DEPENDS dynamic_reconfigure geometry_msgs nav_msgs roscpp std_msgs tf visualization_msgs multiple_sensor_person_tracking message_filters
+  CATKIN_DEPENDS dynamic_reconfigure geometry_msgs nav_msgs roscpp std_msgs tf visualization_msgs message_filters
 #  DEPENDS system_lib
 )
 

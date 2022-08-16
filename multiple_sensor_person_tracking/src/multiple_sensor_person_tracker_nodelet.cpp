@@ -31,7 +31,7 @@
 #include <pcl/filters/voxel_grid.h>
 
 #include <ssd_nodelet/single_shot_multibox_detector.hpp>
-#include <multiple_sensor_person_tracking/multiple_observation_kalman_filter.hpp>
+#include <multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp>
 #include <multiple_sensor_person_tracking/TrackerParameterConfig.h>
 #include <dynamic_reconfigure/server.h>
 
@@ -60,7 +60,7 @@ namespace multiple_sensor_person_tracking {
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>::CallbackType f_;
 
-            std::unique_ptr<multiple_sensor_person_tracking::KalmanFilter> kf_;
+            std::unique_ptr<multiple_observation_kalman_filter::KalmanFilter> kf_;
             laser_geometry::LaserProjection projector_;
             cv_bridge::CvImagePtr cv_ptr_;
             pcl::KdTreeFLANN<PointT> flann_;
@@ -383,7 +383,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
 
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
 
-    kf_.reset( new multiple_sensor_person_tracking::KalmanFilter( 0.033, 1000, 1.0 ) );
+    kf_.reset( new multiple_observation_kalman_filter::KalmanFilter( 0.033, 1000, 1.0 ) );
 
     previous_time_ = 0.0;
     exists_target_ = false;

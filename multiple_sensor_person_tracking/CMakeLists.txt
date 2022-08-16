@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   dynamic_reconfigure
   person_following_control
+  multiple_observation_kalman_filter
 )
 
 ## Generate messages in the 'msg' folder
@@ -65,7 +66,6 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME} src/multiple_sensor_person_tracker_nodelet.cpp
-                            src/multiple_observation_kalman_filter.cpp
                             src/person_aim_sensor_rotator_nodelet.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 #add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

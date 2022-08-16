@@ -6,7 +6,7 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 
-namespace multiple_sensor_person_tracking{
+namespace multiple_observation_kalman_filter{
     class KalmanFilter {
         private :
             // x : 推定値(正規分布の平均値)
