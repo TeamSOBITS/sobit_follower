@@ -237,11 +237,11 @@ bool DynamicWindowApproach::generatePath2Target (
     MinMaxValue mmv;
 
     std::vector<double> lin_vels;
-    double linear = base_path->linear.x;
+    double linear = ( base_path->linear.x < dwap_->max_vel ) ? base_path->linear.x : dwap_->max_vel;
     double angular = base_path->angular.z;
     double delta_lin = ( linear - dwap_->min_vel) / dwap_->vel_step;
     for ( double vel = dwap_->min_vel; vel < linear; vel += delta_lin ) lin_vels.push_back(vel);
-    lin_vels.push_back(linear);
+    // lin_vels.push_back(linear);
     std::vector<double> ang_vels;
     double delta_ang = ( dwap_->max_ang_vel - dwap_->min_ang_vel ) / dwap_->ang_vel_step;
     for ( double vel = dwap_->min_ang_vel; vel < dwap_->max_ang_vel; vel += delta_ang ) ang_vels.push_back(vel);

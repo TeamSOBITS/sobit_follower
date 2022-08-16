@@ -17,8 +17,8 @@ void VirtualSpringModel::displayVirtualSpringPathMarker ( double vel, double ang
     marker.color.b = 0.0;
     marker.lifetime = ros::Duration(0.1);
 
-    int predict_step = 30;
-    double theta = ang_vel;
+    int predict_step = 20;
+    double theta = 0.0;
     double sampling_time = 0.1;
     geometry_msgs::Point pt, pre_pt;
     pt.z = 0.1;

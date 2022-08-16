@@ -31,9 +31,9 @@ weight_angle : 1.0
 weight_velocity : 0.5
 # Dynamic Window Approach : VSM-DWA Weight
 weight_vsm_angular : 1.0
-weight_vsm_linear : 2.0
+weight_vsm_linear : 1.0
 # Dynamic Window Approach : Cost Distance
-obstacle_cost_radius : 0.5
+obstacle_cost_radius : 0.25
 # Dynamic Window Approach : Display Flag
 display_optimal_path : true
 display_all_path : true
