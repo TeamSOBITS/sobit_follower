@@ -1,4 +1,3 @@
-laser_topic_name : /scan
 dr_spaam_topic_name : /dr_spaam_detections
 ssd_topic_name : /ssd_object_detect/object_pose
 target_frame : base_footprint

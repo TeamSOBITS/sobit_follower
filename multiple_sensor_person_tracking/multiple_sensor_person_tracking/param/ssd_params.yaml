@@ -4,6 +4,8 @@ ssd_pub_result_image : true
 rqt_image_view_flag : false
 
 ssd_image_topic_name : /camera/rgb/image_raw
+ssd_cloud_topic_name : /camera/depth/points
+target_frame : base_footprint
 
 ssd_in_scale_factor : 0.007843
 ssd_confidence_threshold : 0.5

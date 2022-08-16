@@ -47,58 +47,73 @@ $ roslaunch person_following_control simulator.launch
     # following_method  :   追従手法
 ```
 
-## Parameter
-### Following Control
+#### Node
+|ノード名|意味|
+|---|---|
+|/person_following_control/following_control_nodelet_manager|追従制御のノードレットの管理|
+|/person_following_control/person_following_control|追従制御|
+
+#### Subscriptions
+|トピック名|型|意味|
+|---|---|---|
+|/multiple_sensor_person_tracking/following_position|person_following_control/FollowingPosition|追従位置と障害物|
+
+#### Publications
+|トピック名|型|意味|
+|---|---|---|
+|/cmd_vel_mux/input/teleop|person_following_control/FollowingPosition|追従制御の速度情報|
+
+#### Parameter：Following Control
 |パラメータ名|型|意味|
 |---|---|---|
-|base_footprint_name|string|基準フレーム名|
-|following_distance|double|人と保つ距離 ( l_0 [m] )|
-|following_method|int|追従手法|
+|/base_footprint_name|string|基準フレーム名|
+|/following_distance|double|人と保つ距離 ( l_0 [m] )|
+|/following_method|int|追従手法|
 
-#### following_method
+##### following_method
 ```
 0 : virtual_spring_model_dynamic_window_approach
 1 : virtual_spring_model
 2 : dynamic_window_approach
 ```
 
-### Virtual Spring Model
+#### Parameter：Virtual Spring Model
 |パラメータ名|型|意味|
 |---|---|---|
-|following_angle_deg|double|追従位置の角度 ( theta_sh [deg] )|
-|spring_constant_linear|double|ばね定数(並進成分) ( k_1 [N/m] )|
-|spring_constant_angular|double|ばね定数(回転成分) ( k_2 [N・m/rad] )|
-|weight_robot|double|ロボットの重量 ( M [Kg] )|
-|moment_inertia|double|慣性モーメント ( I [Kg・m^2] )|
-|viscous_friction_linear|double|粘性摩擦(並進成分) ( k_3 [N・s/m] )|
-|viscous_friction_angular|double|粘性摩擦(回転成分) ( k_4 [N・s/rad] )|
-|radius_robot|double|ロボット半径 ( L [m] )|
-|display_vsm_path|bool|経路を描画するか|
-|display_vsm_target|bool|目標位置を描画するか|
+|/following_angle_deg|double|追従位置の角度 ( theta_sh [deg] )|
+|/spring_constant_linear|double|ばね定数(並進成分) ( k_1 [N/m] )|
+|/spring_constant_angular|double|ばね定数(回転成分) ( k_2 [N・m/rad] )|
+|/weight_robot|double|ロボットの重量 ( M [Kg] )|
+|/moment_inertia|double|慣性モーメント ( I [Kg・m^2] )|
+|/viscous_friction_linear|double|粘性摩擦(並進成分) ( k_3 [N・s/m] )|
+|/viscous_friction_angular|double|粘性摩擦(回転成分) ( k_4 [N・s/rad] )|
+|/radius_robot|double|ロボット半径 ( L [m] )|
+|/display_vsm_path|bool|経路を描画するか|
+|/display_vsm_target|bool|目標位置を描画するか|
 
-### Dynamic Window Approach
+#### Parameter：Dynamic Window Approach
 |パラメータ名|型|意味|
 |---|---|---|
-|min_velocity|double|最小並進速度 [m/s]|
-|max_velocity|double|最大並進速度 [m/s]|
-|min_angle_velocity_deg|double|最小回転速度 [deg/s]|
-|max_angle_velocity_deg|double|最大回転速度 [deg/s]|
-|predict_step|int|予測ステップ数|
-|sampling_time|double|サンプリングタイム(1予測ステップの時間)|
-|velocity_step|double|並進速度の予測経路数|
-|angle_velocity_step|double|回転速度の予測経路数|
-|weight_goal|double|goal(v,ω)の重み|
-|weight_obstacle|double|obstacle(v,ω)の重み|
-|weight_angle|double|heading(v,ω)の重み(DWAで使用)|
-|weight_velocity|double|velocity(v,ω)の重み(DWAで使用)|
-|weight_vsm_angular|double|angular(v,ω)の重み(VSM-DWAで使用)|
-|weight_vsm_linear|double|linear(v,ω)の重み(VSM-DWAで使用)|
-|obstacle_cost_radius|double|障害物コスト[m]|
-|display_optimal_path|bool|最適経路を描画するか|
-|display_all_path|bool|予測経路を描画するか|
+|/min_velocity|double|最小並進速度 [m/s]|
+|/max_velocity|double|最大並進速度 [m/s]|
+|/min_angle_velocity_deg|double|最小回転速度 [deg/s]|
+|/max_angle_velocity_deg|double|最大回転速度 [deg/s]|
+|/predict_step|int|予測ステップ数|
+|/sampling_time|double|サンプリングタイム(1予測ステップの時間)|
+|/velocity_step|double|並進速度の予測経路数|
+|/angle_velocity_step|double|回転速度の予測経路数|
+|/weight_goal|double|goal(v,ω)の重み|
+|/weight_obstacle|double|obstacle(v,ω)の重み|
+|/weight_angle|double|heading(v,ω)の重み(DWAで使用)|
+|/weight_velocity|double|velocity(v,ω)の重み(DWAで使用)|
+|/weight_vsm_angular|double|angular(v,ω)の重み(VSM-DWAで使用)|
+|/weight_vsm_linear|double|linear(v,ω)の重み(VSM-DWAで使用)|
+|/obstacle_cost_radius|double|障害物コスト[m]|
+|/display_optimal_path|bool|最適経路を描画するか|
+|/display_all_path|bool|予測経路を描画するか|
 
-### Simulator
+#### Parameter：Simulator
 |パラメータ名|型|意味|
 |---|---|---|
-|obstacle_number|int|障害物の個数|
-|observation_noise|double|観測ノイズ(正規分布の分散)|
+|/obstacle_number|int|障害物の個数|
+|/observation_noise|double|観測ノイズ(正規分布の分散)|

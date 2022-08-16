@@ -1,12 +1,7 @@
 # Topic & Frame
-laser_topic_name : /scan
-image_topic_name : /camera/rgb/image_raw
-cloud_topic_name : /camera/depth/points
+dr_spaam_topic_name : /dr_spaam_detections
+ssd_topic_name : /ssd_object_detect/object_pose
 target_frame : base_footprint
-
-# Kalman Filter
-process_noise : 1000.0
-system_noise : 1.0
 
 # Tracking
 target_range : 1.5
@@ -17,3 +12,8 @@ outlier_radius : 0.1
 outlier_min_pts : 2
 leaf_size : 0.1
 # display_marker : true
+
+# Kalman Filter
+process_noise : 1000.0
+system_noise : 1.0
+
