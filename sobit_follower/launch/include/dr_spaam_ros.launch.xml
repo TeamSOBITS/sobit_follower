@@ -1,11 +1,5 @@
 <launch>
-
-    <arg name="rviz"                    default="true"/>
-    <arg name="rviz_cfg"                default="$(find multiple_sensor_person_tracking)/config/rviz/dr_spaam.rviz"/>
-    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
-
     <arg name="weight_file"                 default="$(find dr_spaam_ros)/weight_file/ckpt_jrdb_pl_dr_spaam_phce_mixup_e20.pth"/>
-
     <group ns = "dr_spaam">
         <node pkg="multiple_sensor_person_tracking" type="dr_spaam_ros.py" name="dr_spaam_ros" output="screen">
             <param name="weight_file"               value="$(arg weight_file)" />
