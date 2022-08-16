@@ -36,8 +36,8 @@ Panels:
     max1: 1.5
     max2: 1.5
     max3: 1.5
-    radio1: true
-    radio2: false
+    radio1: false
+    radio2: true
 Preferences:
   PromptSaveOnExit: true
 Toolbars:

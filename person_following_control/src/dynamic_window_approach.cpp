@@ -55,7 +55,7 @@ void DynamicWindowApproach::displayAllPathMarker ( std::vector< EvaluatedPath >&
         marker.ns = "all_path";
         marker.id = marker_num;
         marker.scale.x = 0.03;
-        marker.color.a = 0.5;
+        marker.color.a = 1.0;
         marker.lifetime = ros::Duration(0.1);
         if ( path.is_collision ) {
             marker.color.r = 1.0;
@@ -235,10 +235,9 @@ bool DynamicWindowApproach::generatePath2Target (
     // 経路予測して、経路リストを作成
     std::vector< EvaluatedPath > path_list;
     MinMaxValue mmv;
-
-    std::vector<double> lin_vels;
     double linear = ( base_path->linear.x < dwap_->max_vel ) ? base_path->linear.x : dwap_->max_vel;
     double angular = base_path->angular.z;
+    std::vector<double> lin_vels;
     double delta_lin = ( linear - dwap_->min_vel) / dwap_->vel_step;
     for ( double vel = dwap_->min_vel; vel < linear; vel += delta_lin ) lin_vels.push_back(vel);
     // lin_vels.push_back(linear);
@@ -246,6 +245,11 @@ bool DynamicWindowApproach::generatePath2Target (
     double delta_ang = ( dwap_->max_ang_vel - dwap_->min_ang_vel ) / dwap_->ang_vel_step;
     for ( double vel = dwap_->min_ang_vel; vel < dwap_->max_ang_vel; vel += delta_ang ) ang_vels.push_back(vel);
     ang_vels.push_back(angular);
+
+    // std::vector<double> lin_vels = dwap_->lin_vels;
+    // lin_vels.push_back(linear);
+    // std::vector<double> ang_vels = dwap_->ang_vels;
+    // ang_vels.push_back(angular);
 
     int predict_step = dwap_->predict_step;
     double sampling_time = dwap_->sampling_time;
@@ -270,7 +274,7 @@ bool DynamicWindowApproach::generatePath2Target (
     for ( auto& vel : lin_vels ) {
         for ( auto& ang_vel : ang_vels ) {
             EvaluatedPath eval;
-            eval.vel = linear;
+            eval.vel = vel;
             eval.ang_vel = ang_vel;
 
             Path path, pre_path;

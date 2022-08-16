@@ -88,45 +88,44 @@ void person_following_control::PersonFollowing::callbackData (
     const person_following_control::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
     if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
+    double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
+    double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
+    NODELET_INFO("Target                =\t%5.3f [m]\t%5.3f [deg]", target_distance, target_angle*180/M_PI );
     geometry_msgs::TwistPtr vel ( new  geometry_msgs::Twist );
     if ( following_method_ == FollowingMethod::VSM_DWA ) {
         geometry_msgs::TwistPtr vsm_vel ( new  geometry_msgs::Twist );
         PointCloud::Ptr cloud_obstacles ( new PointCloud() );
         pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles );
-        double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
-        double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
         vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vsm_vel );
-        NODELET_INFO("VirtualSpringModel    =\t%5.3f [m/s]\t%5.3f [rad/s]", vsm_vel->linear.x, vsm_vel->angular.z );
+        NODELET_INFO("VirtualSpringModel    =\t%5.3f [m/s]\t%5.3f [deg/s]", vsm_vel->linear.x, vsm_vel->angular.z*180/M_PI );
         if ( vsm_vel->linear.x <= 0.0 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+            NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
         } else {
             if( target_distance > following_distance_ ) {
                 if ( dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vsm_vel, vel ) ) {
-                    NODELET_INFO("DynamicWindowApproach =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+                    NODELET_INFO("DynamicWindowApproach =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
                 } else {
                     pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                    NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+                    NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
                 }
             } else {
                 pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+                NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
             }
         }
     } else if ( following_method_ == FollowingMethod::VSM ) {
         vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vel );
-        NODELET_INFO("VirtualSpringModel    =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+        NODELET_INFO("VirtualSpringModel    =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
     } else if ( following_method_ == FollowingMethod::DWA ) {
         PointCloud::Ptr cloud_obstacles ( new PointCloud() );
         pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles );
-        double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
-        double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
         if( target_distance > following_distance_ ) {
             dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vel );
-            NODELET_INFO("DynamicWindowApproach =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+            NODELET_INFO("DynamicWindowApproach =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
         } else {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [rad/s]\n", vel->linear.x, vel->angular.z );
+            NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
         }
     }
     pub_vel_.publish(vel);

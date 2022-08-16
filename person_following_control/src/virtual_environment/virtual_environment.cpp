@@ -14,6 +14,7 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <person_following_control/VirtualEnvironmentParameterConfig.h>
+// #include <multiple_sensor_person_tracking/multiple_observation_kalman_filter.hpp>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
@@ -134,9 +135,9 @@ void  person_following_control::VirtualEnvironment::displaySensorMarker ( ) {
         cost.scale.x = 0.35;
         cost.scale.y = 0.35;
         cost.scale.z = 0.01;
-        cost.color.r = 1.0f;
-        cost.color.g = 0.0f;
-        cost.color.b = 0.0f;
+        cost.color.r = 0.86f;
+        cost.color.g = 0.44f;
+        cost.color.b = 0.57f;
         cost.color.a = 1.0f;
         cost.lifetime = ros::Duration(0.3);
         marker_num++;

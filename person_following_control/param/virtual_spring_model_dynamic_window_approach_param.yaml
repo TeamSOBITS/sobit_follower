@@ -5,7 +5,7 @@ following_distance          : 0.7
 # Virtual Spring Model
 following_angle_deg         : 0.0       # theta_sh [deg]
 spring_constant_linear      : 30.0      # k_1 [N/m]
-spring_constant_angular     : 0.01      # k_2 [N・m/rad]
+spring_constant_angular     : 1.0      # k_2 [N・m/rad]
 weight_robot                : 30.0      # M [Kg]
 moment_inertia              : 15.0      # I [Kg・m^2]
 viscous_friction_linear     : 1.00      # k_3 [N・s/m]
