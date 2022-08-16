@@ -32,6 +32,7 @@ namespace person_following_control{
             PointCloud::Ptr cloud_sensor_map_;
             double tgt_theta_;
             std::unique_ptr<std::normal_distribution<double>> dist_;
+            std::unique_ptr<multiple_observation_kalman_filter::KalmanFilter> kf_;
 
             dynamic_reconfigure::Server<person_following_control::VirtualEnvironmentParameterConfig>* server_;
             dynamic_reconfigure::Server<person_following_control::VirtualEnvironmentParameterConfig>::CallbackType f_;
@@ -153,6 +154,7 @@ person_following_control::VirtualEnvironment::VirtualEnvironment ( ) : nh_(), pn
     pub_mrk_tgt_ = nh_.advertise< visualization_msgs::Marker >( "/target_marker", 1 );
     pub_mrk_sensor_ = nh_.advertise< visualization_msgs::MarkerArray >( "/sensor_marker", 1 );
     sub_tgt_pose_ = nh_.subscribe( "/virtual_environment/cmd_vel", 10, &VirtualEnvironment::callbackTarget, this );
+    kf_.reset( new multiple_observation_kalman_filter::KalmanFilter( 0.033, 1000, 1.0 ) );
 
     server_ = new dynamic_reconfigure::Server<person_following_control::VirtualEnvironmentParameterConfig>(pnh_);
     f_ = boost::bind(&person_following_control::VirtualEnvironment::callbackDynamicReconfigure, this, _1, _2);
@@ -241,13 +243,24 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
             continue;
         }
         tf::poseTFToMsg(transform_stamped, target_pose_base_robot.pose);
+
         target_pose_base_robot.header.stamp = ros::Time::now();
         target_pose_base_robot.header.frame_id = "/base_footprint";
 
+        Eigen::Vector2f observed_value( 0.0, 0.0 );
+        observed_value[0] = target_pose_base_robot.pose.position.x + (*dist_)(engine);
+        observed_value[1] = target_pose_base_robot.pose.position.y + (*dist_)(engine);
+        Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
+        kf_->compute( 0.033, observed_value, &estimated_value );
+        // following_position : pose :
+        following_position->pose.position.x = estimated_value[0];
+        following_position->pose.position.y = estimated_value[1];
+        tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, std::atan2(estimated_value[3], estimated_value[2]));
+        geometry_msgs::Quaternion geometry_quat;
+        quaternionTFToMsg(quat, geometry_quat);
+        following_position->pose.orientation = geometry_quat;
+
         following_position->header.stamp = ros::Time::now();
-        following_position->pose = target_pose_base_robot.pose;
-        following_position->pose.position.x += (*dist_)(engine);
-        following_position->pose.position.y += (*dist_)(engine);
         following_position->obstacles = *sensor_msg;
         pub_following_position.publish( following_position );
 
