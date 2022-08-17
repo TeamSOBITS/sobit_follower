@@ -34,7 +34,7 @@ namespace person_following_control{
             bool display_target_;
 
             void displayVirtualSpringPathMarker ( double vel, double ang_vel );
-            void displayTargetMarker ( );
+            visualization_msgs::Marker displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const double r, const double g, const double b);
 
         public :
             VirtualSpringModel ( );

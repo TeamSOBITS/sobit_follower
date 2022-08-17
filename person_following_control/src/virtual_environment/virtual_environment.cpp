@@ -203,6 +203,7 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
     person_following_control::FollowingPositionPtr following_position ( new person_following_control::FollowingPosition );
     std::random_device seed;
     std::mt19937 engine(seed());            // メルセンヌ・ツイスター法
+    // geometry_msgs::Point pre_pt;
 
     while(ros::ok()){
         tf::Transform transform;
@@ -255,10 +256,15 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
         // following_position : pose :
         following_position->pose.position.x = estimated_value[0];
         following_position->pose.position.y = estimated_value[1];
-        tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, std::atan2(estimated_value[3], estimated_value[2]));
-        geometry_msgs::Quaternion geometry_quat;
-        quaternionTFToMsg(quat, geometry_quat);
-        following_position->pose.orientation = geometry_quat;
+        following_position->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
+        following_position->pose.orientation.w = 1.0;
+        // pre_pt = following_position->pose.position;
+        // double yaw = ( following_position->velocity > 0.1 ) ? std::atan2(estimated_value[3], estimated_value[2]) : 0.0;
+        // double yaw = std::atan2( pre_pt.y - following_position->pose.position.y, pre_pt.x - following_position->pose.position.x );
+        // tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, yaw);
+        // geometry_msgs::Quaternion geometry_quat;
+        // quaternionTFToMsg(quat, geometry_quat);
+        // following_position->pose.orientation = geometry_quat;
 
         following_position->header.stamp = ros::Time::now();
         following_position->obstacles = *sensor_msg;

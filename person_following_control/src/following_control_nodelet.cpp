@@ -90,7 +90,14 @@ void person_following_control::PersonFollowing::callbackData (
     if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
     double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
-    NODELET_INFO("Target                =\t%5.3f [m]\t%5.3f [deg]", target_distance, target_angle*180/M_PI );
+
+    tf::Quaternion quat;
+    double roll, pitch, yaw;
+	quaternionMsgToTF(following_position_msg->pose.orientation, quat);
+	tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);  //rpy are Pass by Reference
+    NODELET_INFO("Target                =\t%5.3f [m]\t%5.3f [m]\t%5.3f [m/s]\t%5.3f [deg]",
+        following_position_msg->pose.position.x, following_position_msg->pose.position.y, following_position_msg->velocity, yaw*180/M_PI );
+
     geometry_msgs::TwistPtr vel ( new  geometry_msgs::Twist );
     if ( following_method_ == FollowingMethod::VSM_DWA ) {
         geometry_msgs::TwistPtr vsm_vel ( new  geometry_msgs::Twist );

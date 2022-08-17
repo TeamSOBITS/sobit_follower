@@ -8,7 +8,7 @@ Panels:
         - /TF1/Frames1
         - /TF1/Tree1
       Splitter Ratio: 0.5344506502151489
-    Tree Height: 345
+    Tree Height: 558
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -109,8 +109,7 @@ Visualization Manager:
       Marker Topic: /sensor_marker
       Name: sensor_marker
       Namespaces:
-        cost: true
-        obstacles: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -126,7 +125,7 @@ Visualization Manager:
       Marker Topic: /dwa_path_marker
       Name: dwa_path_marker
       Namespaces:
-        optimal_path: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -134,7 +133,7 @@ Visualization Manager:
       Marker Topic: /dwa_path_marker_all
       Name: dwa_path_marker_all
       Namespaces:
-        all_path: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -143,6 +142,16 @@ Visualization Manager:
       Name: vsm_path_marker
       Namespaces:
         virtual_spring_path: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /vsm_target_marker
+      Name: vsm_target_marker
+      Namespaces:
+        human: true
+        robot: true
+        robot_transformed: true
       Queue Size: 100
       Value: true
   Enabled: true

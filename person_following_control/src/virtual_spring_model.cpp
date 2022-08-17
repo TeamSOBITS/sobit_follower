@@ -39,43 +39,38 @@ void VirtualSpringModel::displayVirtualSpringPathMarker ( double vel, double ang
     pub_mrk_path_.publish ( marker );
 }
 
-void VirtualSpringModel::displayTargetMarker ( ) {
+visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const double r, const double g, const double b ) {
     visualization_msgs::Marker marker;
-    marker.header.frame_id = "target";
+    marker.header.frame_id = ( name != "robot_transformed" ) ? "base_footprint" : "target";
     marker.header.stamp = ros::Time::now();
-    marker.ns = "target_pose";
+    marker.ns = name;
     marker.id = 0;
     marker.type = visualization_msgs::Marker::ARROW;
     marker.action = visualization_msgs::Marker::ADD;
     marker.lifetime = ros::Duration(1.0);
 
-    marker.pose.position.x -= dist_follow_;
-    marker.pose.position.z = 0.2;
-    double x1 = marker.pose.position.x;
-    double y1 = marker.pose.position.y;
-    double alpha = ang_follow_;
-    marker.pose.position.x = x1 * std::cos(alpha) - y1 * std::sin(alpha);
-    marker.pose.position.y = x1 * std::sin(alpha) + y1 * std::cos(alpha);
+    marker.pose.position.x = pt[0];
+    marker.pose.position.y = pt[1];
+    marker.pose.position.z = 0.3;
 
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 1.0;
+    tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, pt[2]);
+    geometry_msgs::Quaternion geometry_quat;
+    quaternionTFToMsg(quat, geometry_quat);
+    marker.pose.orientation = geometry_quat;
 
-    marker.scale.x = 0.35;
-    marker.scale.y = 0.1;
-    marker.scale.z = 0.1;
+    marker.scale.x = 0.7;
+    marker.scale.y = 0.15;
+    marker.scale.z = 0.15;
 
-    marker.color.r = 1.0f;
-    marker.color.g = 0.5f;
-    marker.color.b = 0.0f;
+    marker.color.r = r;
+    marker.color.g = g;
+    marker.color.b = b;
     marker.color.a = 1.0f;
-
-    return;
+    return marker;
 }
 
 VirtualSpringModel::VirtualSpringModel ( ) : nh_(), pnh_("~") {
-    pub_mrk_tgt_ = nh_.advertise< visualization_msgs::Marker >( "/vsm_target_marker", 1 );
+    pub_mrk_tgt_ = nh_.advertise< visualization_msgs::MarkerArray >( "/vsm_target_marker", 1 );
     pub_mrk_path_ = nh_.advertise< visualization_msgs::Marker >( "/vsm_path_marker", 1 );
 
     setFollowParamater( 0.0, 0.7 );
@@ -133,6 +128,12 @@ void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const do
     vel.angular.z = angular;
     *output_vel = vel;
     if ( display_vsm_path_ ) displayVirtualSpringPathMarker ( linear, angular );
-    if ( display_target_ ) displayTargetMarker( );
+    if ( display_target_ ) {
+        visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
+        marker_array->markers.push_back( displayTargetMarker(robot, "robot", 1.0, 0.0, 0.0) );
+        marker_array->markers.push_back( displayTargetMarker(human, "human", 0.0, 1.0, 0.0) );
+        marker_array->markers.push_back( displayTargetMarker(robot_transformed, "robot_transformed", 0.0, 0.0, 1.0) );
+        pub_mrk_tgt_.publish(marker_array);
+    }
     return;
 }

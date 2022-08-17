@@ -12,7 +12,7 @@ viscous_friction_linear     : 1.00      # k_3 [N・s/m]
 viscous_friction_angular    : 1.00      # k_4 [N・s/rad]
 radius_robot                : 0.3       # L [m]
 display_vsm_path            : true
-display_vsm_target          : false
+display_vsm_target          : true
 
 # Dynamic Window Approach :Velocity Limit
 min_velocity : 0.0

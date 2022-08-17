@@ -337,6 +337,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     geometry_msgs::Quaternion geometry_quat;
     quaternionTFToMsg(quat, geometry_quat);
     following_position->pose.orientation = geometry_quat;
+    following_position->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
 
     // following_position : obstacles :
     outrem_.setInputCloud( cloud_scan );
