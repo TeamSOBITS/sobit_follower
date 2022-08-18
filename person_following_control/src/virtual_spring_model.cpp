@@ -2,7 +2,7 @@
 
 using namespace person_following_control;
 
-void VirtualSpringModel::displayVirtualSpringPathMarker ( double vel, double ang_vel ) {
+void VirtualSpringModel::displayVirtualSpringPathMarker ( float vel, float ang_vel ) {
     visualization_msgs::Marker marker;
     marker.header.frame_id = "base_footprint";
     marker.header.stamp = ros::Time::now();
@@ -18,8 +18,8 @@ void VirtualSpringModel::displayVirtualSpringPathMarker ( double vel, double ang
     marker.lifetime = ros::Duration(0.1);
 
     int predict_step = 20;
-    double theta = 0.0;
-    double sampling_time = 0.1;
+    float theta = 0.0;
+    float sampling_time = 0.1;
     geometry_msgs::Point pt, pre_pt;
     pt.z = 0.1;
     for ( int step = 0; step < predict_step; ++step) {
@@ -39,7 +39,7 @@ void VirtualSpringModel::displayVirtualSpringPathMarker ( double vel, double ang
     pub_mrk_path_.publish ( marker );
 }
 
-visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const double r, const double g, const double b ) {
+visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const float r, const float g, const float b ) {
     visualization_msgs::Marker marker;
     marker.header.frame_id = ( name != "robot_transformed" ) ? "base_footprint" : "target";
     marker.header.stamp = ros::Time::now();
@@ -81,14 +81,11 @@ VirtualSpringModel::VirtualSpringModel ( ) : nh_(), pnh_("~") {
 	setDisplayFlag( false, false );
 }
 
-void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const double curt_vel_linear, const double curt_vel_angular, geometry_msgs::TwistPtr &output_vel ) {
-    tf::Quaternion quat;
-    double roll, pitch, yaw;
-	quaternionMsgToTF(pose_msg.orientation, quat);
-	tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);  //rpy are Pass by Reference
+void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, geometry_msgs::TwistPtr &output_vel ) {
+    float yaw = std::atan2( pose_msg.position.y, pose_msg.position.x );
 
     // 移動ロボットが人を追従するときのロボットの位置を求める(座標変換)
-    double ang_follow = ang_follow_;
+    float ang_follow = ang_follow_;
     Eigen::Vector3f robot(0.0f, 0.0f, 0.0f);
     Eigen::Vector3f human(pose_msg.position.x, pose_msg.position.y, yaw);
     Eigen::Vector3f ang_follow_v(0.0f, 0.0f, ang_follow);
@@ -98,27 +95,29 @@ void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const do
         0.0, 0.0, 1.0;
     Eigen::Vector3f robot_transformed;
     robot_transformed = F * ( robot - human - ang_follow_v );
+    ROS_INFO("Robot                 =\t%5.3f [m]\t%5.3f [m]", robot_transformed[0], robot_transformed[1] );
+
 
     // 人間,ロボットの位置関係から,仮想ばねの長さl,ロボットに対する角度φといった,仮想ばねの状態を求める
-    double length_spring = std::hypotf( robot_transformed[0], robot_transformed[1] );
-    double angle_spring = std::atan2( robot_transformed[1], robot_transformed[0] );
+    float length_spring = std::hypotf( robot_transformed[0], robot_transformed[1] );
+    float angle_spring = std::atan2( robot_transformed[1], robot_transformed[0] );
 
     // 仮想ばねから移動ロボットに作用する弾性力を求める
     // 伸びの方向には(length_spring - dist_follow_)に比例した弾性力F1
-    double elastic_force_linear = spring_constant_linear_ * ( length_spring - dist_follow_ );
+    float elastic_force_linear = spring_constant_linear_ * ( length_spring - dist_follow_ );
     if ( std::isnan( elastic_force_linear ) ) elastic_force_linear = 0.0;
     // 曲げの方向にはangle_springに比例した弾性力F2
-    double elastic_force_angular = (spring_constant_angular_ * angle_spring ) / length_spring;
+    float elastic_force_angular = (spring_constant_angular_ * angle_spring ) / length_spring;
     if ( std::isnan( elastic_force_angular ) ) elastic_force_angular = 0.0;
 
     // 仮想的な弾性力F1,F2を,移動ロボットの推進力として,以下のように運動方程式を導く
     // 左辺が質量と移動ロボットの並進速度の微分の積
-    double linear = -elastic_force_linear * std::cos ( robot_transformed[2] - angle_spring )    // 第1項 : 移動ロボットにかかる伸びの弾性力F1の並進方向成分
+    float linear = -elastic_force_linear * std::cos ( robot_transformed[2] - angle_spring )    // 第1項 : 移動ロボットにかかる伸びの弾性力F1の並進方向成分
                     -elastic_force_angular * std::sin ( robot_transformed[2] - angle_spring )   // 第2項 : 曲げの方向の弾性力F2の並進方向成分
                     -viscous_friction_linear_ * curt_vel_linear;                               // 第3項 : κ3と移動ロボットの並進速度の積によって粘性摩擦力
     linear = linear / weight_robot_;
     // 左辺が回転モーメントと移動ロボットの回転角速度の微分の積
-    double angular = ( -elastic_force_linear * std::sin ( robot_transformed[2] - angle_spring )     // 第1項 : 移動ロボットにかかる伸びの弾性力F1の回転方向成分
+    float angular = ( -elastic_force_linear * std::sin ( robot_transformed[2] - angle_spring )     // 第1項 : 移動ロボットにかかる伸びの弾性力F1の回転方向成分
                     -elastic_force_angular * std::cos ( robot_transformed[2] - angle_spring )       // 第2項 : 曲げの方向の弾性力F2の回転方向成分
                     -viscous_friction_angular_ * curt_vel_angular ) * radius_robot_;                // 第3項 : κ3と移動ロボットの回転速度の積によって粘性摩擦力
     angular = angular / moment_inertia_;
@@ -132,7 +131,7 @@ void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const do
         visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
         marker_array->markers.push_back( displayTargetMarker(robot, "robot", 1.0, 0.0, 0.0) );
         marker_array->markers.push_back( displayTargetMarker(human, "human", 0.0, 1.0, 0.0) );
-        marker_array->markers.push_back( displayTargetMarker(robot_transformed, "robot_transformed", 0.0, 0.0, 1.0) );
+        // marker_array->markers.push_back( displayTargetMarker(robot_transformed, "robot_transformed", 0.0, 0.0, 1.0) );
         pub_mrk_tgt_.publish(marker_array);
     }
     return;

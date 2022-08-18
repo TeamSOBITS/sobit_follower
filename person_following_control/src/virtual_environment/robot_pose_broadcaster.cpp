@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
     g_robot.x = -1.0;
     g_robot.y = 0.0;
     g_robot.theta = 0.0;
+    g_odom.pose.pose.orientation.w = 1.0;
 
     ros::Rate rate(50);
     while(ros::ok()){
