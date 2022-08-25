@@ -37,6 +37,7 @@ $ roslaunch person_following_control following_control.launch
     # rviz              :   rvizを表示するか
     # rviz_cfg          :   rvizの設定ファイルパス
     # following_method  :   追従手法
+    # use_smoother      :   velocity_smootherを使用するか
 ```
 ### simulator
 ```bash
@@ -45,6 +46,7 @@ $ roslaunch person_following_control simulator.launch
     # obstacle_number   :   障害物の個数
     # observation_noise :   観測ノイズ(正規分布の分散)
     # following_method  :   追従手法
+    # use_smoother      :   velocity_smootherを使用するか
 ```
 
 #### Node

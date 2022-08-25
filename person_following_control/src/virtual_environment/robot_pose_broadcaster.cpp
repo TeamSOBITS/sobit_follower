@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
 	ros::NodeHandle nh;
     ros::Subscriber sub_robot_pose = nh.subscribe( "/cmd_vel_mux/input/teleop", 10, &callbackTwist );
     ros::Publisher pub_odom = nh.advertise< nav_msgs::Odometry >( "/odom", 1 );
+    ros::Publisher pub_vel = nh.advertise< geometry_msgs::Twist >( "/mobile_base/commands/velocity", 1 );
     ros::Publisher pub_marker = nh.advertise< visualization_msgs::Marker >( "robot_trajectory", 1 );
     static tf::TransformBroadcaster br;
 
@@ -79,6 +80,7 @@ int main(int argc, char *argv[]) {
         br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "base_footprint" ));
         g_odom.header.stamp = ros::Time::now();
         pub_odom.publish( g_odom );
+        pub_vel.publish( g_odom.twist.twist );
         ROS_INFO("[ Robot ]  x = %.3f , y = %.3f", g_robot.x, g_robot.y );
 
         geometry_msgs::Point temp;

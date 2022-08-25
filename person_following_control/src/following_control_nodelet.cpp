@@ -144,7 +144,7 @@ void person_following_control::PersonFollowing::onInit() {
     dwa_.reset( new person_following_control::DynamicWindowApproach );
     pid_.reset( new person_following_control::PIDController );
 
-    pub_vel_ = nh_.advertise< geometry_msgs::Twist >( "/cmd_vel_mux/input/teleop", 1 );
+    pub_vel_ = nh_.advertise< geometry_msgs::Twist >( "cmd_vel", 1 );
     // message_filters :
     sub_following_position_.reset ( new message_filters::Subscriber<person_following_control::FollowingPosition> ( nh_, pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1 ) );
     sub_odom_.reset ( new message_filters::Subscriber<nav_msgs::Odometry> ( nh_, pnh_.param<std::string>( "odom_topic_name", "/odom" ), 1 ) );

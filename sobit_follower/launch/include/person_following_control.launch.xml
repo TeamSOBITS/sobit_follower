@@ -20,6 +20,7 @@
             <param name="display_vsm_path"      value="$(arg display_marker)" />
             <param name="display_optimal_path"  value="$(arg display_marker)" />
             <param name="display_all_path"      value="$(arg display_marker)" />
+            <remap from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
         </node>
     </group>
 </launch>

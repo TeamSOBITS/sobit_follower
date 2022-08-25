@@ -1,0 +1,12 @@
+<!-- sobit_turtlebot_velocity_smoother.launch.xml -->
+<launch>
+    <arg name="manager_name"            default="following_control_nodelet_manager" />
+    <node pkg="nodelet" type="nodelet" name="velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet $(arg manager_name)">
+        <rosparam file="$(find person_following_control)/param/velocity_smoother_param.yaml" command="load"/>
+        <remap from="/person_following_control/velocity_smoother/smooth_cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+
+        <!-- Robot velocity feedbacks; use the default base configuration -->
+        <remap from="/person_following_control/velocity_smoother/odometry" to="/odom"/>
+        <remap from="/person_following_control/velocity_smoother/robot_cmd_vel" to="/mobile_base/commands/velocity"/>
+    </node>
+</launch>
