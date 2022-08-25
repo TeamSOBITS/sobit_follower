@@ -32,11 +32,18 @@
     - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
     - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
 ```bash
-$ roslaunch sobit_follower sobit_follower.launch rviz:=false rqt_reconfigure:=false
+$ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
 ```
 ### simulator.launch
 ```bash
-$ roslaunch sobit_follower simulator.launch
+$ roslaunch sobit_follower simulator.launch rviz:=true rqt_reconfigure:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
 ```
 <div align="center">
     <img src="sobit_follower/doc/img/sobit_follower.png" width="1080">

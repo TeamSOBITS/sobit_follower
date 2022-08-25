@@ -37,6 +37,7 @@
         <node pkg="nodelet" type="nodelet" name="sensor_rotator" args="load multiple_sensor_person_tracking/PersonAimSensorRotator $(arg manager_name)" >
             <rosparam file="$(find multiple_sensor_person_tracking)/param/sensor_rotator_param.yaml" command="load" />
             <param name="use_rotate" value="$(arg use_rotate)" />
+            <param name="display_marker" value="$(arg rviz)" />
         </node>
     </group>
     <node if="$(arg rqt_reconfigure)" pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>

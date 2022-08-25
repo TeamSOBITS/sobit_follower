@@ -129,7 +129,7 @@ sudo udevadm trigger
 sudo /etc/init.d/udev reload
 
 cd
-cd ~/catkin_ws/src/sobit_follower/multiple_sensor_person_tracking/2d_lidar_person_detection/dr_spaam/
+cd ~/catkin_ws/src/sobit_follower/2d_lidar_person_detection/dr_spaam/
 sudo python3 setup.py install
 
 # cd ~/catkin_ws/

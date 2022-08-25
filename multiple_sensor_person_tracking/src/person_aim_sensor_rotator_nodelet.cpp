@@ -17,7 +17,7 @@ namespace multiple_sensor_person_tracking {
         private:
 			ros::NodeHandle nh_;
 			ros::NodeHandle pnh_;
-			// ros::Publisher pub_marker_;
+			ros::Publisher pub_marker_;
             ros::Subscriber sub_tracking_position_;
 			tf::TransformListener tf_listener_;
 
@@ -35,7 +35,9 @@ namespace multiple_sensor_person_tracking {
 			double smoothing_gain_;
 			bool use_rotate_;
 			bool use_smoothing_;
+			bool display_marker_;
 
+			void makeMarker( const double pan_angle, const double tilt_angle, const double distance );
 			void callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level);
 			void callbackTargetPosition( const person_following_control::FollowingPositionConstPtr& msg );
 
@@ -52,15 +54,30 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicRec
 	person_height_ = config.camera2person_height;
 	use_smoothing_ = config.use_smoothing;
 	smoothing_gain_ = config.smoothing_gain;
-
-	if ( !use_rotate_ ) {
-		sub_tracking_position_.shutdown();
-	} else {
-		sub_tracking_position_ = nh_.subscribe( pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1, &multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition, this);
-	}
+	display_marker_ = config.display_marker;
 	return;
 }
 
+void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const double pan_angle, const double tilt_angle, const double distance ) {
+	visualization_msgs::Marker marker;
+    marker.header.frame_id = "base_footprint";
+    marker.header.stamp = ros::Time::now();
+    marker.ns = "sensor_direction";
+    marker.id = 1;
+    marker.type = visualization_msgs::Marker::ARROW;
+    marker.action = visualization_msgs::Marker::ADD;
+	marker.scale.x = distance; marker.scale.y = 0.05; marker.scale.z = 0.05;
+	marker.color.a = 1.0; marker.color.r = 0.0; marker.color.g = 0.0; marker.color.b = 1.0;
+    marker.lifetime = ros::Duration(0.1);
+	marker.pose.position.x = 0.0;
+    marker.pose.position.y = 0.0;
+    marker.pose.position.z = 0.8;
+    tf::Quaternion quat = tf::createQuaternionFromRPY(0, -tilt_angle, -pan_angle);
+    geometry_msgs::Quaternion geometry_quat;
+    quaternionTFToMsg(quat, geometry_quat);
+    marker.pose.orientation = geometry_quat;
+    pub_marker_.publish ( marker );
+}
 
 void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition( const person_following_control::FollowingPositionConstPtr& msg ) {
 	geometry_msgs::Point pt;
@@ -74,7 +91,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosi
 
 	double distance = std::hypotf( pt.x, pt.y );
 	double angle = std::atan2( pt.y, pt.x );
-	double tilt_angle, pan_angle;
+	double pan_angle, tilt_angle;
 	double sec = ( distance == 0.0 ) ? 0.5 : 0.033;
 
 	tilt_angle = std::atan2( person_height_, distance );
@@ -84,22 +101,9 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosi
     pan_angle = -angle;
 
 	NODELET_INFO("Rotator:\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
-	sobit_edu_ctr_->moveXtionPanTilt ( pan_angle, tilt_angle, sec, true );
+	if ( use_rotate_ ) sobit_edu_ctr_->moveXtionPanTilt ( pan_angle, tilt_angle, sec, true );
+	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
-    // visualization_msgs::Marker target_marker;
-    // target_marker.header.frame_id = "base_footprint";
-    // target_marker.header.stamp = ros::Time::now();
-    // target_marker.ns = "target_marker";
-    // target_marker.id =  1;
-    // target_marker.type = visualization_msgs::Marker::CUBE;
-    // target_marker.action = visualization_msgs::Marker::ADD;
-    // target_marker.scale.x = 0.15;target_marker.scale.y = 0.15;target_marker.scale.z = 0.15;
-    // target_marker.color.r = 1.0; target_marker.color.g = 1.0; target_marker.color.b = 0.0; target_marker.color.a = 1.0;
-    // target_marker.pose.position = *tracking_position_;
-    // target_marker.pose.position.z = 0.2;
-    // target_marker.pose.orientation.w = 1.0;
-    // target_marker.lifetime = ros::Duration(1.0);
-	// pub_marker_.publish( target_marker );
 	return;
 }
 
@@ -107,7 +111,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
 
-	// pub_marker_ = nh_.advertise< visualization_msgs::Marker >( "rotator_marker", 1 );
+	pub_marker_ = nh_.advertise< visualization_msgs::Marker >( "rotator_marker", 1 );
 
 	sobit_edu_ctr_.reset( new sobit_education::SobitEducationController );
 	tracking_position_.reset( new geometry_msgs::Point );
