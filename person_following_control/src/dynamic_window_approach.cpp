@@ -26,7 +26,7 @@ void DynamicWindowApproach::displayOptimalPathMarker ( double optimal_vel, doubl
         pre_pt = pt;
         pt.x = optimal_vel * cos(theta) * sampling_time + pre_pt.x;
         pt.y = optimal_vel * sin(theta) * sampling_time + pre_pt.y;
-        pt.z = 0.3;
+        pt.z = 0.5;
         theta = optimal_ang_vel * sampling_time + theta;
         // if ( std::hypotf( pt.x, pt.y ) > 1.5 ) break;
         marker.points.push_back( pt );

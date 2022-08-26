@@ -6,7 +6,7 @@
     <!--# 0 : virtual_spring_model_dynamic_window_approach
         # 1 : virtual_spring_model
         # 2 : dynamic_window_approach -->
-
+    <arg name="use_smoother"            default="false" />
     <arg name="display_marker"          default="true"/>
 
     <group ns = "person_following_control">
@@ -20,7 +20,17 @@
             <param name="display_vsm_path"      value="$(arg display_marker)" />
             <param name="display_optimal_path"  value="$(arg display_marker)" />
             <param name="display_all_path"      value="$(arg display_marker)" />
-            <remap from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+            <remap if="$(arg use_smoother)"         from="cmd_vel" to="/person_following_control/velocity_smoother/raw_cmd_vel"/>
+            <remap unless="$(arg use_smoother)"     from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+        </node>
+
+        <node if="$(arg use_smoother)" pkg="nodelet" type="nodelet" name="velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet $(arg manager_name)">
+            <rosparam file="$(find sobit_follower)/param/velocity_smoother_param.yaml" command="load"/>
+            <remap from="/person_following_control/velocity_smoother/smooth_cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+
+            <!-- Robot velocity feedbacks; use the default base configuration -->
+            <remap from="/person_following_control/velocity_smoother/odometry" to="/odom"/>
+            <remap from="/person_following_control/velocity_smoother/robot_cmd_vel" to="/mobile_base/commands/velocity"/>
         </node>
     </group>
 </launch>

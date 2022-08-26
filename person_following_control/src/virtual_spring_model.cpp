@@ -95,8 +95,7 @@ void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const fl
         0.0, 0.0, 1.0;
     Eigen::Vector3f robot_transformed;
     robot_transformed = F * ( robot - human - ang_follow_v );
-    ROS_INFO("Robot                 =\t%5.3f [m]\t%5.3f [m]", robot_transformed[0], robot_transformed[1] );
-
+    // ROS_INFO("Robot                 =\t%5.3f [m]\t%5.3f [m]", robot_transformed[0], robot_transformed[1] );
 
     // 人間,ロボットの位置関係から,仮想ばねの長さl,ロボットに対する角度φといった,仮想ばねの状態を求める
     float length_spring = std::hypotf( robot_transformed[0], robot_transformed[1] );

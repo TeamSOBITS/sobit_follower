@@ -15,6 +15,42 @@ typedef struct {
 RobotPose g_robot;
 nav_msgs::Odometry g_odom;
 
+visualization_msgs::Marker makePathMarker ( float vel, float ang_vel ) {
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "base_footprint";
+    marker.header.stamp = ros::Time::now();
+    marker.ns = "path";
+    marker.id = 1;
+    marker.type = visualization_msgs::Marker::LINE_STRIP;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.scale.x = 0.1;
+    marker.color.a = 1.0;
+    marker.color.r = 1.0;
+    marker.color.g = 0.0;
+    marker.color.b = 1.0;
+    marker.lifetime = ros::Duration(0.1);
+
+    int predict_step = 20;
+    float theta = 0.0;
+    float sampling_time = 0.1;
+    geometry_msgs::Point pt, pre_pt;
+    pt.z = 0.1;
+    for ( int step = 0; step < predict_step; ++step) {
+        pre_pt = pt;
+        pt.x = vel * cos(theta) * sampling_time + pre_pt.x;
+        pt.y = vel * sin(theta) * sampling_time + pre_pt.y;
+        pt.z = 0.4;
+        theta = ang_vel * sampling_time + theta;
+        // if ( std::hypotf( pt.x, pt.y ) > 1.5 ) break;
+        marker.points.push_back( pt );
+    }
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    return marker;
+}
+
 void callbackTwist ( const geometry_msgs::TwistConstPtr &msg ) {
     g_robot.theta += 0.05 * msg->angular.z ;
     if ( g_robot.theta > M_PI )     g_robot.theta = g_robot.theta - 2 * M_PI;
@@ -36,7 +72,6 @@ void callbackTwist ( const geometry_msgs::TwistConstPtr &msg ) {
     return;
 }
 
-
 int main(int argc, char *argv[]) {
     ros::init(argc, argv, "robot_pose_broadcaster_node");
 
@@ -45,6 +80,7 @@ int main(int argc, char *argv[]) {
     ros::Publisher pub_odom = nh.advertise< nav_msgs::Odometry >( "/odom", 1 );
     ros::Publisher pub_vel = nh.advertise< geometry_msgs::Twist >( "/mobile_base/commands/velocity", 1 );
     ros::Publisher pub_marker = nh.advertise< visualization_msgs::Marker >( "robot_trajectory", 1 );
+    ros::Publisher pub_mrk_path = nh.advertise< visualization_msgs::Marker >( "path", 1 );
     static tf::TransformBroadcaster br;
 
     visualization_msgs::Marker marker;
@@ -92,10 +128,10 @@ int main(int argc, char *argv[]) {
         if ( marker.points.size() > 200 ) marker.points.erase(marker.points.begin());
         marker.header.stamp = ros::Time::now();
         pub_marker.publish ( marker );
+        pub_mrk_path.publish( makePathMarker( g_odom.twist.twist.linear.x, g_odom.twist.twist.angular.z ) );
 
         ros::spinOnce();
         rate.sleep();
     }
-
     ros::spin();
 }

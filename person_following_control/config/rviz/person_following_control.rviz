@@ -109,23 +109,24 @@ Visualization Manager:
       Marker Topic: /sensor_marker
       Name: sensor_marker
       Namespaces:
-        {}
+        cost: true
+        obstacles: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /following_position_marker
       Name: following_position_marker
       Namespaces:
-        target_pose: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /dwa_path_marker
       Name: dwa_path_marker
       Namespaces:
-        {}
+        optimal_path: true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -133,7 +134,7 @@ Visualization Manager:
       Marker Topic: /dwa_path_marker_all
       Name: dwa_path_marker_all
       Namespaces:
-        {}
+        all_path: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -149,9 +150,15 @@ Visualization Manager:
       Marker Topic: /vsm_target_marker
       Name: vsm_target_marker
       Namespaces:
-        human: true
-        robot: true
-        robot_transformed: true
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /virtual_environment/path
+      Name: Path
+      Namespaces:
+        path: true
       Queue Size: 100
       Value: true
   Enabled: true

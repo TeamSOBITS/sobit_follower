@@ -102,18 +102,18 @@ void person_following_control::PersonFollowing::callbackData (
         NODELET_INFO("VirtualSpringModel    =\t%5.3f [m/s]\t%5.3f [deg/s]", vsm_vel->linear.x, vsm_vel->angular.z*180/M_PI );
         if ( vsm_vel->linear.x <= 0.0 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+            NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s] : vsm_vel->linear.x <= 0.0\n", vel->linear.x, vel->angular.z*180/M_PI );
         } else {
             if( target_distance > following_distance_ ) {
                 if ( dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vsm_vel, vel ) ) {
                     NODELET_INFO("DynamicWindowApproach =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
                 } else {
                     pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                    NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+                    NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s] : No Path\n", vel->linear.x, vel->angular.z*180/M_PI );
                 }
             } else {
                 pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+                NODELET_INFO("PIDController         =\t%5.3f [m/s]\t%5.3f [deg/s] : target_distance > following_distance_\n", vel->linear.x, vel->angular.z*180/M_PI );
             }
         }
     } else if ( following_method_ == FollowingMethod::VSM ) {
