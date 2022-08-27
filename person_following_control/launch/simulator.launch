@@ -23,4 +23,7 @@
         <arg name="rqt_reconfigure"             value="$(arg rqt_reconfigure)"/>
         <arg name="use_smoother"                value="$(arg use_smoother)" />
     </include>
+
+    <node name="vel_plot_lin" pkg="rqt_plot" type="rqt_plot" args="/cmd_vel_mux/input/teleop/linear/x /cmd_vel_mux/input/teleop/angular/z" />
+
 </launch>

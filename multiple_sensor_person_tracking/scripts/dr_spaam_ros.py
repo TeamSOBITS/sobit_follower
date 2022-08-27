@@ -3,6 +3,7 @@
 
 import numpy as np
 import rospy
+# import time
 
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Point, Pose
@@ -65,7 +66,7 @@ class DrSpaamROS:
 
         # t = time.time()
         dets_xy, dets_cls, _ = self._detector(scan)
-        # print("[DrSpaamROS] End-to-end inference time: %f" % (t - time.time()))
+        # print("[DrSpaamROS] End-to-end inference time: %f" % (time.time() - t))
 
         # confidence threshold
         conf_mask = (dets_cls >= self.conf_thresh).reshape(-1)
@@ -78,6 +79,7 @@ class DrSpaamROS:
         dets_msg.scan = msg
         # print(dets_msg)
         self._dets_pub.publish(dets_msg)
+        # rospy.loginfo("publish LegPoseArray")
 
 def detections_to_pose_array(dets_xy, dets_cls):
     dets_msg = LegPoseArray()

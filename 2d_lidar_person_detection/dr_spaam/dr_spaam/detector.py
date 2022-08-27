@@ -27,10 +27,12 @@ class Detector(object):
         self._laser_fov_deg = None
 
         if model == "DROW3":
+            print( "[Leg Detector] : model = DROW3")
             self._model = DrowNet(
                 dropout=0.5, cls_loss=None, mixup_alpha=0.0, mixup_w=0.0
             )
         elif model == "DR-SPAAM":
+            print( "[Leg Detector] : model = DR-SPAAM")
             self._model = DrSpaam(
                 dropout=0.5,
                 num_pts=56,
@@ -54,6 +56,7 @@ class Detector(object):
 
         self._model.eval()
         if gpu:
+            print( "[Leg Detector] : This detector uses GPU")
             torch.backends.cudnn.benchmark = True
             self._model = self._model.cuda()
 
@@ -64,6 +67,7 @@ class Detector(object):
             self._scan_phi = np.linspace(
                 -half_fov_rad, half_fov_rad, len(scan), dtype=np.float32
             )
+            print( "[Leg Detector] : Set the scan_phi")
 
         # preprocess
         ct = u.scans_to_cutout(
@@ -105,6 +109,7 @@ class Detector(object):
         return dets_xy, dets_cls, instance_mask
 
     def set_laser_fov(self, fov_deg):
+        print( "[Leg Detector] : Set the field of view of the laser")
         self._laser_fov_deg = fov_deg
 
     def is_ready(self):

@@ -20,7 +20,7 @@
 
     <!-- scan2d_data_publisher -->
     <group ns = "scan2d_data_publisher">
-        <node pkg="scan2d_handler" type="scan2d_data_publisher" name="scan2d_data_publisher" launch-prefix="xterm -e">
+        <node pkg="scan2d_handler" type="scan2d_data_publisher" name="scan2d_data_publisher" launch-prefix="xterm -font r16 -fg floralwhite -bg darkslateblue -e">
         <param name="publish_data_path" type="str" value="$(find scan2d_handler)/sensor_data/corridor_footprint/scan2dbinary_"/>
         <!-- <param name="publish_data_path" type="str" value="$(find scan2d_handler)/sensor_data/test/scan2dbinary_"/> -->
         <!-- <param name="publish_data_path" type="str" value="$(find scan2d_handler)/sensor_data/obstacles_and_legs/scan2dbinary_"/> -->

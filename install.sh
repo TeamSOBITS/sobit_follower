@@ -2,7 +2,7 @@
 
 sudo apt update
 
-echo -e "\e[34m\n Install ros-noetic-pointcloud-to-laserscan \e[m"
+echo -e "\e[34m\n Install ros-${ROS_DISTRO}-pointcloud-to-laserscan \e[m"
 sudo apt install ros-${ROS_DISTRO}-pointcloud-to-laserscan -y
 
 cd ~/catkin_ws/src/

@@ -100,7 +100,8 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosi
 	else if ( tilt_angle > tilt_angle_max_ ) tilt_angle = tilt_angle_max_;
     pan_angle = -angle;
 
-	NODELET_INFO("Rotator:\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
+	// NODELET_INFO("\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
+
 	if ( use_rotate_ ) sobit_edu_ctr_->moveXtionPanTilt ( pan_angle, tilt_angle, sec, true );
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 

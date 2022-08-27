@@ -349,9 +349,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // following_position : header :
     following_position->header.stamp = ros::Time::now();
     pub_following_position_.publish( following_position );
-    NODELET_INFO("Result :          %s", ( result == EXISTS_LEG ? "EXISTS_LEG" : ( result == EXISTS_BODY ? "EXISTS_BODY" : "EXISTS_LEG_AND_BODY")) );
-    NODELET_INFO("Tracker: x = %8.3f [m],\ty = %8.3f [m]", following_position->pose.position.x, following_position->pose.position.y);
-
+    NODELET_INFO("\033[1mResult\033[m                =\t%s", ( result == EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" : ( result == EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" : "\033[1;32m EXISTS_LEG_AND_BODY \033[m")) );
+    NODELET_INFO("\033[1mTarget\033[m                =\t%5.3f [m]\t%5.3f [m]", following_position->pose.position.x, following_position->pose.position.y );
     if ( display_marker_ ) {
         pub_obstacles_.publish( following_position->obstacles );
         marker_array->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
