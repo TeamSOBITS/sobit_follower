@@ -7,6 +7,7 @@
         # 2 : dynamic_window_approach -->
     <arg name="rqt_reconfigure"         default="true"/>
     <arg name="use_smoother"            default="true" />
+    <arg name="plot"                    default="true" />
 
     <node pkg="rviz" type="rviz" name="rviz" args= "-d $(find person_following_control)/config/rviz/person_following_control.rviz"/>
     <group ns = "virtual_environment">
@@ -24,6 +25,11 @@
         <arg name="use_smoother"                value="$(arg use_smoother)" />
     </include>
 
-    <node name="vel_plot_lin" pkg="rqt_plot" type="rqt_plot" args="/cmd_vel_mux/input/teleop/linear/x /cmd_vel_mux/input/teleop/angular/z" />
-
+    <group if="$(arg plot)">
+        <node if="$(arg use_smoother)"      name="vel_plot_lin" pkg="rqt_plot" type="rqt_plot"
+            args="/person_following_control/velocity_smoother/raw_cmd_vel/linear/x /person_following_control/velocity_smoother/raw_cmd_vel/angular/z
+                    /cmd_vel_mux/input/teleop/linear/x /cmd_vel_mux/input/teleop/angular/z" />
+        <node unless="$(arg use_smoother)"  name="vel_plot_lin" pkg="rqt_plot" type="rqt_plot"
+            args="/cmd_vel_mux/input/teleop/linear/x /cmd_vel_mux/input/teleop/angular/z" />
+    </group>
 </launch>
