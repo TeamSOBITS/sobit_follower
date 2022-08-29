@@ -143,7 +143,7 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud2
-      Color: 255; 255; 255
+      Color: 167; 87; 168
       Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true

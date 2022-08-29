@@ -100,7 +100,7 @@ void person_following_control::PersonFollowing::callbackData (
         pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles );
         vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vsm_vel );
         NODELET_INFO("\033[1;33mVirtualSpringModel\033[m    =\t%5.3f [m/s]\t%5.3f [deg/s]", vsm_vel->linear.x, vsm_vel->angular.z*180/M_PI );
-        if ( vsm_vel->linear.x <= 0.0 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
+        if ( vsm_vel->linear.x <= 0.05 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
             NODELET_INFO("\033[1;32mPIDController\033[m         =\t%5.3f [m/s]\t%5.3f [deg/s] : Velocity <= 0.0\n", vel->linear.x, vel->angular.z*180/M_PI );
         } else {
