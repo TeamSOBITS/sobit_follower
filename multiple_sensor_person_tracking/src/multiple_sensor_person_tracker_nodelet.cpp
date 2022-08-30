@@ -17,7 +17,7 @@
 #include <sobit_common_msg/BoundingBoxes.h>
 #include <sobit_common_msg/ObjectPoseArray.h>
 #include <multiple_sensor_person_tracking/LegPoseArray.h>
-#include <person_following_control/FollowingPosition.h>
+#include <multiple_sensor_person_tracking/FollowingPosition.h>
 
 #include <tf/transform_listener.h>
 
@@ -287,7 +287,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     PointCloud::Ptr cloud_scan (new PointCloud());
     visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
-    person_following_control::FollowingPositionPtr following_position( new person_following_control::FollowingPosition );
+    multiple_sensor_person_tracking::FollowingPositionPtr following_position( new multiple_sensor_person_tracking::FollowingPosition );
     double dt = ( dr_spaam_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
     previous_time_ = dr_spaam_msg->header.stamp.toSec();
 
@@ -377,7 +377,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
     sync_ ->registerCallback ( boost::bind( &PersonTracker::callbackPoseArray, this, _1, _2 ) );
 
-    pub_following_position_ = nh_.advertise< person_following_control::FollowingPosition >( "following_position", 1 );
+    pub_following_position_ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = nh_.advertise<sensor_msgs::PointCloud2>("obstacles", 1);
 

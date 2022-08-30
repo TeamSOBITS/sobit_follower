@@ -14,7 +14,6 @@
     <depend>pcl_ros</depend>
     <depend>pcl_conversions</depend>
     <depend>laser_geometry</depend>
-    <depend>person_following_control</depend>
 
     <depend>dr_spaam_ros</depend>
     <depend>sobit_education_library</depend>

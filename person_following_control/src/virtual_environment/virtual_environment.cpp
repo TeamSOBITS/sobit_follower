@@ -10,7 +10,7 @@
 #include <pcl_ros/transforms.h>
 #include <pcl/point_types.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <person_following_control/FollowingPosition.h>
+#include <multiple_sensor_person_tracking/FollowingPosition.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <person_following_control/VirtualEnvironmentParameterConfig.h>
@@ -165,7 +165,7 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
     ros::Rate rate(30);
     static tf::TransformBroadcaster br;
     ros::Publisher pub_trajectory = nh_.advertise< visualization_msgs::Marker >( "/target_trajectory", 1 );
-    ros::Publisher pub_following_position = nh_.advertise< person_following_control::FollowingPosition >( "/following_position", 1 );
+    ros::Publisher pub_following_position = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "/following_position", 1 );
     ros::Publisher pub_following_position_marker_ = nh_.advertise< visualization_msgs::Marker >( "/following_position_marker", 1 );
 
 
@@ -200,7 +200,7 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
     target_pose.color.g = 1.0;
     target_pose.color.b = 1.0;
 
-    person_following_control::FollowingPositionPtr following_position ( new person_following_control::FollowingPosition );
+    multiple_sensor_person_tracking::FollowingPositionPtr following_position ( new multiple_sensor_person_tracking::FollowingPosition );
     std::random_device seed;
     std::mt19937 engine(seed());            // メルセンヌ・ツイスター法
     // geometry_msgs::Point pre_pt;

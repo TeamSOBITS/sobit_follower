@@ -14,7 +14,7 @@
 #include <pcl_ros/transforms.h>
 #include <pcl/point_types.h>
 
-#include <person_following_control/FollowingPosition.h>
+#include <multiple_sensor_person_tracking/FollowingPosition.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 
@@ -24,7 +24,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<person_following_control::FollowingPosition, nav_msgs::Odometry> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::FollowingPosition, nav_msgs::Odometry> MySyncPolicy;
 
 namespace person_following_control {
     enum FollowingMethod {
@@ -36,10 +36,10 @@ namespace person_following_control {
             ros::NodeHandle nh_;
             ros::NodeHandle pnh_;
             ros::Publisher pub_vel_;
-            std::unique_ptr<message_filters::Subscriber<person_following_control::FollowingPosition>> sub_following_position_;
+            std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
             std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
-            person_following_control::FollowingPositionPtr following_position_;
+            multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
             geometry_msgs::TwistPtr current_velocity_;
 
             std::unique_ptr<person_following_control::VirtualSpringModel> vsm_;
@@ -55,7 +55,7 @@ namespace person_following_control {
 
             void callbackDynamicReconfigure(person_following_control::PersonFollowingParameterConfig& config, uint32_t level);
             void callbackData (
-                const person_following_control::FollowingPositionConstPtr &following_position_msg,
+                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
                 const nav_msgs::OdometryConstPtr &odom_msg
             );
 
@@ -85,7 +85,7 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
 }
 
 void person_following_control::PersonFollowing::callbackData (
-    const person_following_control::FollowingPositionConstPtr &following_position_msg,
+    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
     if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
@@ -138,7 +138,7 @@ void person_following_control::PersonFollowing::callbackData (
 void person_following_control::PersonFollowing::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
-    following_position_.reset( new person_following_control::FollowingPosition );
+    following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );
     current_velocity_.reset( new geometry_msgs::Twist );
     vsm_.reset( new person_following_control::VirtualSpringModel );
     dwa_.reset( new person_following_control::DynamicWindowApproach );
@@ -146,7 +146,7 @@ void person_following_control::PersonFollowing::onInit() {
 
     pub_vel_ = nh_.advertise< geometry_msgs::Twist >( "cmd_vel", 1 );
     // message_filters :
-    sub_following_position_.reset ( new message_filters::Subscriber<person_following_control::FollowingPosition> ( nh_, pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1 ) );
+    sub_following_position_.reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition> ( nh_, pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1 ) );
     sub_odom_.reset ( new message_filters::Subscriber<nav_msgs::Odometry> ( nh_, pnh_.param<std::string>( "odom_topic_name", "/odom" ), 1 ) );
     sync_.reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_following_position_, *sub_odom_ ) );
     sync_->registerCallback ( boost::bind( &PersonFollowing::callbackData, this, _1, _2 ) );

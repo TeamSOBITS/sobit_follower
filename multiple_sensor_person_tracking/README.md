@@ -153,7 +153,7 @@ $ roslaunch virtual_multiple_sensor_publisher sensor_data_publisher.launch
 #### Publications
 |トピック名|型|意味|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|person_following_control/FollowingPosition|追従位置と障害物|
+|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
 |/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|障害物点群|
 |/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|検出結果のマーカ|
 

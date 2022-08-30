@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   rviz
   multiple_observation_kalman_filter
+  multiple_sensor_person_tracking
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -29,11 +30,10 @@ find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED
 set(QT_LIBRARIES Qt5::Widgets)
 add_definitions(-DQT_NO_KEYWORDS)
 
-# Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  FollowingPosition.msg
-)
+# # Generate messages in the 'msg' folder
+# add_message_files(
+#   FILES
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(

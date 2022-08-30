@@ -21,6 +21,8 @@
   <depend>visualization_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>message_filters</depend>
+  <depend>multiple_observation_kalman_filter</depend>
+  <depend>multiple_sensor_person_tracking</depend>
 
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>

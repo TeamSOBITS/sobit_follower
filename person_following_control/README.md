@@ -58,12 +58,12 @@ $ roslaunch person_following_control simulator.launch
 #### Subscriptions
 |トピック名|型|意味|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|person_following_control/FollowingPosition|追従位置と障害物|
+|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
 
 #### Publications
 |トピック名|型|意味|
 |---|---|---|
-|/cmd_vel_mux/input/teleop|person_following_control/FollowingPosition|追従制御の速度情報|
+|/cmd_vel_mux/input/teleop|multiple_sensor_person_tracking/FollowingPosition|追従制御の速度情報|
 
 #### Parameter：Following Control
 |パラメータ名|型|意味|

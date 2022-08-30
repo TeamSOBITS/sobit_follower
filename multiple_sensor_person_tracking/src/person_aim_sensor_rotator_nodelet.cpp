@@ -10,7 +10,7 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <multiple_sensor_person_tracking/SensorRotatorParameterConfig.h>
-#include <person_following_control/FollowingPosition.h>
+#include <multiple_sensor_person_tracking/FollowingPosition.h>
 
 namespace multiple_sensor_person_tracking {
     class PersonAimSensorRotator : public nodelet::Nodelet {
@@ -39,7 +39,7 @@ namespace multiple_sensor_person_tracking {
 
 			void makeMarker( const double pan_angle, const double tilt_angle, const double distance );
 			void callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level);
-			void callbackTargetPosition( const person_following_control::FollowingPositionConstPtr& msg );
+			void callbackTargetPosition( const multiple_sensor_person_tracking::FollowingPositionConstPtr& msg );
 
         public:
             virtual void onInit();
@@ -79,7 +79,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const 
     pub_marker_.publish ( marker );
 }
 
-void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition( const person_following_control::FollowingPositionConstPtr& msg ) {
+void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition( const multiple_sensor_person_tracking::FollowingPositionConstPtr& msg ) {
 	geometry_msgs::Point pt;
 	if ( use_smoothing_ ) {
 		tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * msg->pose.position.x;

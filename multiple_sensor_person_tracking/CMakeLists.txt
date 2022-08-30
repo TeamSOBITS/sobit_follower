@@ -16,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   pluginlib
   nodelet
   dynamic_reconfigure
-  person_following_control
   multiple_observation_kalman_filter
 )
 
@@ -24,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   LegPoseArray.msg
+  FollowingPosition.msg
 )
 
 # Generate services in the 'srv' folder
@@ -42,7 +42,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  sensor_msgs geometry_msgs person_following_control
+  sensor_msgs geometry_msgs
 )
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
@@ -54,7 +54,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS dr_spaam_ros sobit_education_library ssd_nodelet person_following_control
+  CATKIN_DEPENDS dr_spaam_ros sobit_education_library ssd_nodelet
   DEPENDS OpenCV
 #  DEPENDS system_lib
 )
