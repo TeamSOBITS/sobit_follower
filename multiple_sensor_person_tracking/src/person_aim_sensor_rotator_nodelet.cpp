@@ -92,17 +92,17 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosi
 	double distance = std::hypotf( pt.x, pt.y );
 	double angle = std::atan2( pt.y, pt.x );
 	double pan_angle, tilt_angle;
-	double sec = ( distance == 0.0 ) ? 0.5 : 0.033;
+	double sec = ( distance == 0.0 ) ? 0.5 : 0.01;
 
 	tilt_angle = std::atan2( person_height_, distance );
 	if ( distance == 0.0 ) tilt_angle = 0.2;
 	else if ( tilt_angle < tilt_angle_min_ ) tilt_angle = tilt_angle_min_;
 	else if ( tilt_angle > tilt_angle_max_ ) tilt_angle = tilt_angle_max_;
-    pan_angle = -angle;
+    pan_angle = angle;
 
 	// NODELET_INFO("\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
 
-	if ( use_rotate_ ) sobit_edu_ctr_->moveXtionPanTilt ( pan_angle, tilt_angle, sec, true );
+	if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, true );
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;
@@ -124,8 +124,8 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 	sub_tracking_position_ = nh_.subscribe( pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1, &multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition, this);
 
 	if ( !use_rotate_ ) return;
-	sobit_edu_ctr_->movePose( "initial_pose" );
-	sobit_edu_ctr_->moveXtionPanTilt ( 0.0, 0.2, 0.3, false );
+	sobit_edu_ctr_->moveToPose( "initial_pose" );
+	sobit_edu_ctr_->moveHeadPanTilt ( 0.0, 0.2, 0.3, false );
 }
 
 PLUGINLIB_EXPORT_CLASS(multiple_sensor_person_tracking::PersonAimSensorRotator, nodelet::Nodelet);

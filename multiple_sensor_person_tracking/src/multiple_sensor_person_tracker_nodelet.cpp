@@ -79,6 +79,7 @@ namespace multiple_sensor_person_tracking {
             double target_range_;
             double target_cloud_radius_;
             bool display_marker_;
+            double no_exists_time_;
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
@@ -311,6 +312,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     Eigen::Vector2f leg_observed_value, body_observed_value;
     int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
     if ( result == NO_EXISTS ) {
+        no_exists_time_ = ros::Time::now().toSec();
         NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
         exists_target_ = false;
         return;
