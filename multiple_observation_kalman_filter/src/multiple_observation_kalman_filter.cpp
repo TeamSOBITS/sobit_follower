@@ -145,3 +145,34 @@ void multiple_observation_kalman_filter::KalmanFilter::compute( const double dt,
     estimated_covariance_matrix_ = fixed_estimated_value_covariance;
     return;
 }
+
+void multiple_observation_kalman_filter::KalmanFilter::compute( const double dt, Eigen::Vector4f* estimated_value ) {
+    // Q : プロセスノイズ(予測ステップで使用) https://gordiustears.net/process-noise-covariance-matrix-of-kalman-filter/
+    double noise_ax = process_noise_;
+    double noise_ay = process_noise_;
+    double dt_2 = dt * dt;
+    double dt_3 = dt_2 * dt;
+    double dt_4 = dt_3 * dt;
+    // https://dsp.stackexchange.com/questions/43966/is-acceleration-noise-modelled-differently-in-ekf-and-ukf-kalman-filters
+    model_error_covariance_matrix_ <<  dt_4/4*noise_ax,     0,                  dt_3/2*noise_ax,    0,
+                                        0,                  dt_4/4*noise_ay,    0,                  dt_3/2*noise_ay,
+                                        dt_3/2*noise_ax,    0,                  dt_2*noise_ax,      0,
+                                        0,                  dt_3/2*noise_ay,    0,                  dt_2*noise_ay;
+
+    Eigen::Matrix4f invertible_matrix;
+    invertible_matrix <<    1.0,    0.0,    0.0,    0.0,
+                            0.0,    1.0,    0.0,    0.0,
+                            0.0,    0.0,    1.0,    0.0,
+                            0.0,    0.0,    0.0,    1.0;
+
+    // 予測ステップ : 前フレームの予測値mと数理モデルから追跡位置の予測(事前確率)
+    // x_t = F * x_t+1 + u + W : 予測位置の正規分布の平均値m
+    Eigen::Vector4f estimated_value_average = ( state_transition_matrix_ * estimated_value_ ) + external_elements_;
+    // P_t = F * P * F_T + Q 予測位置の正規分布の分散V
+    Eigen::Matrix4f estimated_value_covariance = state_transition_matrix_ * estimated_covariance_matrix_ * state_transition_matrix_.transpose() + model_error_covariance_matrix_;
+
+    *estimated_value = estimated_value_average;
+    estimated_value_ = estimated_value_average;
+    estimated_covariance_matrix_ = estimated_value_covariance;
+    return;
+}

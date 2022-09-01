@@ -312,11 +312,13 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     Eigen::Vector2f leg_observed_value, body_observed_value;
     int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
     if ( result == NO_EXISTS ) {
-        no_exists_time_ = ros::Time::now().toSec();
-        NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
-        exists_target_ = false;
-        return;
-    }
+        if ( no_exists_time_ == -1.0 ) no_exists_time_ = ros::Time::now().toSec();
+        else if ( ros::Time::now().toSec() - no_exists_time_ >= 1.0  ){
+            NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
+            exists_target_ = false;
+            return;
+        }
+    } else no_exists_time_ = -1.0;
 
     // Tracking by Kalman Filter
     if ( !exists_target_ && result == EXISTS_LEG_AND_BODY ) {
@@ -330,6 +332,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         if( result == EXISTS_LEG ) kf_->compute( dt, leg_observed_value, &estimated_value );
         else if( result == EXISTS_BODY ) kf_->compute( dt, body_observed_value, &estimated_value );
         else if ( result == EXISTS_LEG_AND_BODY ) kf_->compute( dt, leg_observed_value, body_observed_value, &estimated_value );
+        else kf_->compute( dt, &estimated_value );
     }
 
     // following_position : pose :
@@ -363,7 +366,6 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     }
     previous_target_ = following_position->pose.position;
     // NODELET_INFO("dt     : %.4f [sec] ( %.4f [Hz] )\n", dt, 1.0/dt );
-
     return;
 }
 
@@ -402,6 +404,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     server_ = new dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>(pnh_);
     f_ = boost::bind(&multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure, this, _1, _2);
     server_->setCallback(f_);
+    no_exists_time_ = -1.0;
 }
 
 PLUGINLIB_EXPORT_CLASS( multiple_sensor_person_tracking::PersonTracker, nodelet::Nodelet );

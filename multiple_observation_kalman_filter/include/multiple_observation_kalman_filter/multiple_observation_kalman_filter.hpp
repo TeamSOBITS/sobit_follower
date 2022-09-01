@@ -32,6 +32,7 @@ namespace multiple_observation_kalman_filter{
             void init( const Eigen::Vector2f& observed_value );
             void compute( const double dt, const Eigen::Vector2f& observed_value1, const Eigen::Vector2f& observed_value2, Eigen::Vector4f* estimated_value );
             void compute( const double dt, const Eigen::Vector2f& observed_value1, Eigen::Vector4f* estimated_value );
+            void compute( const double dt, Eigen::Vector4f* estimated_value );
 
     };
 }
