@@ -3,7 +3,7 @@ following_position_topic_name : /multiple_sensor_person_tracking/following_posit
 odom_topic_name : /odom
 
 base_footprint_name         : base_footprint
-following_distance          : 0.7
+following_distance          : 1.0
 
 # Virtual Spring Model
 following_angle_deg         : 0.0       # theta_sh [deg]
