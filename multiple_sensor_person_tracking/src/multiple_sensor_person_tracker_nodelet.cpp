@@ -220,9 +220,6 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     if ( !exists_target_ ) {
         // Determine targets to track (search for the person closest to the robot)
         search_pt.x = 0.0; search_pt.y = 0.0;
-        if ( body_poses.size() == 0 ) {
-            // Rotate the RGB-D sensor in the direction in which the leg_poses
-        }
     } else {
         // Searching for the observed value of the tracking target (search for the person closest to the previous tracking position)
         search_pt = previous_target_;
@@ -306,6 +303,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     if ( !exists_target_ && ssd_msg->object_poses.size() == 0 ) {
         NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
         exists_target_ = false;
+        // Rotate the RGB-D sensor in the direction in which the leg_poses
         return;
     }
     // Searching for observables to input to the Kalman filter
@@ -323,6 +321,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // Tracking by Kalman Filter
     if ( !exists_target_ && result == EXISTS_LEG_AND_BODY ) {
         kf_->init( body_observed_value );
+        estimated_value[0] = body_observed_value[0];
+        estimated_value[1] = body_observed_value[1];
         exists_target_ = true;
     } else if ( !exists_target_ && result != EXISTS_LEG_AND_BODY ) {
         NODELET_ERROR("Result :          NO_EXISTS" );
@@ -354,8 +354,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // following_position : header :
     following_position->header.stamp = ros::Time::now();
     pub_following_position_.publish( following_position );
-    NODELET_INFO("\033[1mResult\033[m                =\t%s", ( result == EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" : ( result == EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" : "\033[1;32m EXISTS_LEG_AND_BODY \033[m")) );
-    NODELET_INFO("\033[1mTarget\033[m                =\t%5.3f [m]\t%5.3f [m]", following_position->pose.position.x, following_position->pose.position.y );
+    NODELET_INFO("\033[1mResult\033[m = %s", ( result == EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" : ( result == EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" : "\033[1;32m EXISTS_LEG_AND_BODY \033[m")) );
+    NODELET_INFO("\033[1mTarget\033[m = %5.3f [m]\t%5.3f [m]", following_position->pose.position.x, following_position->pose.position.y );
     if ( display_marker_ ) {
         pub_obstacles_.publish( following_position->obstacles );
         marker_array->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );

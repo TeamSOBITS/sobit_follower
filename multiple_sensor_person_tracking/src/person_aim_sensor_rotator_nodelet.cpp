@@ -72,7 +72,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const 
 	marker.pose.position.x = 0.0;
     marker.pose.position.y = 0.0;
     marker.pose.position.z = 0.8;
-    tf::Quaternion quat = tf::createQuaternionFromRPY(0, -tilt_angle, -pan_angle);
+    tf::Quaternion quat = tf::createQuaternionFromRPY(0, -tilt_angle, pan_angle);
     geometry_msgs::Quaternion geometry_quat;
     quaternionTFToMsg(quat, geometry_quat);
     marker.pose.orientation = geometry_quat;
