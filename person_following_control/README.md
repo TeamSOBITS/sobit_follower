@@ -97,10 +97,10 @@ $ roslaunch person_following_control simulator.launch
 #### Parameter：Dynamic Window Approach
 |パラメータ名|型|意味|
 |---|---|---|
-|/min_velocity|double|最小並進速度 [m/s]|
-|/max_velocity|double|最大並進速度 [m/s]|
-|/min_angle_velocity_deg|double|最小回転速度 [deg/s]|
-|/max_angle_velocity_deg|double|最大回転速度 [deg/s]|
+|/min_linear|double|最小並進速度 [m/s]|
+|/max_linear|double|最大並進速度 [m/s]|
+|/min_angular_deg|double|最小回転速度 [deg/s]|
+|/max_angular_deg|double|最大回転速度 [deg/s]|
 |/predict_step|int|予測ステップ数|
 |/sampling_time|double|サンプリングタイム(1予測ステップの時間)|
 |/velocity_step|double|並進速度の予測経路数|

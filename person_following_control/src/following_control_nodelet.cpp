@@ -78,7 +78,7 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
 
     dwa_->setTargetFrame( config.base_footprint_name );
 	dwa_->setStepValue( config.predict_step, config.sampling_time );
-	dwa_->setVelocityLimit( config.min_velocity, config.max_velocity, config.min_angle_velocity_deg * M_PI / 180.0, config.max_angle_velocity_deg * M_PI / 180.0, config.velocity_step, config.angle_velocity_step );
+	dwa_->setVelocityLimit( config.min_linear, config.max_linear, config.min_angular_deg * M_PI / 180.0, config.max_angular_deg * M_PI / 180.0, config.velocity_step, config.angle_velocity_step );
 	if ( following_method_ == FollowingMethod::VSM_DWA ) {
         dwa_->setWeight( config.weight_vsm_heading, config.weight_vsm_obstacle, config.weight_velocity, config.weight_vsm_linear, config.weight_vsm_angular );
     } else if ( following_method_ == FollowingMethod::VSM ) {
@@ -88,6 +88,7 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
 	dwa_->setDisplayFlag( config.display_optimal_path, config.display_all_path );
 
     pid_->setGain( config.p_gain, config.i_gain, config.d_gain );
+    pid_->setMaxAngular( config.max_pid_angular_deg * M_PI / 180.0 );
 
     return;
 }
