@@ -118,6 +118,7 @@ $ roslaunch person_following_control simulator.launch
 
 #### Parameter：PID Controller
 |パラメータ名|型|意味|
+|---|---|---|
 |/p_gain|double|比例制御ゲイン|
 |/i_gain|double|積分制御ゲイン|
 |/d_gain|double|微分制御ゲイン|
