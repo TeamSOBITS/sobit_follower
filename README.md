@@ -1,6 +1,16 @@
 # SOBIT Follower (version 5.0)
 - 複数のセンサを用いたロボットの人追従走行システム
 
+## Setup
+```bash
+$ cd ~/catkin_ws/src/
+$ git clone https://gitlab.com/TeamSOBITS/sobit_follower.git
+$ cd sobit_follower
+$ bash install.sh
+$ cd ~/catkin_ws
+$ catkin_make
+```
+
 ## Multiple Sensor Person Tracking
 - 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
 - DR-SPAAMによる2次元点群脚検出とSSDによる画像人検出を用いた人物追跡

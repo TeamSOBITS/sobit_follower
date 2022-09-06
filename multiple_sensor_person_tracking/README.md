@@ -29,14 +29,6 @@
 ### Pan Tilt Control
 - パンチルト回転機構上のRGB-Dセンサを追跡対象の方向に回転させる
 
-## Setup
-```bash
-$ cd ~/catkin_ws/src/
-$ git clone https://gitlab.com/TeamSOBITS/multiple_sensor_person_tracking.git
-$ cd multiple_sensor_person_tracking
-$ bash install.sh
-```
-
 ## How to Use
 ### DR-SPAAM ROS
 DR-SPAAMによる人検出を行う
