@@ -130,7 +130,7 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * velocity(v,ω)
 ```
 G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * angular(v,ω)
 ```
-
+※ α，β，γ，δ：重みパラメータ
 
 |項|意味|
 |---|---|
