@@ -66,6 +66,9 @@ namespace person_following_control {
 }
 
 void person_following_control::PersonFollowing::callbackDynamicReconfigure(person_following_control::PersonFollowingParameterConfig& config, uint32_t level) {
+    following_method_ = config.following_method;
+    following_distance_ = config.following_distance;
+
     vsm_->setFollowParamater( config.following_angle_deg, config.following_distance );
     vsm_->setSpringParamater( config.spring_constant_linear, config.spring_constant_angular );
     vsm_->setFrictionParamater( config.viscous_friction_linear, config.viscous_friction_angular );
@@ -76,11 +79,14 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
     dwa_->setTargetFrame( config.base_footprint_name );
 	dwa_->setStepValue( config.predict_step, config.sampling_time );
 	dwa_->setVelocityLimit( config.min_velocity, config.max_velocity, config.min_angle_velocity_deg * M_PI / 180.0, config.max_angle_velocity_deg * M_PI / 180.0, config.velocity_step, config.angle_velocity_step );
-	dwa_->setWeight( config.weight_goal, config.weight_obstacle, config.weight_angle, config.weight_velocity, config.weight_vsm_angular, config.weight_vsm_linear );
+	if ( following_method_ == FollowingMethod::VSM_DWA ) {
+        dwa_->setWeight( config.weight_vsm_heading, config.weight_vsm_obstacle, config.weight_velocity, config.weight_vsm_linear, config.weight_vsm_angular );
+    } else if ( following_method_ == FollowingMethod::VSM ) {
+        dwa_->setWeight( config.weight_heading, config.weight_obstacle, config.weight_velocity, config.weight_vsm_linear, config.weight_vsm_angular );
+    }
 	dwa_->setCostDistance ( config.obstacle_cost_radius );
 	dwa_->setDisplayFlag( config.display_optimal_path, config.display_all_path );
-    following_method_ = config.following_method;
-    following_distance_ = config.following_distance;
+
     return;
 }
 

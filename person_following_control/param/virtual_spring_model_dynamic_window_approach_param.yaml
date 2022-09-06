@@ -25,13 +25,14 @@ sampling_time : 0.1     # Predicted time[s] = predict_step[step] * sampling_time
 velocity_step : 7.0
 angle_velocity_step : 30.0
 # Dynamic Window Approach : Weight
-weight_goal : 5.0
-weight_obstacle : 5.0
-weight_angle : 1.0
-weight_velocity : 0.5
+weight_heading : 3.0
+weight_obstacle : 1.0
+weight_velocity : 1.5
 # Dynamic Window Approach : VSM-DWA Weight
-weight_vsm_angular : 1.0
+weight_vsm_heading : 1.0
+weight_vsm_obstacle : 1.0
 weight_vsm_linear : 1.0
+weight_vsm_angular : 1.0
 # Dynamic Window Approach : Cost Distance
 obstacle_cost_radius : 0.25
 # Dynamic Window Approach : Display Flag

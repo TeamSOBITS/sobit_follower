@@ -104,12 +104,11 @@ $ roslaunch person_following_control simulator.launch
 |/sampling_time|double|サンプリングタイム(1予測ステップの時間)|
 |/velocity_step|double|並進速度の予測経路数|
 |/angle_velocity_step|double|回転速度の予測経路数|
-|/weight_goal|double|goal(v,ω)の重み|
+|/weight_heading|double|heading(v,ω)の重み(DWAで使用)|
 |/weight_obstacle|double|obstacle(v,ω)の重み|
-|/weight_angle|double|heading(v,ω)の重み(DWAで使用)|
 |/weight_velocity|double|velocity(v,ω)の重み(DWAで使用)|
-|/weight_vsm_angular|double|angular(v,ω)の重み(VSM-DWAで使用)|
 |/weight_vsm_linear|double|linear(v,ω)の重み(VSM-DWAで使用)|
+|/weight_vsm_angular|double|angular(v,ω)の重み(VSM-DWAで使用)|
 |/obstacle_cost_radius|double|障害物コスト[m]|
 |/display_optimal_path|bool|最適経路を描画するか|
 |/display_all_path|bool|予測経路を描画するか|
