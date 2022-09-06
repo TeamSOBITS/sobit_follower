@@ -24,7 +24,7 @@
     * 現在の位置情報
     * ロボット周辺の障害物情報
     * ゴールの位置情報
-    * 仮想ばねモデルで得た経路情報
+    * 仮想ばねモデルで得た速度情報
 
 ## How To Use
 ### following_control
@@ -105,8 +105,10 @@ $ roslaunch person_following_control simulator.launch
 |/velocity_step|double|並進速度の予測経路数|
 |/angle_velocity_step|double|回転速度の予測経路数|
 |/weight_heading|double|heading(v,ω)の重み(DWAで使用)|
-|/weight_obstacle|double|obstacle(v,ω)の重み|
+|/weight_obstacle|double|obstacle(v,ω)の重み(DWAで使用)|
 |/weight_velocity|double|velocity(v,ω)の重み(DWAで使用)|
+|/weight_vsm_heading|double|heading(v,ω)の重み(VSM-DWAで使用)|
+|/weight_vsm_obstacle|double|obstacle(v,ω)の重み(VSM-DWAで使用)|
 |/weight_vsm_linear|double|linear(v,ω)の重み(VSM-DWAで使用)|
 |/weight_vsm_angular|double|angular(v,ω)の重み(VSM-DWAで使用)|
 |/obstacle_cost_radius|double|障害物コスト[m]|
@@ -118,3 +120,22 @@ $ roslaunch person_following_control simulator.launch
 |---|---|---|
 |/obstacle_number|int|障害物の個数|
 |/observation_noise|double|観測ノイズ(正規分布の分散)|
+
+#### 評価関数について
+- DWAの評価関数
+```
+G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * velocity(v,ω)
+```
+- VSM-DWAの評価関数
+```
+G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * angular(v,ω)
+```
+
+
+|項|意味|
+|---|---|
+|heading(v,ω)：方向項|・制御入力の時のロボットの方位とゴール方向の差の角度を180度から引いた値<br>・ロボットがゴールに真っ直ぐ向かっている場合は，方向項の値は大きくなる|
+|obstacle(v,ω)：障害物距離項<br>※DWAの論文でのdist(v,ω)と同義|・制御入力の時の最近傍の障害物までの距離の値<br>・障害物から遠い制御入力の障害物距離項の値が大きくなる|
+|velocity(v,ω)：速度項|・制御入力の並進速度の値<br>・速度が早い制御入力の速度項の値が大きくなる|
+|linear(v,ω)：VSM並進速度項|・制御入力の並進速度と仮想ばねモデルで得た並進速度の差の逆数値<br>・仮想ばねモデルで得た並進速度と一致する制御入力の速度項の値が大きくなる|
+|angular(v,ω)：VSM回転速度項|・制御入力の回転速度と仮想ばねモデルで得た回転速度の差の逆数値<br>・仮想ばねモデルで得た回転速度と一致する制御入力の速度項の値が大きくなる|
