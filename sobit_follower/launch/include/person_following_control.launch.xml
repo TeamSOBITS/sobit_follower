@@ -3,9 +3,12 @@
     <arg name="manager_threads"         default="8" />
 
     <arg name="following_method"        default="0" />
-    <!--# 0 : virtual_spring_model_dynamic_window_approach
-        # 1 : virtual_spring_model
-        # 2 : dynamic_window_approach -->
+    <!--
+        0 : VirtualSpringModel-DynamicWindowApproach
+        1 : VirtualSpringModel
+        2 : DynamicWindowApproach
+        3 : PIDController
+    -->
     <arg name="use_smoother"            default="false" />
     <arg name="display_marker"          default="true"/>
 

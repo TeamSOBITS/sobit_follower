@@ -74,9 +74,10 @@ $ roslaunch person_following_control simulator.launch
 
 ##### following_method
 ```
-0 : virtual_spring_model_dynamic_window_approach
-1 : virtual_spring_model
-2 : dynamic_window_approach
+0 : VirtualSpringModel-DynamicWindowApproach
+1 : VirtualSpringModel
+2 : DynamicWindowApproach
+3 : PIDController
 ```
 
 #### Parameter：Virtual Spring Model
@@ -114,6 +115,12 @@ $ roslaunch person_following_control simulator.launch
 |/obstacle_cost_radius|double|障害物コスト[m]|
 |/display_optimal_path|bool|最適経路を描画するか|
 |/display_all_path|bool|予測経路を描画するか|
+
+#### Parameter：PID Controller
+|パラメータ名|型|意味|
+|/p_gain|double|比例制御ゲイン|
+|/i_gain|double|積分制御ゲイン|
+|/d_gain|double|微分制御ゲイン|
 
 #### Parameter：Simulator
 |パラメータ名|型|意味|

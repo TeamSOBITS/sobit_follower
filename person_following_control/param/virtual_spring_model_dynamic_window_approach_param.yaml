@@ -38,3 +38,8 @@ obstacle_cost_radius : 0.25
 # Dynamic Window Approach : Display Flag
 display_optimal_path : true
 display_all_path : true
+
+# PID Controller
+p_gain : 2.8
+i_gain : 0.1
+d_gain : 0.0
