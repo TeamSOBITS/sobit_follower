@@ -121,6 +121,7 @@ $ roslaunch person_following_control simulator.launch
 |/p_gain|double|比例制御ゲイン|
 |/i_gain|double|積分制御ゲイン|
 |/d_gain|double|微分制御ゲイン|
+|/max_pid_angular_deg|double|最大回転速度|
 
 #### Parameter：Simulator
 |パラメータ名|型|意味|
