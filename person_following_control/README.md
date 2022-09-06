@@ -116,21 +116,7 @@ $ roslaunch person_following_control simulator.launch
 |/display_optimal_path|bool|最適経路を描画するか|
 |/display_all_path|bool|予測経路を描画するか|
 
-#### Parameter：PID Controller
-|パラメータ名|型|意味|
-|---|---|---|
-|/p_gain|double|比例制御ゲイン|
-|/i_gain|double|積分制御ゲイン|
-|/d_gain|double|微分制御ゲイン|
-|/max_pid_angular_deg|double|最大回転速度|
-
-#### Parameter：Simulator
-|パラメータ名|型|意味|
-|---|---|---|
-|/obstacle_number|int|障害物の個数|
-|/observation_noise|double|観測ノイズ(正規分布の分散)|
-
-#### 評価関数について
+##### 評価関数について
 - DWAの評価関数
 ```
 G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * velocity(v,ω)
@@ -148,3 +134,17 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * an
 |velocity(v,ω)：速度項|・制御入力の並進速度の値<br>・速度が早い制御入力の速度項の値が大きくなる|
 |linear(v,ω)：VSM並進速度項|・制御入力の並進速度と仮想ばねモデルで得た並進速度の差の逆数値<br>・仮想ばねモデルで得た並進速度と一致する制御入力の速度項の値が大きくなる|
 |angular(v,ω)：VSM回転速度項|・制御入力の回転速度と仮想ばねモデルで得た回転速度の差の逆数値<br>・仮想ばねモデルで得た回転速度と一致する制御入力の速度項の値が大きくなる|
+
+#### Parameter：PID Controller
+|パラメータ名|型|意味|
+|---|---|---|
+|/p_gain|double|比例制御ゲイン|
+|/i_gain|double|積分制御ゲイン|
+|/d_gain|double|微分制御ゲイン|
+|/max_pid_angular_deg|double|最大回転速度|
+
+#### Parameter：Simulator
+|パラメータ名|型|意味|
+|---|---|---|
+|/obstacle_number|int|障害物の個数|
+|/observation_noise|double|観測ノイズ(正規分布の分散)|
