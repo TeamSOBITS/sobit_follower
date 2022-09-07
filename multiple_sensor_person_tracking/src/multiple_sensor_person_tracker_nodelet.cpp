@@ -35,16 +35,15 @@
 #include <multiple_sensor_person_tracking/TrackerParameterConfig.h>
 #include <dynamic_reconfigure/server.h>
 
-#define NO_EXISTS 0
-#define EXISTS_LEG 1
-#define EXISTS_BODY 2
-#define EXISTS_LEG_AND_BODY 3
-
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
 typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::LegPoseArray, sobit_common_msg::ObjectPoseArray> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
+    enum Status {
+        NO_EXISTS = 0, EXISTS_LEG, EXISTS_BODY, EXISTS_LEG_AND_BODY
+    };
+
     class PersonTracker : public nodelet::Nodelet {
         private:
             ros::NodeHandle nh_;
@@ -80,13 +79,14 @@ namespace multiple_sensor_person_tracking {
             double target_cloud_radius_;
             bool display_marker_;
             double no_exists_time_;
+            double target_change_tolerance_;
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeBodyPoseMarker( const std::vector<sobit_common_msg::ObjectPose>& body_poses );
             visualization_msgs::Marker makeTargetPoseMarker( const Eigen::Vector4f& target_pose );
 
-            void callbackDynamicReconfigure(multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level);
+            void callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level );
 
             int findTwoObservationValue(
                 const std::vector<geometry_msgs::Pose>& leg_poses,
@@ -94,9 +94,14 @@ namespace multiple_sensor_person_tracking {
                 Eigen::Vector2f* leg_observed_value,
                 Eigen::Vector2f* body_observed_value );
 
-            void searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles );
+            void searchObstacles(
+                const geometry_msgs::Point& search_pt,
+                const PointCloud::Ptr input_cloud,
+                sensor_msgs::PointCloud2* obstacles );
 
-            void callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg );
+            void callbackPoseArray (
+                const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg,
+                const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg );
 
         public:
             virtual void onInit();
@@ -197,6 +202,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure(
     body_tracking_range_ = config.body_tracking_range;
     target_range_ = config.target_range;
     display_marker_ = config.display_marker;
+    target_change_tolerance_ = config.target_change_tolerance;
 
     outrem_.setRadiusSearch( config.outlier_radius );
     outrem_.setMinNeighborsInRadius ( config.outlier_min_pts );
@@ -243,10 +249,10 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     }
     Eigen::Vector2f leg_observed( leg_pt.x, leg_pt.y );
     Eigen::Vector2f body_observed( body_pt.x, body_pt.y );
-    if ( !exists_leg_pt && !exists_body_pt ) result = NO_EXISTS;
-    else if ( exists_leg_pt && !exists_body_pt ) result = EXISTS_LEG;
-    else if ( !exists_leg_pt && exists_body_pt ) result = EXISTS_BODY;
-    else result = EXISTS_LEG_AND_BODY;
+    if ( !exists_leg_pt && !exists_body_pt ) result = Status::NO_EXISTS;
+    else if ( exists_leg_pt && !exists_body_pt ) result = Status::EXISTS_LEG;
+    else if ( !exists_leg_pt && exists_body_pt ) result = Status::EXISTS_BODY;
+    else result = Status::EXISTS_LEG_AND_BODY;
     *leg_observed_value = leg_observed;
     *body_observed_value = body_observed;
     return result;
@@ -309,9 +315,9 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
     int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
-    if ( result == NO_EXISTS ) {
+    if ( result == Status::NO_EXISTS ) {
         if ( no_exists_time_ == -1.0 ) no_exists_time_ = ros::Time::now().toSec();
-        else if ( ros::Time::now().toSec() - no_exists_time_ >= 1.0  ){
+        else if ( ros::Time::now().toSec() - no_exists_time_ >= target_change_tolerance_ ){
             NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
             exists_target_ = false;
             return;
@@ -319,7 +325,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     } else no_exists_time_ = -1.0;
 
     // Tracking by Kalman Filter
-    if ( !exists_target_ && result == EXISTS_LEG_AND_BODY ) {
+    if ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY ) {
         kf_->init( body_observed_value );
         estimated_value[0] = body_observed_value[0];
         estimated_value[1] = body_observed_value[1];
@@ -329,9 +335,9 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         exists_target_ = false;
         return;
     }else {
-        if( result == EXISTS_LEG ) kf_->compute( dt, leg_observed_value, &estimated_value );
-        else if( result == EXISTS_BODY ) kf_->compute( dt, body_observed_value, &estimated_value );
-        else if ( result == EXISTS_LEG_AND_BODY ) kf_->compute( dt, leg_observed_value, body_observed_value, &estimated_value );
+        if( result == Status::EXISTS_LEG ) kf_->compute( dt, leg_observed_value, &estimated_value );
+        else if( result == Status::EXISTS_BODY ) kf_->compute( dt, body_observed_value, &estimated_value );
+        else if ( result == Status::EXISTS_LEG_AND_BODY ) kf_->compute( dt, leg_observed_value, body_observed_value, &estimated_value );
         else kf_->compute( dt, &estimated_value );
     }
 
@@ -343,6 +349,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     quaternionTFToMsg(quat, geometry_quat);
     following_position->pose.orientation = geometry_quat;
     following_position->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
+    following_position->status = result;
 
     // following_position : obstacles :
     outrem_.setInputCloud( cloud_scan );
@@ -354,8 +361,6 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // following_position : header :
     following_position->header.stamp = ros::Time::now();
     pub_following_position_.publish( following_position );
-    NODELET_INFO("\033[1mResult\033[m = %s", ( result == EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" : ( result == EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" : "\033[1;32m EXISTS_LEG_AND_BODY \033[m")) );
-    NODELET_INFO("\033[1mTarget\033[m = %5.3f [m]\t%5.3f [m]", following_position->pose.position.x, following_position->pose.position.y );
     if ( display_marker_ ) {
         pub_obstacles_.publish( following_position->obstacles );
         marker_array->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
@@ -365,7 +370,13 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         pub_marker_.publish ( marker_array );
     }
     previous_target_ = following_position->pose.position;
-    // NODELET_INFO("dt     : %.4f [sec] ( %.4f [Hz] )\n", dt, 1.0/dt );
+
+    NODELET_INFO("\033[1mResult\033[m = %s",
+        ( following_position->status == Status::EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" :
+        ( following_position->status == Status::EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" :
+        ( following_position->status == Status::EXISTS_LEG_AND_BODY ? "\033[1;32m EXISTS_LEG_AND_BODY \033[m" : "\033[1;31m NO_EXISTS \033[m")) ));
+    NODELET_INFO("\033[1mTarget\033[m = %5.3f [m]\t%5.3f [m]", following_position->pose.position.x, following_position->pose.position.y );
+
     return;
 }
 

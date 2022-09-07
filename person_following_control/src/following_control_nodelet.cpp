@@ -96,11 +96,10 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
 void person_following_control::PersonFollowing::callbackData (
     const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
+    //std::cout << "\n====================================" << std::endl;
     if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
     double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
-
-    // NODELET_INFO("\033[1m Target \033[m               =\t%5.3f [m]\t%5.3f [m]", following_position_msg->pose.position.x, following_position_msg->pose.position.y );
 
     geometry_msgs::TwistPtr vel ( new  geometry_msgs::Twist );
     if ( following_method_ == FollowingMethod::VSM_DWA ) {
@@ -111,36 +110,36 @@ void person_following_control::PersonFollowing::callbackData (
         NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vsm_vel->linear.x, vsm_vel->angular.z*180/M_PI );
         if ( vsm_vel->linear.x <= 0.05 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("\033[1;32mPI\033[m     = %5.3f [m/s]\t%5.3f [deg/s] : Velocity <= 0.0\n", vel->linear.x, vel->angular.z*180/M_PI );
+            NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : Velocity <= 0.0", vel->linear.x, vel->angular.z*180/M_PI );
         } else {
             if( target_distance > following_distance_ ) {
                 if ( dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vsm_vel, vel ) ) {
-                    NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+                    NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
                 } else {
                     pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                    NODELET_INFO("\033[1;32mPI\033[m     = %5.3f [m/s]\t%5.3f [deg/s] : No Path\n", vel->linear.x, vel->angular.z*180/M_PI );
+                    NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : No Path", vel->linear.x, vel->angular.z*180/M_PI );
                 }
             } else {
                 pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                NODELET_INFO("\033[1;32mPI\033[m     = %5.3f [m/s]\t%5.3f [deg/s] : <= Distance\n", vel->linear.x, vel->angular.z*180/M_PI );
+                NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : <= Distance", vel->linear.x, vel->angular.z*180/M_PI );
             }
         }
     } else if ( following_method_ == FollowingMethod::VSM ) {
         vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vel );
-        NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+        NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
     } else if ( following_method_ == FollowingMethod::DWA ) {
         PointCloud::Ptr cloud_obstacles ( new PointCloud() );
         pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles );
         if( target_distance > following_distance_ ) {
             dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vel );
-            NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+            NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
         } else {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("\033[1;32mPI\033[m     = %5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+            NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
         }
     } else if ( following_method_ == FollowingMethod::PID ) {
         pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-        NODELET_INFO("\033[1;32mPI\033[m     = %5.3f [m/s]\t%5.3f [deg/s]\n", vel->linear.x, vel->angular.z*180/M_PI );
+        NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
     }
     pub_vel_.publish(vel);
     pre_time_ = ros::Time::now().toSec();

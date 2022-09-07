@@ -159,6 +159,7 @@ $ roslaunch virtual_multiple_sensor_publisher sensor_data_publisher.launch
 |/leg_tracking_range|double|前フレームの推定値から人検出結果を観測値とする範囲(脚)[m]|
 |/body_tracking_range|double|前フレームの推定値から人検出結果を観測値とする範囲(体)[m]|
 |/target_cloud_radius|double|追跡位置から追跡点群とする半径[m]|
+|/target_change_tolerance|double|追跡対象を変更する時間[s]|
 |/process_noise|double|カルマンフィルタのプロセスノイズQ|
 |/system_noise|double|カルマンフィルタのシステムノイズR|
 |/outlier_radius|double|外れ値探索半径[m]|
