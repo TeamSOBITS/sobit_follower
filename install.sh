@@ -8,25 +8,25 @@ sudo apt install ros-${ROS_DISTRO}-pointcloud-to-laserscan -y
 cd ~/catkin_ws/src/
 
 echo -e "\e[34m\n Git Clone ssd_nodelet \e[m"
-git clone https://gitlab.com/TeamSOBITS/ssd_nodelet.git
+git clone https://github.com/TeamSOBITS/ssd_nodelet.git
 
 echo -e "\e[34m\n Git Clone sobit_common\e[m"
-git clone https://gitlab.com/TeamSOBITS/sobit_common.git
+git clone https://github.com/TeamSOBITS/sobit_common.git
 
 echo -e "\e[34m\n Git Clone SOBIT EDU \e[m"
-git clone https://gitlab.com/TeamSOBITS/sobit_education.git
+git clone https://github.com/TeamSOBITS/sobit_education.git
 
 echo -e "\e[34m\n Git Clone scan2d_handler \e[m"
-git clone https://gitlab.com/TeamSOBITS/scan2d_handler.git
+git clone https://github.com/TeamSOBITS/scan2d_handler.git
 
 echo -e "\e[34m\n Git Clone virtual_multiple_sensor_publisher \e[m"
-git clone https://gitlab.com/TeamSOBITS/virtual_multiple_sensor_publisher.git
+git clone https://github.com/TeamSOBITS/virtual_multiple_sensor_publisher.git
 
 echo -e "\e[34m\n Git Clone following_control_methods \e[m"
-git clone https://gitlab.com/TeamSOBITS/following_control_methods.git
+git clone https://github.com/TeamSOBITS/following_control_methods.git
 
 # echo -e "\e[34m\n Git Clone SOBIT PRO \e[m"
-# git clone https://gitlab.com/TeamSOBITS/sobit_pro.git
+# git clone https://github.com/TeamSOBITS/sobit_pro.git
 
 echo -e "\e[34m\n Install: Sobit Common (STARTING) \e[m"
 sudo apt-get update

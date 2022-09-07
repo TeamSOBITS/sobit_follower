@@ -20,7 +20,7 @@
     - １度のCNN演算で物体の「領域候補検出」と「クラス分類」の両方を行う手法
     - 物体検出処理の高速化を可能にした
     - [論文：SSD: Single Shot MultiBox Detector](https://arxiv.org/abs/1512.02325)
-    - [GitHub：SSD Nodelet](https://gitlab.com/TeamSOBITS/ssd_nodelet)
+    - [GitHub：SSD Nodelet](https://github.com/TeamSOBITS/ssd_nodelet)
 
 ### Tracking
 - Kalman Filter

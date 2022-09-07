@@ -4,7 +4,7 @@
 ## Setup
 ```bash
 $ cd ~/catkin_ws/src/
-$ git clone https://gitlab.com/TeamSOBITS/sobit_follower.git
+$ git clone https://github.com/TeamSOBITS/sobit_follower.git
 $ cd sobit_follower
 $ bash install.sh
 $ cd ~/catkin_ws
