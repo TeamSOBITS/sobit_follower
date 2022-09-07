@@ -11,10 +11,16 @@ namespace person_following_control {
         double now_time = ros::Time::now().toSec();
         double time_diff = now_time - pre_time;
         double angle_abs = std::abs( target_angle );
-        double proportinal = p_gain_ * angle_abs;
-        double integral = i_gain_ * ( ( curt_vel_ang + proportinal ) * time_diff / 2 );
-        double differential = d_gain_ * ( angle_abs / time_diff );
-        double ctl_qty = proportinal + integral - differential;
+        double ctl_qty = 0.0;
+        if ( angle_abs < 0.523599 ) {
+            ctl_qty = ( p_gain_ * angle_abs )
+                        + ( i_gain_ * ( ( curt_vel_ang + proportinal ) * time_diff / 2 ) )
+                        - ( d_gain_ * ( angle_abs / time_diff ) );
+        } else {
+            ctl_qty = ( p_gain_ / 2 * angle_abs )
+                        + ( i_gain_ * ( ( curt_vel_ang + proportinal ) * time_diff / 2 ) )
+                        - ( d_gain_ * ( angle_abs / time_diff ) );
+        }
         if ( ctl_qty > max_angular_ ) ctl_qty = max_angular_;
         if ( target_angle < 0.0 ) ctl_qty = -ctl_qty;
         vel.angular.z = ctl_qty;
