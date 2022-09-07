@@ -19,7 +19,7 @@
         <param name="display_vsm_path"      value="$(arg display_marker)" />
         <param name="display_optimal_path"  value="$(arg display_marker)" />
         <param name="display_all_path"      value="$(arg display_marker)" />
-        <remap if="$(arg use_smoother)"         from="cmd_vel" to="/person_following_control/velocity_smoother/raw_cmd_vel"/>
+        <remap if="$(arg use_smoother)"         from="cmd_vel" to="/$(arg group_name)/velocity_smoother/raw_cmd_vel"/>
         <remap unless="$(arg use_smoother)"     from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
     </node>
 

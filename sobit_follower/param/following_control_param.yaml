@@ -43,7 +43,7 @@ obstacle_cost_radius : 0.5
 # display_all_path : true
 
 # PID Controller
-p_gain : 2.8
-i_gain : 0.1
+p_gain : 1.2
+i_gain : 0.6
 d_gain : 0.0
-max_pid_angular_deg : 45.0
+max_pid_angular_deg : 90.0
