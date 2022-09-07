@@ -1,5 +1,5 @@
 # Following Control
-following_position_topic_name : /multiple_sensor_person_tracking/following_position
+following_position_topic_name : /sobit_follower/following_position
 odom_topic_name : /odom
 
 base_footprint_name         : base_footprint
