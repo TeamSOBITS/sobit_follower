@@ -6,7 +6,7 @@
         # 1 : virtual_spring_model
         # 2 : dynamic_window_approach -->
     <arg name="rqt_reconfigure"         default="true"/>
-    <arg name="use_smoother"            default="true" />
+    <arg name="use_smoother"            default="false" />
     <arg name="plot"                    default="true" />
 
     <node pkg="rviz" type="rviz" name="rviz" args= "-d $(find person_following_control)/config/rviz/person_following_control.rviz"/>

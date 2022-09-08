@@ -22,7 +22,7 @@
         </node>
 
         <node pkg="nodelet" type="nodelet" name="person_following_control" args="load person_following_control/PersonFollowing $(arg manager_name)" >
-            <rosparam file="$(find person_following_control)/param/virtual_spring_model_dynamic_window_approach_param.yaml" command="load" />
+            <rosparam file="$(find person_following_control)/param/following_control_param.yaml" command="load" />
             <param name="following_method"      value="$(arg following_method)" />
 
             <remap if="$(arg use_smoother)"         from="cmd_vel" to="/person_following_control/velocity_smoother/raw_cmd_vel"/>

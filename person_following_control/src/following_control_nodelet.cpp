@@ -39,8 +39,6 @@ namespace person_following_control {
             std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
             std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
-            multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
-            geometry_msgs::TwistPtr current_velocity_;
 
             std::unique_ptr<person_following_control::VirtualSpringModel> vsm_;
             std::unique_ptr<person_following_control::DynamicWindowApproach> dwa_;
@@ -149,8 +147,6 @@ void person_following_control::PersonFollowing::callbackData (
 void person_following_control::PersonFollowing::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
-    following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );
-    current_velocity_.reset( new geometry_msgs::Twist );
     vsm_.reset( new person_following_control::VirtualSpringModel );
     dwa_.reset( new person_following_control::DynamicWindowApproach );
     pid_.reset( new person_following_control::PIDController );
