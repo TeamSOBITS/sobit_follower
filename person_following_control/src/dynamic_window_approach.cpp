@@ -199,8 +199,8 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
     if ( exists_path ) {
         output_path->linear.x = optimal_path.linear;
         output_path->angular.z = optimal_path.angular;
-        ROS_INFO("heading = %.5f,\tobstacle = %.5f,\tvelocity = %.5f",
-            optimal_path.heading, optimal_path.obstacle, optimal_path.velocity);
+        //ROS_INFO("heading = %.5f,\tobstacle = %.5f,\tvelocity = %.5f",
+        //    optimal_path.heading, optimal_path.obstacle, optimal_path.velocity);
     } else {
         ROS_ERROR("No Optimal Path");
     }
@@ -326,8 +326,8 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
     if ( exists_path ) {
         output_path->linear.x = optimal_path.linear;
         output_path->angular.z = optimal_path.angular;
-        ROS_INFO("heading = %.5f,\tobstacle = %.5f,\tvelocity = %.5f,\tvelocity_angle = %.5f",
-            optimal_path.heading, optimal_path.obstacle, optimal_path.velocity, optimal_path.velocity_angle );
+        //ROS_INFO("heading = %.5f,\tobstacle = %.5f,\tvelocity = %.5f,\tvelocity_angle = %.5f",
+        //    optimal_path.heading, optimal_path.obstacle, optimal_path.velocity, optimal_path.velocity_angle );
     } else {
         ROS_ERROR("No Optimal Path");
     }

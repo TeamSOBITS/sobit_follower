@@ -150,11 +150,16 @@ void person_following_control::PersonFollowing::virtualSpringModelDynamicWindowA
     NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
 
     if ( output_path->linear.x <= 0.0 || target_distance < following_distance_  ) use_pid_ = true;
-    //if ( odom_msg->twist.twist.linear.x <= 0.1 && std::fabs(target_angle) > M_PI/4  ) use_pid = true;
     if ( use_pid_ ) {
-        pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-        NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
-        if ( std::fabs( target_angle ) < 0.523599 ) use_pid_ = false;
+        if ( odom_msg->twist.twist.linear.x > 0.1 ) {
+            output_path->angular.z = 0.0;
+            output_path->linear.x = odom_msg->twist.twist.linear.x * 0.7;
+            NODELET_INFO("\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+        } else {
+            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
+            NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            if ( std::fabs( target_angle ) < 0.523599 ) use_pid_ = false;
+        }
         return;
     }
 
