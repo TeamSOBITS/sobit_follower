@@ -10,7 +10,7 @@ void VirtualSpringModel::displayTargetMarker ( const geometry_msgs::Twist& vel, 
     marker.id = 0;
     marker.type = visualization_msgs::Marker::ARROW;
     marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration(1.0);
+    marker.lifetime = ros::Duration(0.3);
 
     marker.pose.position.x -= dist_follow_;
     marker.pose.position.z = 0.2;
@@ -41,7 +41,7 @@ void VirtualSpringModel::displayTargetMarker ( const geometry_msgs::Twist& vel, 
     path_marker.id = 1;
     path_marker.type = visualization_msgs::Marker::LINE_STRIP;
     path_marker.action = visualization_msgs::Marker::ADD;
-    path_marker.lifetime = ros::Duration(1.0);
+    path_marker.lifetime = ros::Duration(0.3);
     path_marker.scale.x = 0.05f;
 
     path_marker.color.r = 1.0f;

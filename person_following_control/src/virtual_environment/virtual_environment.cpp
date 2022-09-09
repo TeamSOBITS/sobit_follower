@@ -176,7 +176,7 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
     trajectory.id = 1;
     trajectory.type = visualization_msgs::Marker::LINE_STRIP;
     trajectory.action = visualization_msgs::Marker::ADD;
-    trajectory.lifetime = ros::Duration(1.0);
+    trajectory.lifetime = ros::Duration(0.3);
     trajectory.scale.x = 0.05;
     trajectory.color.a = 1.0;
     trajectory.color.r = 0.0;
@@ -193,7 +193,7 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
     target_pose.id = 1;
     target_pose.type = visualization_msgs::Marker::ARROW;
     target_pose.action = visualization_msgs::Marker::ADD;
-    target_pose.lifetime = ros::Duration(1.0);
+    target_pose.lifetime = ros::Duration(0.3);
     target_pose.scale.x = 0.7;target_pose.scale.y = 0.15;target_pose.scale.z = 0.15;
     target_pose.color.a = 1.0;
     target_pose.color.r = 0.0;

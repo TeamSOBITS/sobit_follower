@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     marker.id = 1;
     marker.type = visualization_msgs::Marker::LINE_STRIP;
     marker.action = visualization_msgs::Marker::ADD;
-    //marker.lifetime = ros::Duration(1.0);
+    //marker.lifetime = ros::Duration(0.3);
     marker.scale.x = 0.05;
     marker.color.a = 1.0;
     marker.color.r = 0.0;

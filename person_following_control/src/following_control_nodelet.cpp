@@ -47,14 +47,38 @@ namespace person_following_control {
             dynamic_reconfigure::Server<person_following_control::PersonFollowingParameterConfig>* server_;
             dynamic_reconfigure::Server<person_following_control::PersonFollowingParameterConfig>::CallbackType f_;
 
+            geometry_msgs::TwistPtr velocity_;
+            PointCloud::Ptr cloud_obstacles_;
+
             int following_method_;
             double following_distance_;
             double pre_time_;
+            bool use_pid_;
 
             void callbackDynamicReconfigure(person_following_control::PersonFollowingParameterConfig& config, uint32_t level);
             void callbackData (
                 const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
                 const nav_msgs::OdometryConstPtr &odom_msg
+            );
+            void virtualSpringModelDynamicWindowApproach (
+                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+                const nav_msgs::OdometryConstPtr &odom_msg,
+                geometry_msgs::TwistPtr output_path
+            );
+            void virtualSpringModel (
+                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+                const nav_msgs::OdometryConstPtr &odom_msg,
+                geometry_msgs::TwistPtr output_path
+            );
+            void dynamicWindowApproach (
+                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+                const nav_msgs::OdometryConstPtr &odom_msg,
+                geometry_msgs::TwistPtr output_path
+            );
+            void rotatePID (
+                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+                const nav_msgs::OdometryConstPtr &odom_msg,
+                geometry_msgs::TwistPtr output_path
             );
 
         public:
@@ -96,51 +120,91 @@ void person_following_control::PersonFollowing::callbackData (
     const nav_msgs::OdometryConstPtr &odom_msg) {
     //std::cout << "\n====================================" << std::endl;
     if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
+    NODELET_INFO("\033[1mOdom\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z*180/M_PI );
+
+    if ( following_method_ == FollowingMethod::VSM_DWA ) virtualSpringModelDynamicWindowApproach( following_position_msg, odom_msg, velocity_ );
+    else if ( following_method_ == FollowingMethod::VSM ) virtualSpringModel( following_position_msg, odom_msg, velocity_ );
+    else if ( following_method_ == FollowingMethod::DWA ) dynamicWindowApproach( following_position_msg, odom_msg, velocity_ );
+    else if ( following_method_ == FollowingMethod::PID ) rotatePID( following_position_msg, odom_msg, velocity_ );
+
+    // if ( velocity_->linear.x == 0.0 && odom_msg->twist.twist.linear.x >= 0.2 ) {
+    //     NODELET_ERROR("Velocity Error");
+    // }
+    std::cout << "\n" << std::endl;
+    pub_vel_.publish(velocity_);
+    pre_time_ = ros::Time::now().toSec();
+    return;
+}
+
+void person_following_control::PersonFollowing::virtualSpringModelDynamicWindowApproach(
+    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+    const nav_msgs::OdometryConstPtr &odom_msg,
+    geometry_msgs::TwistPtr output_path)
+{
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
     double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
 
-    geometry_msgs::TwistPtr vel ( new  geometry_msgs::Twist );
-    if ( following_method_ == FollowingMethod::VSM_DWA ) {
-        geometry_msgs::TwistPtr vsm_vel ( new  geometry_msgs::Twist );
-        PointCloud::Ptr cloud_obstacles ( new PointCloud() );
-        pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles );
-        vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vsm_vel );
-        NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vsm_vel->linear.x, vsm_vel->angular.z*180/M_PI );
-        if ( vsm_vel->linear.x <= 0.05 /*|| std::fabs( target_angle ) > M_PI/2*/ ) {
-            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : Velocity <= 0.0", vel->linear.x, vel->angular.z*180/M_PI );
-        } else {
-            if( target_distance > following_distance_ ) {
-                if ( dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vsm_vel, vel ) ) {
-                    NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
-                } else {
-                    pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                    NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : No Path", vel->linear.x, vel->angular.z*180/M_PI );
-                }
-            } else {
-                pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-                NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : <= Distance", vel->linear.x, vel->angular.z*180/M_PI );
-            }
-        }
-    } else if ( following_method_ == FollowingMethod::VSM ) {
-        vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, vel );
-        NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
-    } else if ( following_method_ == FollowingMethod::DWA ) {
-        PointCloud::Ptr cloud_obstacles ( new PointCloud() );
-        pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles );
-        if( target_distance > following_distance_ ) {
-            dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles, vel );
-            NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
-        } else {
-            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-            NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
-        }
-    } else if ( following_method_ == FollowingMethod::PID ) {
-        pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, vel );
-        NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", vel->linear.x, vel->angular.z*180/M_PI );
+    pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles_ );
+
+    vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, output_path );
+    NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+
+    if ( output_path->linear.x <= 0.0 || target_distance < following_distance_  ) use_pid_ = true;
+    //if ( odom_msg->twist.twist.linear.x <= 0.1 && std::fabs(target_angle) > M_PI/4  ) use_pid = true;
+    if ( use_pid_ ) {
+        pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
+        NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+        if ( std::fabs( target_angle ) < 0.523599 ) use_pid_ = false;
+        return;
     }
-    pub_vel_.publish(vel);
-    pre_time_ = ros::Time::now().toSec();
+
+    if ( dwa_->generatePath2TargetVSMDWA( following_position_msg->pose.position, cloud_obstacles_, output_path, output_path ) ) {
+    // if ( dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles_, output_path, output_path ) ) {
+        NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    } else {
+        pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
+        NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s] : No Path", output_path->linear.x, output_path->angular.z*180/M_PI );
+    }
+
+    return;
+}
+
+void person_following_control::PersonFollowing::virtualSpringModel (
+    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+    const nav_msgs::OdometryConstPtr &odom_msg,
+    geometry_msgs::TwistPtr output_path)
+{
+    vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, output_path );
+    NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    return;
+}
+
+void person_following_control::PersonFollowing::dynamicWindowApproach (
+    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+    const nav_msgs::OdometryConstPtr &odom_msg,
+    geometry_msgs::TwistPtr output_path)
+{
+    double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
+    double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
+    pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles_ );
+    if( target_distance > following_distance_ ) {
+        dwa_->generatePath2TargetDWA( following_position_msg->pose.position, cloud_obstacles_, output_path );
+        NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    } else {
+        pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
+        NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    }
+    return;
+}
+
+void person_following_control::PersonFollowing::rotatePID (
+    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
+    const nav_msgs::OdometryConstPtr &odom_msg,
+    geometry_msgs::TwistPtr output_path)
+{
+    double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
+    pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
+    NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
     return;
 }
 
@@ -150,6 +214,8 @@ void person_following_control::PersonFollowing::onInit() {
     vsm_.reset( new person_following_control::VirtualSpringModel );
     dwa_.reset( new person_following_control::DynamicWindowApproach );
     pid_.reset( new person_following_control::PIDController );
+    velocity_.reset( new geometry_msgs::Twist );
+    cloud_obstacles_.reset( new PointCloud() );
 
     pub_vel_ = nh_.advertise< geometry_msgs::Twist >( "cmd_vel", 1 );
     // message_filters :
@@ -161,6 +227,7 @@ void person_following_control::PersonFollowing::onInit() {
     server_ = new dynamic_reconfigure::Server<person_following_control::PersonFollowingParameterConfig>(pnh_);
     f_ = boost::bind(&PersonFollowing::callbackDynamicReconfigure, this, _1, _2);
     server_->setCallback(f_);
+    use_pid_ = false;
     pre_time_ = ros::Time::now().toSec();
 }
 

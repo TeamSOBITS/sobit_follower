@@ -47,7 +47,7 @@ visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen
     marker.id = 0;
     marker.type = visualization_msgs::Marker::ARROW;
     marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration(1.0);
+    marker.lifetime = ros::Duration(0.3);
 
     marker.pose.position.x = pt[0];
     marker.pose.position.y = pt[1];

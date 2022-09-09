@@ -87,7 +87,7 @@ namespace person_following_control {
 
 			std::shared_ptr<DWAParameters> dwap_;
 
-			void displayOptimalPathMarker ( const double optimal_linear, const double optimal_angular );
+			void displayOptimalPathMarker ( const EvaluatedPath& optimal_path );
 			void displayAllPathMarker ( const std::vector< EvaluatedPath >& path_list );
 		public :
 			DynamicWindowApproach();
@@ -113,9 +113,15 @@ namespace person_following_control {
 			void setStepValue ( const int predict_step, const double sampling_time );
 			void setDisplayFlag ( const bool display_optimal_path, const bool display_all_path );
 
-			bool generatePath2Target (
+			bool generatePath2TargetDWA (
 				const geometry_msgs::Point& target,
                 const PointCloud::Ptr obstacles,
+				geometry_msgs::TwistPtr output_path );
+
+			bool generatePath2TargetVSMDWA (
+				const geometry_msgs::Point& target,
+                const PointCloud::Ptr obstacles,
+				const geometry_msgs::TwistPtr base_path,
 				geometry_msgs::TwistPtr output_path );
 
 			bool generatePath2Target (
@@ -128,13 +134,13 @@ namespace person_following_control {
 
 inline void person_following_control::DynamicWindowApproach::setTargetFrame ( const std::string& target_frame ) { dwap_->target_frame = target_frame; }
 
-inline void person_following_control::DynamicWindowApproach::setVelocityLimit ( 
+inline void person_following_control::DynamicWindowApproach::setVelocityLimit (
     const double min_vel,
     const double max_vel,
     const double min_ang_vel,
     const double max_ang_vel,
     const double vel_step,
-    const double ang_vel_step ) 
+    const double ang_vel_step )
 {
 	dwap_->linear_list.clear();
 	dwap_->angular_list.clear();
@@ -153,7 +159,7 @@ inline void person_following_control::DynamicWindowApproach::setVelocityLimit (
     dwap_->vel_step = vel_step;
     dwap_->ang_vel_step = ang_vel_step;
 }
-inline void person_following_control::DynamicWindowApproach::setWeight ( 
+inline void person_following_control::DynamicWindowApproach::setWeight (
     const double heading,
     const double obstacle,
     const double velocity,

@@ -62,7 +62,7 @@ void multiple_observation_tracing_simulator::VirtualEnvironment::pubData (  ) {
     trajectory.scale.x = 0.2;
     trajectory.color.r = 1.0; trajectory.color.g = 0.0; trajectory.color.b = 0.0; trajectory.color.a = 1.0;
     trajectory.pose.orientation.w = 1.0;
-    //marker.lifetime = ros::Duration(1.0);
+    //marker.lifetime = ros::Duration(0.3);
 
     ros::Rate rate(30);
 

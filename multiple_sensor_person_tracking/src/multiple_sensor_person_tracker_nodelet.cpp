@@ -48,7 +48,7 @@ namespace multiple_sensor_person_tracking {
         private:
             ros::NodeHandle nh_;
             ros::NodeHandle pnh_;
-            ros::Publisher pub_following_position_;
+            ros::Publisher pub_following_position__;
             ros::Publisher pub_marker_;
             ros::Publisher pub_obstacles_;
 
@@ -66,6 +66,9 @@ namespace multiple_sensor_person_tracking {
             pcl::ExtractIndices<PointT> extract_;
             pcl::RadiusOutlierRemoval<PointT> outrem_;
             pcl::VoxelGrid<PointT> voxel_;
+            PointCloud::Ptr cloud_scan_;
+            visualization_msgs::MarkerArrayPtr marker_array_;
+            multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
 
             tf::TransformListener tf_listener_;
             std::string target_frame_;
@@ -119,7 +122,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeL
     leg_marker.scale.x = 0.15;leg_marker.scale.y = 0.15;leg_marker.scale.z = 0.15;
     leg_marker.color.r = 1.0; leg_marker.color.g = 0.0; leg_marker.color.b = 0.0; leg_marker.color.a = 1.0;
     leg_marker.pose.orientation.w = 1.0;
-    leg_marker.lifetime = ros::Duration(1.0);
+    leg_marker.lifetime = ros::Duration(0.3);
     for ( const auto& pose : leg_poses ) leg_marker.points.push_back( pose.position );
     return leg_marker;
 }
@@ -142,7 +145,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeL
     leg_marker.scale.x = 0.03;
     leg_marker.color.r = 1.0; leg_marker.color.g = 0.0; leg_marker.color.b = 0.0; leg_marker.color.a = 1.0;
     leg_marker.pose.orientation.w = 1.0;
-    leg_marker.lifetime = ros::Duration(1.0);
+    leg_marker.lifetime = ros::Duration(0.3);
     for ( const auto& pose : leg_poses ) {
         for ( unsigned int i = 0; i < 20; i++ ) {
             geometry_msgs::Point p0, p1;
@@ -170,7 +173,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeB
     body_marker.scale.x = 0.15;body_marker.scale.y = 0.15;body_marker.scale.z = 0.15;
     body_marker.color.r = 0.0; body_marker.color.g = 1.0; body_marker.color.b = 0.0; body_marker.color.a = 1.0;
     body_marker.pose.orientation.w = 1.0;
-    body_marker.lifetime = ros::Duration(1.0);
+    body_marker.lifetime = ros::Duration(0.3);
     for ( const auto& pose : body_poses ) body_marker.points.push_back( pose.pose.position );
     return body_marker;
 }
@@ -192,7 +195,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeT
     geometry_msgs::Quaternion geometry_quat;
     quaternionTFToMsg(quat, geometry_quat);
     target_marker.pose.orientation = geometry_quat;
-    target_marker.lifetime = ros::Duration(1.0);
+    target_marker.lifetime = ros::Duration(0.3);
     return target_marker;
 }
 
@@ -288,10 +291,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // variable initialization
     std::string target_frame = target_frame_;
     sensor_msgs::PointCloud2 cloud_scan_msg;
-    PointCloud::Ptr cloud_scan (new PointCloud());
-    visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
-    multiple_sensor_person_tracking::FollowingPositionPtr following_position( new multiple_sensor_person_tracking::FollowingPosition );
+
     double dt = ( dr_spaam_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
     previous_time_ = dr_spaam_msg->header.stamp.toSec();
 
@@ -299,8 +300,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     try {
         tf_listener_.waitForTransform( target_frame, dr_spaam_msg->header.frame_id, dr_spaam_msg->header.stamp, ros::Duration(5.0) );
         projector_.transformLaserScanToPointCloud( target_frame, dr_spaam_msg->scan, cloud_scan_msg, tf_listener_ );
-        pcl::fromROSMsg<PointT>( cloud_scan_msg, *cloud_scan);
-        cloud_scan->header.frame_id = target_frame;
+        pcl::fromROSMsg<PointT>( cloud_scan_msg, *cloud_scan_);
+        cloud_scan_->header.frame_id = target_frame;
     } catch ( const tf::TransformException& ex ) {
         ROS_ERROR("%s", ex.what());
         return;
@@ -341,41 +342,41 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         else kf_->compute( dt, &estimated_value );
     }
 
-    // following_position : pose :
-    following_position->pose.position.x = estimated_value[0];
-    following_position->pose.position.y = estimated_value[1];
+    // following_position_ : pose :
+    following_position_->pose.position.x = estimated_value[0];
+    following_position_->pose.position.y = estimated_value[1];
     tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, std::atan2(estimated_value[3], estimated_value[2]));
     geometry_msgs::Quaternion geometry_quat;
     quaternionTFToMsg(quat, geometry_quat);
-    following_position->pose.orientation = geometry_quat;
-    following_position->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
-    following_position->status = result;
+    following_position_->pose.orientation = geometry_quat;
+    following_position_->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
+    following_position_->status = result;
 
-    // following_position : obstacles :
-    outrem_.setInputCloud( cloud_scan );
-    outrem_.filter ( *cloud_scan );
-    voxel_.setInputCloud( cloud_scan );
-    voxel_.filter ( *cloud_scan );
-    searchObstacles( following_position->pose.position, cloud_scan, &following_position->obstacles );
+    // following_position_ : obstacles :
+    outrem_.setInputCloud( cloud_scan_ );
+    outrem_.filter ( *cloud_scan_ );
+    voxel_.setInputCloud( cloud_scan_ );
+    voxel_.filter ( *cloud_scan_ );
+    searchObstacles( following_position_->pose.position, cloud_scan_, &following_position_->obstacles );
 
-    // following_position : header :
-    following_position->header.stamp = ros::Time::now();
-    pub_following_position_.publish( following_position );
+    // following_position_ : header :
+    following_position_->header.stamp = ros::Time::now();
+    pub_following_position__.publish( following_position_ );
     if ( display_marker_ ) {
-        pub_obstacles_.publish( following_position->obstacles );
-        marker_array->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
-        marker_array->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
-        marker_array->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
-        marker_array->markers.push_back( makeTargetPoseMarker(estimated_value) );
-        pub_marker_.publish ( marker_array );
+        pub_obstacles_.publish( following_position_->obstacles );
+        marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
+        marker_array_->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
+        marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
+        marker_array_->markers.push_back( makeTargetPoseMarker(estimated_value) );
+        pub_marker_.publish ( marker_array_ );
     }
-    previous_target_ = following_position->pose.position;
+    previous_target_ = following_position_->pose.position;
 
     NODELET_INFO("\033[1mResult\033[m = %s",
-        ( following_position->status == Status::EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" :
-        ( following_position->status == Status::EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" :
-        ( following_position->status == Status::EXISTS_LEG_AND_BODY ? "\033[1;32m EXISTS_LEG_AND_BODY \033[m" : "\033[1;31m NO_EXISTS \033[m")) ));
-    NODELET_INFO("\033[1mTarget\033[m = %5.3f [m]\t%5.3f [m]", following_position->pose.position.x, following_position->pose.position.y );
+        ( following_position_->status == Status::EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" :
+        ( following_position_->status == Status::EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" :
+        ( following_position_->status == Status::EXISTS_LEG_AND_BODY ? "\033[1;32m EXISTS_LEG_AND_BODY \033[m" : "\033[1;31m NO_EXISTS \033[m")) ));
+    NODELET_INFO("\033[1mTarget\033[m = %5.3f [m]\t%5.3f [m]", following_position_->pose.position.x, following_position_->pose.position.y );
 
     return;
 }
@@ -383,6 +384,9 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
 void multiple_sensor_person_tracking::PersonTracker::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
+    cloud_scan_.reset(new PointCloud());
+    marker_array_.reset(new visualization_msgs::MarkerArray);
+    following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );
 
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
     // message_filters :
@@ -392,7 +396,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
     sync_ ->registerCallback ( boost::bind( &PersonTracker::callbackPoseArray, this, _1, _2 ) );
 
-    pub_following_position_ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
+    pub_following_position__ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = nh_.advertise<sensor_msgs::PointCloud2>("obstacles", 1);
 

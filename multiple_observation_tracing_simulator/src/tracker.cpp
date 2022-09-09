@@ -196,7 +196,7 @@ multiple_observation_tracing_simulator::Tracker::Tracker( ) : nh_(), pnh_("~") {
     trajectory_.scale.x = 0.08;
     trajectory_.color.r = 0.0; trajectory_.color.g = 1.0; trajectory_.color.b = 0.0; trajectory_.color.a = 1.0;
     trajectory_.pose.orientation.w = 1.0;
-    trajectory_.lifetime = ros::Duration(1.0);
+    trajectory_.lifetime = ros::Duration(0.3);
 
     trajectory_smooth_.header.frame_id = "map";
     trajectory_smooth_.header.stamp = ros::Time::now();
@@ -207,7 +207,7 @@ multiple_observation_tracing_simulator::Tracker::Tracker( ) : nh_(), pnh_("~") {
     trajectory_smooth_.scale.x = 0.08;
     trajectory_smooth_.color.r = 1.0; trajectory_smooth_.color.g = 0.84; trajectory_smooth_.color.b = 0.0; trajectory_smooth_.color.a = 1.0;
     trajectory_smooth_.pose.orientation.w = 1.0;
-    trajectory_smooth_.lifetime = ros::Duration(1.0);
+    trajectory_smooth_.lifetime = ros::Duration(0.3);
 
     previous_time_ = 0.0;
     smoothing_weight_ = 0.95;
