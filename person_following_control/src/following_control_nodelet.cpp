@@ -153,7 +153,7 @@ void person_following_control::PersonFollowing::virtualSpringModelDynamicWindowA
     if ( use_pid_ ) {
         if ( odom_msg->twist.twist.linear.x > 0.1 ) {
             output_path->angular.z = 0.0;
-            output_path->linear.x = odom_msg->twist.twist.linear.x * 0.7;
+            output_path->linear.x = odom_msg->twist.twist.linear.x * 0.5;
             NODELET_INFO("\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
         } else {
             pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
@@ -192,8 +192,22 @@ void person_following_control::PersonFollowing::dynamicWindowApproach (
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
     double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
     pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles_ );
-    if( target_distance > following_distance_ ) {
-        dwa_->generatePath2TargetDWA( following_position_msg->pose.position, cloud_obstacles_, output_path );
+
+    if ( target_distance < following_distance_  ) use_pid_ = true;
+    if ( use_pid_ ) {
+        if ( odom_msg->twist.twist.linear.x > 0.1 ) {
+            output_path->angular.z = 0.0;
+            output_path->linear.x = odom_msg->twist.twist.linear.x * 0.5;
+            NODELET_INFO("\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+        } else {
+            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
+            NODELET_INFO("\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            if ( std::fabs( target_angle ) < 0.523599 ) use_pid_ = false;
+        }
+        return;
+    }
+
+    if( dwa_->generatePath2TargetDWA( following_position_msg->pose.position, cloud_obstacles_, output_path ) ) {
         NODELET_INFO("\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
     } else {
         pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
