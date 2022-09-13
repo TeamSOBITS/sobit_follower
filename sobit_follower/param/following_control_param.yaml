@@ -32,9 +32,9 @@ weight_heading : 3.0
 weight_obstacle : 1.0
 weight_velocity : 1.5
 # Dynamic Window Approach : VSM-DWA Weight
-weight_vsm_heading : 3.0
-weight_vsm_obstacle : 1.0
-weight_vsm_linear : 1.0
+weight_vsm_heading : 0.5
+weight_vsm_obstacle : 0.3
+weight_vsm_linear : 1.5
 weight_vsm_angular : 1.0
 # Dynamic Window Approach : Cost Distance
 obstacle_cost_radius : 0.5

@@ -1,20 +1,20 @@
-# Default parameters used by the yocs_velocity_smoother module.
-# This isn't used by minimal.launch per se, rather by everything
-# which runs on top.
+# Example configuration:
+# - velocity limits are around a 10% above the physical limits
+# - acceleration limits are just low enough to avoid jerking
 
 # Mandatory parameters
-speed_lim_v: 0.8
+speed_lim_v: 1.2
 speed_lim_w: 5.4
 
-accel_lim_v: 1.0 # maximum is actually 2.0, but we push it down to be smooth
-accel_lim_w: 2.0
+accel_lim_v: 0.3
+accel_lim_w: 3.5
 
 # Optional parameters
 frequency: 20.0
-decel_factor: 1.5
+decel_factor: 10.0
 
 # Robot velocity feedback type:
-#  0 - none (default)
+#  0 - none
 #  1 - odometry
 #  2 - end robot commands
-robot_feedback: 0
+robot_feedback: 2
