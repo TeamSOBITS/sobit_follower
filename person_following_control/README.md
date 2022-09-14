@@ -28,7 +28,7 @@
 
 ## How To Use
 ### following_control
-```bash
+```python
 $ roslaunch person_following_control following_control.launch
 # 引数
     # manager_name      :   Nodeletマネージャー名
@@ -40,7 +40,7 @@ $ roslaunch person_following_control following_control.launch
     # use_smoother      :   velocity_smootherを使用するか
 ```
 ### simulator
-```bash
+```python
 $ roslaunch person_following_control simulator.launch
 # 引数
     # obstacle_number   :   障害物の個数

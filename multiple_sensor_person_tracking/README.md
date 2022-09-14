@@ -32,10 +32,10 @@
 ## How to Use
 ### DR-SPAAM ROS
 DR-SPAAMによる人検出を行う
-```bash
+```python
 $ roslaunch multiple_sensor_person_tracking dr_spaam_ros.launch
 ```
-```bash
+```python
 # デモ用
 $ roslaunch multiple_sensor_person_tracking dr_spaam_demo.launch
 ```
@@ -71,7 +71,7 @@ $ roslaunch multiple_sensor_person_tracking dr_spaam_demo.launch
 
 ### SSD ROS
 SSDによる人検出を行う
-```bash
+```python
 $ roslaunch multiple_sensor_person_tracking ssd_ros.launch
 # camera_720p_16_9.launchを使うことで，Webカメラから画像がパブリッシュされる
 $ roslaunch multiple_sensor_person_tracking camera_720p_16_9.launch
@@ -120,7 +120,7 @@ $ roslaunch multiple_sensor_person_tracking camera_720p_16_9.launch
 |/use_tf|bool|tfによる座標登録するか|
 
 ### Multiple Sensor Person Tracking
-```bash
+```python
 $ roslaunch multiple_sensor_person_tracking tracker.launch
 # sensor_data_publisher.launchを使うことで，擬似的にスキャンデータをパブリッシュすることができる
 $ roslaunch virtual_multiple_sensor_publisher sensor_data_publisher.launch

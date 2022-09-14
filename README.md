@@ -2,7 +2,7 @@
 - 複数のセンサを用いたロボットの人追従走行システム
 
 ## Setup
-```bash
+```python
 $ cd ~/catkin_ws/src/
 $ git clone https://github.com/TeamSOBITS/sobit_follower.git
 $ cd sobit_follower
@@ -42,7 +42,7 @@ $ catkin_make
     - [dr_spaam_param.yaml](/sobit_follower/param/dr_spaam_param.yaml)
     - [sensor_rotator_param.yaml](/sobit_follower/param/sensor_rotator_param.yaml)
     - [following_control_param.yaml](/sobit_follower/param/following_control_param.yaml)
-```bash
+```python
 $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
@@ -51,7 +51,7 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 # use_smoother : 速度の平滑化を行うか(bool)
 ```
 ### simulator.launch
-```bash
+```python
 $ roslaunch sobit_follower simulator.launch rviz:=true rqt_reconfigure:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
