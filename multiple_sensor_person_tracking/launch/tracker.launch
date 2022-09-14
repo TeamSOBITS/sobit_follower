@@ -10,9 +10,7 @@
 
     <arg name="rqt_reconfigure"         default="true"/>
 
-    <include file="$(find multiple_sensor_person_tracking)\launch\dr_spaam\dr_spaam_ros.launch">
-        <arg name="rviz"                        value="false" />
-    </include>
+    <include file="$(find multiple_sensor_person_tracking)\launch\dr_spaam\dr_spaam_ros.launch"/>
     <include file="$(find multiple_sensor_person_tracking)\launch\ssd\ssd_pose_ros.launch">
         <arg name="rviz"                        value="false" />
         <arg name="ssd_img_show_flag"           value="false" />

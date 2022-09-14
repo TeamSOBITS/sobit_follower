@@ -1,4 +1,4 @@
-target_range : 1.5
+target_range : 3.0
 leg_tracking_range : 1.0
 body_tracking_range : 1.0
 target_cloud_radius : 0.4
