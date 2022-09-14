@@ -5,8 +5,8 @@ target_frame : base_footprint
 
 # Tracking
 target_range : 1.5
-leg_tracking_range : 1.0
-body_tracking_range : 1.0
+leg_tracking_range : 0.70
+body_tracking_range : 0.35
 target_cloud_radius : 0.4
 outlier_radius : 0.1
 outlier_min_pts : 2
