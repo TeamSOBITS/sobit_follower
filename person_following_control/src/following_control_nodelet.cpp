@@ -119,7 +119,11 @@ void person_following_control::PersonFollowing::callbackData (
     const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
     //std::cout << "\n====================================" << std::endl;
-    if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) return;
+    if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) {
+        velocity_->linear.x = 0.0;
+        velocity_->angular.z = 0.0;
+        pub_vel_.publish(velocity_);
+    }
     NODELET_INFO("\033[1mOdom\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z*180/M_PI );
 
     if ( following_method_ == FollowingMethod::VSM_DWA ) virtualSpringModelDynamicWindowApproach( following_position_msg, odom_msg, velocity_ );

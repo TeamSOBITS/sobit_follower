@@ -43,19 +43,7 @@ namespace multiple_sensor_person_tracking {
 
         public:
             virtual void onInit();
-
     };
-}
-
-void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level) {
-	use_rotate_ = config.use_rotate;
-	tilt_angle_min_ = config.tilt_angle_min_deg * M_PI / 180.0;
-	tilt_angle_max_ = config.tilt_angle_max_deg * M_PI / 180.0;
-	person_height_ = config.camera2person_height;
-	use_smoothing_ = config.use_smoothing;
-	smoothing_gain_ = config.smoothing_gain;
-	display_marker_ = config.display_marker;
-	return;
 }
 
 void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const double pan_angle, const double tilt_angle, const double distance ) {
@@ -78,6 +66,16 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const 
     marker.pose.orientation = geometry_quat;
     pub_marker_.publish ( marker );
 }
+void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level) {
+	use_rotate_ = config.use_rotate;
+	tilt_angle_min_ = config.tilt_angle_min_deg * M_PI / 180.0;
+	tilt_angle_max_ = config.tilt_angle_max_deg * M_PI / 180.0;
+	person_height_ = config.camera2person_height;
+	use_smoothing_ = config.use_smoothing;
+	smoothing_gain_ = config.smoothing_gain;
+	display_marker_ = config.display_marker;
+	return;
+}
 
 void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition( const multiple_sensor_person_tracking::FollowingPositionConstPtr& msg ) {
 	geometry_msgs::Point pt;
@@ -88,7 +86,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosi
 	} else {
 		pt = msg->pose.position;
 	}
-
 	double distance = std::hypotf( pt.x, pt.y );
 	double angle = std::atan2( pt.y, pt.x );
 	double pan_angle, tilt_angle;

@@ -48,7 +48,7 @@ namespace multiple_sensor_person_tracking {
         private:
             ros::NodeHandle nh_;
             ros::NodeHandle pnh_;
-            ros::Publisher pub_following_position__;
+            ros::Publisher pub_following_position_;
             ros::Publisher pub_marker_;
             ros::Publisher pub_obstacles_;
 
@@ -83,6 +83,7 @@ namespace multiple_sensor_person_tracking {
             bool display_marker_;
             double no_exists_time_;
             double target_change_tolerance_;
+            unsigned int attention_leg_idx_;
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
@@ -304,6 +305,10 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         cloud_scan_->header.frame_id = target_frame;
     } catch ( const tf::TransformException& ex ) {
         ROS_ERROR("%s", ex.what());
+        following_position_->pose.position.x = 0.0;
+        following_position_->pose.position.y = 0.0;
+        following_position_->status = Status::NO_EXISTS;
+        pub_following_position_.publish( following_position_ );
         return;
     }
 
@@ -311,6 +316,14 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
         exists_target_ = false;
         // Rotate the RGB-D sensor in the direction in which the leg_poses
+        // 近い順にソート
+        // attention_leg_idx_ の位置を設定 ※attention_leg_idx_が配列より大きい場合は修正
+        // 2秒でattention_leg_idx_を変える
+
+        following_position_->pose.position.x = 0.0;
+        following_position_->pose.position.y = 0.0;
+        following_position_->status = Status::NO_EXISTS;
+        pub_following_position_.publish( following_position_ );
         return;
     }
     // Searching for observables to input to the Kalman filter
@@ -321,6 +334,10 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         else if ( ros::Time::now().toSec() - no_exists_time_ >= target_change_tolerance_ ){
             NODELET_ERROR("Result :          NO_EXISTS (findTwoObservationValue)" );
             exists_target_ = false;
+            following_position_->pose.position.x = 0.0;
+            following_position_->pose.position.y = 0.0;
+            following_position_->status = Status::NO_EXISTS;
+            pub_following_position_.publish( following_position_ );
             return;
         }
     } else no_exists_time_ = -1.0;
@@ -334,6 +351,10 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     } else if ( !exists_target_ && result != EXISTS_LEG_AND_BODY ) {
         NODELET_ERROR("Result :          NO_EXISTS" );
         exists_target_ = false;
+        following_position_->pose.position.x = 0.0;
+        following_position_->pose.position.y = 0.0;
+        following_position_->status = Status::NO_EXISTS;
+        pub_following_position_.publish( following_position_ );
         return;
     }else {
         if( result == Status::EXISTS_LEG ) kf_->compute( dt, leg_observed_value, &estimated_value );
@@ -361,7 +382,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
 
     // following_position_ : header :
     following_position_->header.stamp = ros::Time::now();
-    pub_following_position__.publish( following_position_ );
+    pub_following_position_.publish( following_position_ );
     if ( display_marker_ ) {
         pub_obstacles_.publish( following_position_->obstacles );
         marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
@@ -396,7 +417,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
     sync_ ->registerCallback ( boost::bind( &PersonTracker::callbackPoseArray, this, _1, _2 ) );
 
-    pub_following_position__ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
+    pub_following_position_ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = nh_.advertise<sensor_msgs::PointCloud2>("obstacles", 1);
 
@@ -420,6 +441,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     f_ = boost::bind(&multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure, this, _1, _2);
     server_->setCallback(f_);
     no_exists_time_ = -1.0;
+    attention_leg_idx_ = 0;
 }
 
 PLUGINLIB_EXPORT_CLASS( multiple_sensor_person_tracking::PersonTracker, nodelet::Nodelet );
