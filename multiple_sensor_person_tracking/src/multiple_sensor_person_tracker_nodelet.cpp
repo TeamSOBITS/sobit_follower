@@ -89,6 +89,7 @@ namespace multiple_sensor_person_tracking {
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeBodyPoseMarker( const std::vector<sobit_common_msg::ObjectPose>& body_poses );
             visualization_msgs::Marker makeTargetPoseMarker( const Eigen::Vector4f& target_pose );
+            static bool compareDistance(geometry_msgs::Pose &a, geometry_msgs::Pose &b);
 
             void callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level );
 
@@ -177,6 +178,10 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeB
     body_marker.lifetime = ros::Duration(0.3);
     for ( const auto& pose : body_poses ) body_marker.points.push_back( pose.pose.position );
     return body_marker;
+}
+
+bool multiple_sensor_person_tracking::PersonTracker::compareDistance(geometry_msgs::Pose &a, geometry_msgs::Pose &b) {
+    return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y);
 }
 
 visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeTargetPoseMarker( const Eigen::Vector4f& target_pose ) {
@@ -317,6 +322,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         exists_target_ = false;
         // Rotate the RGB-D sensor in the direction in which the leg_poses
         // 近い順にソート
+        //std::sort(dr_spaam_msg->poses.begin(), dr_spaam_msg->poses.end(), multiple_sensor_person_tracking::PersonTracker::compareDistance );
         // attention_leg_idx_ の位置を設定 ※attention_leg_idx_が配列より大きい場合は修正
         // 2秒でattention_leg_idx_を変える
 
