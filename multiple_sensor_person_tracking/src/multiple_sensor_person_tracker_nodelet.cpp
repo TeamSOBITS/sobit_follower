@@ -83,13 +83,14 @@ namespace multiple_sensor_person_tracking {
             bool display_marker_;
             double no_exists_time_;
             double target_change_tolerance_;
+            double attention_leg_time_;
             unsigned int attention_leg_idx_;
+
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeBodyPoseMarker( const std::vector<sobit_common_msg::ObjectPose>& body_poses );
             visualization_msgs::Marker makeTargetPoseMarker( const Eigen::Vector4f& target_pose );
-            static bool compareDistance(geometry_msgs::Pose &a, geometry_msgs::Pose &b);
 
             void callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level );
 
@@ -178,10 +179,6 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeB
     body_marker.lifetime = ros::Duration(0.3);
     for ( const auto& pose : body_poses ) body_marker.points.push_back( pose.pose.position );
     return body_marker;
-}
-
-bool multiple_sensor_person_tracking::PersonTracker::compareDistance(geometry_msgs::Pose &a, geometry_msgs::Pose &b) {
-    return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y);
 }
 
 visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeTargetPoseMarker( const Eigen::Vector4f& target_pose ) {
@@ -319,19 +316,27 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
 
     if ( !exists_target_ && ssd_msg->object_poses.size() == 0 ) {
         NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
+        if( attention_leg_time_ == -1.0 ) attention_leg_time_ = ros::Time::now().toSec();
         exists_target_ = false;
+        std::vector<geometry_msgs::Pose> leg_poses = dr_spaam_msg->poses;
         // Rotate the RGB-D sensor in the direction in which the leg_poses
         // 近い順にソート
-        //std::sort(dr_spaam_msg->poses.begin(), dr_spaam_msg->poses.end(), multiple_sensor_person_tracking::PersonTracker::compareDistance );
+        std::sort(
+            leg_poses.begin(),
+            leg_poses.end(),
+            []( const auto & a, const auto & b)
+            { return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y); } );
         // attention_leg_idx_ の位置を設定 ※attention_leg_idx_が配列より大きい場合は修正
         // 2秒でattention_leg_idx_を変える
-
-        following_position_->pose.position.x = 0.0;
-        following_position_->pose.position.y = 0.0;
+        if ( ros::Time::now().toSec() - attention_leg_time_ >= 2.0 ) {
+            attention_leg_idx_ = ( attention_leg_idx_ < leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
+        }
+        following_position_->pose.position.x = leg_poses[attention_leg_idx_].position.x;
+        following_position_->pose.position.y = leg_poses[attention_leg_idx_].position.y;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
         return;
-    }
+    } else attention_leg_time_ = -1.0;
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
     int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
@@ -447,6 +452,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     f_ = boost::bind(&multiple_sensor_person_tracking::PersonTracker::callbackDynamicReconfigure, this, _1, _2);
     server_->setCallback(f_);
     no_exists_time_ = -1.0;
+    attention_leg_time_ = -1.0;
     attention_leg_idx_ = 0;
 }
 
