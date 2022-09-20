@@ -71,7 +71,7 @@ Visualization Manager:
       Name: Target
       Namespaces:
         trajectory: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
@@ -80,7 +80,7 @@ Visualization Manager:
       Namespaces:
         observed: true
         observed_add: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
@@ -88,7 +88,7 @@ Visualization Manager:
       Name: Tracking
       Namespaces:
         trajectory: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/TF
       Enabled: true

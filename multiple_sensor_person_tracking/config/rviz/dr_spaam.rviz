@@ -76,7 +76,7 @@ Visualization Manager:
       Min Color: 0; 0; 0
       Name: LaserScan
       Position Transformer: XYZ
-      Queue Size: 10
+      Queue Size: 1
       Selectable: true
       Size (Pixels): 5
       Size (m): 0.009999999776482582
@@ -108,7 +108,7 @@ Visualization Manager:
       Name: DR-SPAAM_Rviz
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
   Enabled: true
   Global Options:

@@ -100,7 +100,7 @@ Visualization Manager:
       Min Color: 0; 0; 0
       Name: PointCloud2
       Position Transformer: XYZ
-      Queue Size: 10
+      Queue Size: 1
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
@@ -118,7 +118,7 @@ Visualization Manager:
       Min Value: 0
       Name: Image
       Normalize Range: true
-      Queue Size: 2
+      Queue Size: 1
       Transport Hint: raw
       Unreliable: false
       Value: true
@@ -130,7 +130,7 @@ Visualization Manager:
       Min Value: 0
       Name: SSD
       Normalize Range: true
-      Queue Size: 2
+      Queue Size: 1
       Transport Hint: raw
       Unreliable: false
       Value: true
@@ -152,7 +152,7 @@ Visualization Manager:
       Min Color: 0; 0; 0
       Name: LaserScan
       Position Transformer: XYZ
-      Queue Size: 10
+      Queue Size: 1
       Selectable: true
       Size (Pixels): 5
       Size (m): 0.009999999776482582
@@ -180,7 +180,7 @@ Visualization Manager:
       Min Color: 0; 0; 0
       Name: Obstacles
       Position Transformer: XYZ
-      Queue Size: 10
+      Queue Size: 1
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.05000000074505806
@@ -196,7 +196,7 @@ Visualization Manager:
       Name: Tracker
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -204,7 +204,7 @@ Visualization Manager:
       Name: DWA
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
@@ -212,7 +212,7 @@ Visualization Manager:
       Name: DWA(ALL)
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -220,7 +220,7 @@ Visualization Manager:
       Name: VSM
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -228,7 +228,7 @@ Visualization Manager:
       Name: Marker
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -236,7 +236,7 @@ Visualization Manager:
       Name: RotateSensor
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
   Enabled: true
   Global Options:

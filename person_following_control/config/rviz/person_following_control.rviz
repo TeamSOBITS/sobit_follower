@@ -94,7 +94,7 @@ Visualization Manager:
       Name: robot_trajectory
       Namespaces:
         trajectory_potential: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -102,7 +102,7 @@ Visualization Manager:
       Name: target_trajectory
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
@@ -111,7 +111,7 @@ Visualization Manager:
       Namespaces:
         cost: true
         obstacles: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: false
@@ -119,7 +119,7 @@ Visualization Manager:
       Name: following_position_marker
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: false
     - Class: rviz/Marker
       Enabled: true
@@ -127,7 +127,7 @@ Visualization Manager:
       Name: dwa_path_marker
       Namespaces:
         optimal_path: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
@@ -135,7 +135,7 @@ Visualization Manager:
       Name: dwa_path_marker_all
       Namespaces:
         all_path: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -143,7 +143,7 @@ Visualization Manager:
       Name: vsm_path_marker
       Namespaces:
         virtual_spring_path: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
@@ -151,7 +151,7 @@ Visualization Manager:
       Name: vsm_target_marker
       Namespaces:
         {}
-      Queue Size: 100
+      Queue Size: 1
       Value: true
     - Class: rviz/Marker
       Enabled: true
@@ -159,7 +159,7 @@ Visualization Manager:
       Name: Path
       Namespaces:
         path: true
-      Queue Size: 100
+      Queue Size: 1
       Value: true
   Enabled: true
   Global Options:
