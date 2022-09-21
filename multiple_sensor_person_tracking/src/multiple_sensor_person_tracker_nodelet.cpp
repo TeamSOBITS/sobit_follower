@@ -51,6 +51,7 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_following_position_;
             ros::Publisher pub_marker_;
             ros::Publisher pub_obstacles_;
+            ros::Publisher pub_target_odom_;
 
             std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray>> sub_dr_spaam_;
             std::unique_ptr<message_filters::Subscriber<sobit_common_msg::ObjectPoseArray>> sub_ssd_;
@@ -104,6 +105,11 @@ namespace multiple_sensor_person_tracking {
                 const geometry_msgs::Point& search_pt,
                 const PointCloud::Ptr input_cloud,
                 sensor_msgs::PointCloud2* obstacles );
+
+            geometry_msgs::PointStamped transformPoint(
+                const std::string& org_frame,
+                const std::string& target_frame,
+                const geometry_msgs::Point& point );
 
             void callbackPoseArray (
                 const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg,
@@ -289,6 +295,24 @@ void multiple_sensor_person_tracking::PersonTracker::searchObstacles( const geom
     return;
 }
 
+geometry_msgs::PointStamped multiple_sensor_person_tracking::PersonTracker::transformPoint (
+    const std::string& org_frame,
+    const std::string& target_frame,
+    const geometry_msgs::Point& point)
+{
+    geometry_msgs::PointStamped pt_transformed;
+    geometry_msgs::PointStamped pt;
+    pt.header.frame_id = org_frame;
+    pt.header.stamp = ros::Time(0);
+    pt.point = point;
+    try {
+        tf_listener_.transformPoint( target_frame, pt, pt_transformed );
+    } catch ( const tf::TransformException& ex ) {
+        NODELET_ERROR( "%s",ex.what( ) );
+    }
+    return pt_transformed;
+}
+
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
     // variable initialization
@@ -394,6 +418,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // following_position_ : header :
     following_position_->header.stamp = ros::Time::now();
     pub_following_position_.publish( following_position_ );
+    pub_target_odom_.publish( transformPoint( target_frame_, "odom", following_position_->pose.position ) );
     if ( display_marker_ ) {
         pub_obstacles_.publish( following_position_->obstacles );
         marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
@@ -431,6 +456,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     pub_following_position_ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = nh_.advertise<sensor_msgs::PointCloud2>("obstacles", 1);
+    pub_target_odom_ = nh_.advertise<geometry_msgs::PointStamped>("target_postion_odom", 1);
 
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
 
