@@ -14,8 +14,10 @@ parser.add_argument("--save_plot_path", default='', help="File path of Plot imag
 options = parser.parse_args()
 
 # Targets and Robot Trajectory
-target = pd.read_csv( options.target_postion_odom_csv_path , encoding='shift-jis', index_col = 0 )
-robot = pd.read_csv( options.odom_csv_path, encoding='shift-jis', index_col = 0 )
+print("\tTargets and Robot Trajectory")
+usecols = ['field.x', 'field.y']
+target = pd.read_csv( options.target_postion_odom_csv_path, encoding='shift-jis', usecols=usecols, dtype={ 'field.x': float, 'field.y': float } )
+robot = pd.read_csv( options.odom_csv_path, encoding='shift-jis', usecols=usecols, dtype={ 'field.x': float, 'field.y': float } )
 target_x = target['field.x'].values.tolist()
 target_y = target['field.y'].values.tolist()
 robot_x = robot['field.x'].values.tolist()
@@ -39,7 +41,9 @@ plt.savefig( options.save_plot_path + "_targets_and_robot.png" ) # 画像の保�
 plt.clf()
 
 # smooth velocity
-smooth_velocity = pd.read_csv( options.smooth_cmd_vel_csv_path, encoding='shift-jis' )
+print("\tSmooth velocity")
+usecols = [ '%time', 'field.linear.x', 'field.angular.z']
+smooth_velocity = pd.read_csv( options.smooth_cmd_vel_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
 time = smooth_velocity['%time'].values.tolist()
 linear = smooth_velocity['field.linear.x'].values.tolist()
 angular = smooth_velocity['field.angular.z'].values.tolist()
@@ -64,7 +68,8 @@ plt.savefig( options.save_plot_path + "_smooth_velocity.png" ) # 画像の保存
 plt.clf()
 
 # velocity
-velocity = pd.read_csv( options.raw_cmd_vel_csv_path, encoding='shift-jis' )
+print("\tVelocity")
+velocity = pd.read_csv( options.raw_cmd_vel_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
 time = velocity['%time'].values.tolist()
 linear = velocity['field.linear.x'].values.tolist()
 angular = velocity['field.angular.z'].values.tolist()
@@ -89,7 +94,8 @@ plt.savefig( options.save_plot_path + "_velocity.png" ) # 画像の保存
 plt.clf()
 
 # odom velocity
-odom_velocity = pd.read_csv( options.odom_velocity_csv_path, encoding='shift-jis' )
+print("\tOdometry Velocity")
+odom_velocity = pd.read_csv( options.odom_velocity_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
 time = odom_velocity['%time'].values.tolist()
 linear = odom_velocity['field.linear.x'].values.tolist()
 angular = odom_velocity['field.angular.z'].values.tolist()
