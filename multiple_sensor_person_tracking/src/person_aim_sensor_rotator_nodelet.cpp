@@ -80,11 +80,11 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicRec
 void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosition( const multiple_sensor_person_tracking::FollowingPositionConstPtr& msg ) {
 	geometry_msgs::Point pt;
 	if ( use_smoothing_ ) {
-		tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * msg->pose.position.x;
-        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * msg->pose.position.y;
+		tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * msg->rotation_position.x;
+        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * msg->rotation_position.y;
 		pt = *tracking_position_;
 	} else {
-		pt = msg->pose.position;
+		pt = msg->rotation_position;
 	}
 	double distance = std::hypotf( pt.x, pt.y );
 	double angle = std::atan2( pt.y, pt.x );
@@ -97,9 +97,9 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackTargetPosi
 	else if ( tilt_angle > tilt_angle_max_ ) tilt_angle = tilt_angle_max_;
     pan_angle = angle;
 
-	// NODELET_INFO("\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
+	NODELET_INFO("\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
 
-	if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, true );
+	if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, false );
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;

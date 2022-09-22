@@ -1,6 +1,6 @@
 # Following Control
 base_footprint_name         : base_footprint
-following_distance          : 0.5
+following_distance          : 0.4
 
 # Virtual Spring Model
 following_angle_deg         : 0.0       # theta_sh [deg]
@@ -40,7 +40,7 @@ display_optimal_path : true
 display_all_path : true
 
 # PID Controller
-p_gain : 1.2
-i_gain : 0.6
+p_gain : 0.9
+i_gain : 0.3
 d_gain : 0.0
-max_pid_angular_deg : 90.0
+max_pid_angular_deg : 70.0

@@ -3,8 +3,9 @@
 cd ~/catkin_ws/src
 # csvを作るrosbagファイル
 rosbag_files=(
-    "sobit_follower_1" \
-    "sobit_follower_2"
+    "murakami_0922_01" \
+    "murakami_0922_02" \
+    "murakami_0922_03"
 )
 
 for ((i = 0; i < ${#rosbag_files[@]}; i++)) {

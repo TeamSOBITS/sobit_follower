@@ -333,13 +333,23 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         ROS_ERROR("%s", ex.what());
         following_position_->pose.position.x = 0.0;
         following_position_->pose.position.y = 0.0;
+        following_position_->rotation_position = following_position_->pose.position;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
         return;
     }
 
-    if ( !exists_target_ && ssd_msg->object_poses.size() == 0 ) {
+    if ( !exists_target_ && ssd_msg->object_poses.size() == 0) {
         NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
+        if ( dr_spaam_msg->poses.size() == 0 ) {
+            exists_target_ = false;
+            following_position_->pose.position.x = 0.0;
+            following_position_->pose.position.y = 0.0;
+            following_position_->rotation_position = following_position_->pose.position;
+            following_position_->status = Status::NO_EXISTS;
+            pub_following_position_.publish( following_position_ );
+            return;
+        }
         if( attention_leg_time_ == -1.0 ) attention_leg_time_ = ros::Time::now().toSec();
         exists_target_ = false;
         std::vector<geometry_msgs::Pose> leg_poses = dr_spaam_msg->poses;
@@ -352,15 +362,20 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
             { return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y); } );
         // attention_leg_idx_ の位置を設定 ※attention_leg_idx_が配列より大きい場合は修正
         // 2秒でattention_leg_idx_を変える
-        if ( ros::Time::now().toSec() - attention_leg_time_ >= 2.0 ) {
-            attention_leg_idx_ = ( attention_leg_idx_ < leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
+        if ( ros::Time::now().toSec() - attention_leg_time_ >= 5.0 ) {
+            attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
         }
-        following_position_->pose.position.x = leg_poses[attention_leg_idx_].position.x;
-        following_position_->pose.position.y = leg_poses[attention_leg_idx_].position.y;
+        following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
+        following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
+        following_position_->pose.position.x = 0.0;
+        following_position_->pose.position.y = 0.0;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
         return;
-    } else attention_leg_time_ = -1.0;
+    } else {
+        attention_leg_time_ = -1.0;
+        attention_leg_idx_ = 0;
+    }
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
     int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
@@ -378,7 +393,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     } else no_exists_time_ = -1.0;
 
     // Tracking by Kalman Filter
-    if ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY ) {
+    if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
         kf_->init( body_observed_value );
         estimated_value[0] = body_observed_value[0];
         estimated_value[1] = body_observed_value[1];
@@ -392,10 +407,23 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         pub_following_position_.publish( following_position_ );
         return;
     }else {
-        if( result == Status::EXISTS_LEG ) kf_->compute( dt, leg_observed_value, &estimated_value );
-        else if( result == Status::EXISTS_BODY ) kf_->compute( dt, body_observed_value, &estimated_value );
-        else if ( result == Status::EXISTS_LEG_AND_BODY ) kf_->compute( dt, leg_observed_value, body_observed_value, &estimated_value );
-        else kf_->compute( dt, &estimated_value );
+        if( result == Status::EXISTS_LEG ) {
+            kf_->compute( dt, leg_observed_value, &estimated_value );
+            following_position_->rotation_position.x = estimated_value[0];
+            following_position_->rotation_position.y = estimated_value[1];
+        } else if( result == Status::EXISTS_BODY ) {
+            kf_->compute( dt, body_observed_value, &estimated_value );
+            following_position_->rotation_position.x = body_observed_value[0];
+            following_position_->rotation_position.y = body_observed_value[1];
+        } else if ( result == Status::EXISTS_LEG_AND_BODY ) {
+            kf_->compute( dt, leg_observed_value, body_observed_value, &estimated_value );
+            following_position_->rotation_position.x = body_observed_value[0];
+            following_position_->rotation_position.y = body_observed_value[1];
+        } else {
+            kf_->compute( dt, &estimated_value );
+            following_position_->rotation_position.x = estimated_value[0];
+            following_position_->rotation_position.y = estimated_value[1];
+        }
     }
 
     // following_position_ : pose :

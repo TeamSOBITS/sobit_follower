@@ -4,7 +4,7 @@ ssd_topic_name : /ssd_object_detect/object_pose
 target_frame : base_footprint
 
 # Tracking
-target_range : 1.5
+target_range : 3.0
 leg_tracking_range : 0.70
 body_tracking_range : 0.35
 target_cloud_radius : 0.4
