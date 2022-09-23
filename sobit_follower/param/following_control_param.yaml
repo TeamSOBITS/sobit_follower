@@ -3,7 +3,7 @@ following_position_topic_name : /sobit_follower/following_position
 odom_topic_name : /odom
 
 base_footprint_name         : base_footprint
-following_distance          : 1.0
+following_distance          : 0.7
 
 # Virtual Spring Model
 following_angle_deg         : 0.0       # theta_sh [deg]

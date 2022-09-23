@@ -25,9 +25,10 @@ distance = np.sqrt((target_x) ** 2 + (target_y) ** 2)
 idx = distance.size - int(distance.size * 0.03)
 distance = distance[:idx]
 time = time[:idx]
-print(f"\t\tDistance average = {np.mean(distance)}")
-print(f"\t\tDistance max     = {np.max(distance)}")
-print(f"\t\tDistance min     = {np.min(distance)}")
+
+print(f"\t\tDistance average = {np.mean(distance[ distance > 0.0 ])}")
+print(f"\t\tDistance max     = {np.max(distance[ distance > 0.0 ])}")
+print(f"\t\tDistance min     = {np.min(distance[ distance > 0.0 ])}")
 
 fig, ax = plt.subplots()
 ax.set_xlabel('t')  # x軸ラベル
