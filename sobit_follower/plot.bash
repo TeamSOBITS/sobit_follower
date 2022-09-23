@@ -1,15 +1,24 @@
-#!/bin/
+#!/bin/bash
 
-dir_name=$1
-plot_path="experimental_data/$dir_name"
-echo "plot_path = " $plot_path
+cd ~/catkin_ws/src
+# csvを作るrosbagファイル
+rosbag_files=(
+    "murakami_0922_01" \
+    "murakami_0922_02" \
+    "murakami_0922_03"
+)
 
-# echo "$plot_path"
-python3 scripts/plot.py \
-    --following_position_csv_path "$plot_path/following_position_$dir_name.csv" \
-    --target_postion_odom_csv_path "$plot_path/target_postion_odom_$dir_name.csv" \
-    --odom_csv_path "$plot_path/odom_$dir_name.csv" \
-    --raw_cmd_vel_csv_path "$plot_path/raw_cmd_vel_$dir_name.csv" \
-    --smooth_cmd_vel_csv_path "$plot_path/smooth_cmd_vel_$dir_name.csv" \
-    --odom_velocity_csv_path "$plot_path/odom_velocity_$dir_name.csv" \
-    --save_plot_path "$plot_path/$dir_name"
+for ((i = 0; i < ${#rosbag_files[@]}; i++)) {
+    cd ~/catkin_ws/src
+    echo "${rosbag_files[i]}"
+    path="sobit_follower/sobit_follower/experimental_data/${rosbag_files[i]}"
+    # echo "$path"
+    python3 sobit_follower/sobit_follower/scripts/plot.py \
+        --following_position_csv_path "$path/following_position_${rosbag_files[i]}.csv" \
+        --target_postion_odom_csv_path "$path/target_postion_odom_${rosbag_files[i]}.csv" \
+        --odom_csv_path "$path/odom_${rosbag_files[i]}.csv" \
+        --raw_cmd_vel_csv_path "$path/raw_cmd_vel_${rosbag_files[i]}.csv" \
+        --smooth_cmd_vel_csv_path "$path/smooth_cmd_vel_${rosbag_files[i]}.csv" \
+        --odom_velocity_csv_path "$path/odom_velocity_${rosbag_files[i]}.csv" \
+        --save_plot_path "$path/${rosbag_files[i]}"
+}
