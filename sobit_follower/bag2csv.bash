@@ -5,7 +5,8 @@ cd ~/catkin_ws/src
 rosbag_files=(
     "murakami_0922_01" \
     "murakami_0922_02" \
-    "murakami_0922_03"
+    "murakami_0922_03" \
+    "murakami_0923_new"
 )
 
 for ((i = 0; i < ${#rosbag_files[@]}; i++)) {

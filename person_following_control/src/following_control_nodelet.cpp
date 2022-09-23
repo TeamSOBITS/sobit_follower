@@ -91,7 +91,7 @@ void person_following_control::PersonFollowing::callbackDynamicReconfigure(perso
     following_method_ = config.following_method;
     following_distance_ = config.following_distance;
 
-    vsm_->setFollowParamater( config.following_angle_deg, config.following_distance );
+    vsm_->setFollowParamater( config.following_angle_deg, config.following_distance - 0.4 );
     vsm_->setSpringParamater( config.spring_constant_linear, config.spring_constant_angular );
     vsm_->setFrictionParamater( config.viscous_friction_linear, config.viscous_friction_angular );
     vsm_->setRobotParamater( config.weight_robot, config.radius_robot );

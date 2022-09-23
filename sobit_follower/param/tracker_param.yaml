@@ -15,6 +15,6 @@ target_change_tolerance : 1.0
 # display_marker : true
 
 # Kalman Filter
-process_noise : 10.0
+process_noise : 50.0
 system_noise : 1.0
 
