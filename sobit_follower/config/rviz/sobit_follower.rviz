@@ -25,7 +25,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -56,139 +56,15 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        arm_base_link:
-          Value: true
-        arm_elbow_1_tilt_link:
-          Value: true
-        arm_elbow_2_tilt_link:
-          Value: true
-        arm_shoulder_1_tilt_link:
-          Value: true
-        arm_shoulder_2_tilt_link:
-          Value: true
-        arm_shoulder_pan_link:
-          Value: true
-        arm_wrist_tilt_link:
-          Value: true
-        back_base_link:
-          Value: true
         base_footprint:
-          Value: true
-        base_link:
-          Value: true
-        camera_depth_frame:
-          Value: true
-        camera_depth_optical_frame:
-          Value: true
-        camera_link:
-          Value: true
-        camera_rgb_frame:
           Value: true
         camera_rgb_optical_frame:
           Value: false
-        caster_b_link:
-          Value: true
-        caster_f_link:
-          Value: true
-        cliff_sensor_f_link:
-          Value: true
-        cliff_sensor_l_link:
-          Value: true
-        cliff_sensor_r_link:
-          Value: true
-        cover_link:
-          Value: true
-        gyro_link:
-          Value: true
-        hand_base_link:
-          Value: true
-        hand_finger_l_link:
-          Value: true
-        hand_finger_r_link:
-          Value: true
-        hand_inner_l_link:
-          Value: true
-        hand_inner_r_link:
-          Value: true
-        hand_link:
-          Value: true
-        hand_outer_l_link:
-          Value: true
-        hand_outer_r_link:
-          Value: true
-        head_camera_base_link:
-          Value: true
-        head_camera_pan_link:
-          Value: true
-        head_camera_tilt_link:
-          Value: true
-        head_double_sided_tape_link:
-          Value: true
-        matrix_base_link:
-          Value: true
-        matrix_board_link:
-          Value: true
-        matrix_sensor_1_link:
-          Value: true
-        matrix_sensor_2_link:
-          Value: true
-        matrix_sensor_3_link:
-          Value: true
-        matrix_sensor_4_link:
-          Value: true
-        matrix_sensor_5_link:
-          Value: true
-        matrix_sensor_6_link:
-          Value: true
-        matrix_sensor_7_link:
-          Value: true
-        matrix_sensor_8_link:
-          Value: true
-        mic:
-          Value: true
-        mic_base_link:
-          Value: true
         odom:
           Value: false
-        plate_bottom_link:
-          Value: true
-        plate_middle_link:
-          Value: true
-        plate_top_link:
-          Value: true
-        pole_bottom_0_link:
-          Value: true
-        pole_bottom_1_link:
-          Value: true
-        pole_bottom_2_link:
-          Value: true
-        pole_bottom_3_link:
-          Value: true
-        pole_bottom_4_link:
-          Value: true
-        pole_bottom_5_link:
-          Value: true
-        pole_middle_4_link:
-          Value: true
-        pole_middle_5_link:
-          Value: true
-        pole_middle_6_link:
-          Value: true
-        pole_middle_7_link:
-          Value: true
-        pole_top_0_link:
-          Value: true
-        pole_top_1_link:
-          Value: true
-        pole_top_2_link:
-          Value: true
-        pole_top_3_link:
-          Value: true
         urg_base_link:
           Value: true
-        urg_laser:
-          Value: true
-        urg_laser_mount:
+        xtion_pan_link:
           Value: true
       Marker Alpha: 1
       Marker Scale: 1
@@ -199,113 +75,11 @@ Visualization Manager:
       Tree:
         odom:
           base_footprint:
-            base_link:
-              caster_b_link:
+            camera_rgb_optical_frame:
+              xtion_pan_link:
                 {}
-              caster_f_link:
-                {}
-              cliff_sensor_f_link:
-                {}
-              cliff_sensor_l_link:
-                {}
-              cliff_sensor_r_link:
-                {}
-              gyro_link:
-                {}
-              plate_bottom_link:
-                urg_base_link:
-                  urg_laser_mount:
-                    urg_laser:
-                      {}
-              plate_middle_link:
-                {}
-              plate_top_link:
-                arm_base_link:
-                  arm_shoulder_pan_link:
-                    arm_shoulder_1_tilt_link:
-                      arm_elbow_1_tilt_link:
-                        arm_wrist_tilt_link:
-                          hand_base_link:
-                            hand_inner_l_link:
-                              {}
-                            hand_inner_r_link:
-                              {}
-                            hand_link:
-                              {}
-                            hand_outer_l_link:
-                              hand_finger_l_link:
-                                {}
-                            hand_outer_r_link:
-                              hand_finger_r_link:
-                                {}
-                      arm_elbow_2_tilt_link:
-                        {}
-                    arm_shoulder_2_tilt_link:
-                      {}
-                back_base_link:
-                  head_camera_base_link:
-                    head_camera_pan_link:
-                      head_camera_tilt_link:
-                        head_double_sided_tape_link:
-                          camera_rgb_frame:
-                            camera_depth_frame:
-                              camera_depth_optical_frame:
-                                {}
-                            camera_link:
-                              {}
-                            camera_rgb_optical_frame:
-                              {}
-                  matrix_base_link:
-                    matrix_board_link:
-                      matrix_sensor_1_link:
-                        {}
-                      matrix_sensor_2_link:
-                        {}
-                      matrix_sensor_3_link:
-                        {}
-                      matrix_sensor_4_link:
-                        {}
-                      matrix_sensor_5_link:
-                        {}
-                      matrix_sensor_6_link:
-                        {}
-                      matrix_sensor_7_link:
-                        {}
-                      matrix_sensor_8_link:
-                        {}
-                  mic_base_link:
-                    mic:
-                      {}
-                cover_link:
-                  {}
-              pole_bottom_0_link:
-                {}
-              pole_bottom_1_link:
-                {}
-              pole_bottom_2_link:
-                {}
-              pole_bottom_3_link:
-                {}
-              pole_bottom_4_link:
-                {}
-              pole_bottom_5_link:
-                {}
-              pole_middle_4_link:
-                {}
-              pole_middle_5_link:
-                {}
-              pole_middle_6_link:
-                {}
-              pole_middle_7_link:
-                {}
-              pole_top_0_link:
-                {}
-              pole_top_1_link:
-                {}
-              pole_top_2_link:
-                {}
-              pole_top_3_link:
-                {}
+            urg_base_link:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/Image
@@ -490,5 +264,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 932
-  X: 988
+  X: 2908
   Y: 27
