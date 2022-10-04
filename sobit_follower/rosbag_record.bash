@@ -1,7 +1,8 @@
 #!/bin/bash
 
 rosbag_file="sobit_follower"
-if [ $# = 1 ]; then
+
+if [ $# = 0 ]; then
     echo "rosbag file name = " $rosbag_file
 else
     echo "rosbag file name = " $1
