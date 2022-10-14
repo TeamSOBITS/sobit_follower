@@ -13,54 +13,7 @@
         </node>
     </group>
 
-    <node pkg="tf" type="static_transform_publisher" name="robot2senser" args="0.05 -0.1 0.3 0 0 0 base_footprint base_laser_link  100" />
-    <node pkg="tf" type="static_transform_publisher" name="odom2robot" args="0 0 0 0 0 0 odom base_footprint 100" />
 
-    <!-- <node pkg="rviz" type="rviz" name="rviz" args= "-d $(find scan2d_handler)/config/rviz/scan2d_data_publisher.rviz"/> -->
-
-    <!-- scan2d_data_publisher -->
-    <group ns = "scan2d_data_publisher">
-        <node pkg="scan2d_handler" type="scan2d_data_publisher" name="scan2d_data_publisher" launch-prefix="xterm -font r16 -fg floralwhite -bg darkslateblue -e">
-        <param name="publish_data_path" type="str" value="$(find scan2d_handler)/sensor_data/corridor_footprint/scan2dbinary_"/>
-        <!-- <param name="publish_data_path" type="str" value="$(find scan2d_handler)/sensor_data/test/scan2dbinary_"/> -->
-        <!-- <param name="publish_data_path" type="str" value="$(find scan2d_handler)/sensor_data/obstacles_and_legs/scan2dbinary_"/> -->
-
-            <rosparam>
-                is_multiple_data : true
-                <!-- corridor_footprint Strong Points : 200 ~ 300, Weak Points : 300 ~ 350 -->
-                initial_number_of_data : 50
-                last_number_of_data : 600
-                switching_time : 0.0
-                hz : 30
-            </rosparam>
-        </node>
-    </group>
-
-    <!-- run pointcloud_to_laserscan node -->
-    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
-        <remap from="cloud_in" to="/scan2d_data_publisher/cloud_laserscan"/>
-        <!-- <remap from="scan" to="$(arg camera)/scan"/> -->
-        <rosparam>
-            target_frame: base_laser_link # Leave disabled to output scan in pointcloud frame
-            transform_tolerance: 0.01
-            min_height: 0.0
-            max_height: 1.0
-
-            angle_min: -1.5708 # -M_PI/2
-            angle_max: 1.5708 # M_PI/2
-            angle_increment: 0.0087 # M_PI/360.0
-            scan_time: 0.3333
-            range_min: 0.45
-            range_max: 4.0
-            use_inf: true
-
-            # Concurrency level, affects number of pointclouds queued for processing and number of threads used
-            # 0 : Detect number of cores
-            # 1 : Single threaded
-            # 2->inf : Parallelism level
-            concurrency_level: 1
-        </rosparam>
-    </node>
 
 </launch>
 
