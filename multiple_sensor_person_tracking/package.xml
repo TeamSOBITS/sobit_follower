@@ -16,7 +16,7 @@
     <depend>laser_geometry</depend>
 
     <depend>dr_spaam_ros</depend>
-    <depend>sobit_education_library</depend>
+    <depend>sobit_edu_library</depend>
     <depend>ssd_nodelet</depend>
     <depend>multiple_observation_kalman_filter</depend>
 

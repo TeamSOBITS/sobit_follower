@@ -7,7 +7,7 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
-#include <sobit_education_library/sobit_education_controller.hpp>
+#include <sobit_edu_library/sobit_edu_controller.hpp>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -34,7 +34,7 @@ namespace multiple_sensor_person_tracking {
 			dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>::CallbackType f_;
 
-			std::unique_ptr<sobit_education::SobitEducationController> sobit_edu_ctr_;
+			std::unique_ptr<sobit_edu::SobitEduController> sobit_edu_ctr_;
 
 			geometry_msgs::PointPtr tracking_position_;
 			double pre_tilt_;
@@ -126,7 +126,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
 	pub_marker_ = nh_.advertise< visualization_msgs::Marker >( "rotator_marker", 1 );
 
-	sobit_edu_ctr_.reset( new sobit_education::SobitEducationController );
+	sobit_edu_ctr_.reset( new sobit_edu::SobitEduController );
 	tracking_position_.reset( new geometry_msgs::Point );
 
     server_ = new dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>(pnh_);
