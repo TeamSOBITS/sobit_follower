@@ -94,12 +94,12 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
     const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
 	geometry_msgs::Point pt;
-    if ( odom_msg->twist.twist.linear.x >= 0.1 || odom_msg->twist.twist.angular.z == 0.0 ) {
-        if ( use_smoothing_ ) {
-            tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.x;
-            tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.y;
-        } else *tracking_position_ = following_position_msg->rotation_position;
-    }
+    //if ( ( odom_msg->twist.twist.linear.x >= 0.1 && odom_msg->twist.twist.linear.x != 0.0 ) || odom_msg->twist.twist.angular.z == 0.0 ) {
+    if ( use_smoothing_ ) {
+        tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.x;
+        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.y;
+    } else *tracking_position_ = following_position_msg->rotation_position;
+    //}
     pt = *tracking_position_;
 	double distance = std::hypotf( pt.x, pt.y );
 	double angle = std::atan2( pt.y, pt.x );
