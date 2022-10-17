@@ -25,11 +25,12 @@ namespace multiple_sensor_person_tracking {
 			ros::NodeHandle nh_;
 			ros::NodeHandle pnh_;
 			ros::Publisher pub_marker_;
+            ros::Subscriber sub_following_position_;
 			tf::TransformListener tf_listener_;
 
-            std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
-            std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
-            std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
+            // std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
+            // std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
+            // std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
 			dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>::CallbackType f_;
@@ -50,8 +51,8 @@ namespace multiple_sensor_person_tracking {
 			void makeMarker( const double pan_angle, const double tilt_angle, const double distance );
 			void callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level);
             void callbackData (
-                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
-                const nav_msgs::OdometryConstPtr &odom_msg
+                const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg
+                /*const nav_msgs::OdometryConstPtr &odom_msg*/
             );
 
         public:
@@ -91,14 +92,14 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicRec
 }
 
 void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
-    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
-    const nav_msgs::OdometryConstPtr &odom_msg) {
+    const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg
+    /*const nav_msgs::OdometryConstPtr &odom_msg*/) {
 	geometry_msgs::Point pt;
     //if ( ( odom_msg->twist.twist.linear.x >= 0.1 && odom_msg->twist.twist.linear.x != 0.0 ) || odom_msg->twist.twist.angular.z == 0.0 ) {
     if ( use_smoothing_ ) {
-        tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * following_position_msg->pose.position.x;
-        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * following_position_msg->pose.position.y;
-    } else *tracking_position_ = following_position_msg->pose.position;
+        tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.x;
+        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.y;
+    } else *tracking_position_ = following_position_msg->rotation_position;
     //}
     pt = *tracking_position_;
 	double distance = std::hypotf( pt.x, pt.y );
@@ -134,10 +135,13 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     server_->setCallback(f_);
 
     // message_filters :
-    sub_following_position_.reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition> ( nh_, pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1 ) );
-    sub_odom_.reset ( new message_filters::Subscriber<nav_msgs::Odometry> ( nh_, pnh_.param<std::string>( "odom_topic_name", "/odom" ), 1 ) );
-    sync_.reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_following_position_, *sub_odom_ ) );
-    sync_->registerCallback ( boost::bind( &PersonAimSensorRotator::callbackData, this, _1, _2 ) );
+    // sub_following_position_.reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition> ( nh_, pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1 ) );
+    // sub_odom_.reset ( new message_filters::Subscriber<nav_msgs::Odometry> ( nh_, pnh_.param<std::string>( "odom_topic_name", "/odom" ), 1 ) );
+    // sync_.reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_following_position_, *sub_odom_ ) );
+    // sync_->registerCallback ( boost::bind( &PersonAimSensorRotator::callbackData, this, _1, _2 ) );
+
+    sub_following_position_ = nh_.subscribe(pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1, &PersonAimSensorRotator::callbackData, this);
+
 
 	if ( !use_rotate_ ) return;
 	sobit_edu_ctr_->moveToPose( "initial_pose" );

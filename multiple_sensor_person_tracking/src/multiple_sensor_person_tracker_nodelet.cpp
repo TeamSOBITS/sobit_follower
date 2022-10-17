@@ -340,8 +340,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     }
 
     if ( !exists_target_ && ssd_msg->object_poses.size() == 0) {
-        NODELET_ERROR("Result :          NO_EXISTS (SSD)" );
         if ( dr_spaam_msg->poses.size() == 0 ) {
+            NODELET_ERROR("Result :          NO_EXISTS (DR-SPAAM)" );
             exists_target_ = false;
             following_position_->pose.position.x = 0.0;
             following_position_->pose.position.y = 0.0;
@@ -362,8 +362,9 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
             { return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y); } );
         // attention_leg_idx_ の位置を設定 ※attention_leg_idx_が配列より大きい場合は修正
         // 2秒でattention_leg_idx_を変える
-        if ( ros::Time::now().toSec() - attention_leg_time_ >= 5.0 ) {
+        if ( ros::Time::now().toSec() - attention_leg_time_ >= 2.0 ) {
             attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
+            attention_leg_time_ = ros::Time::now().toSec();
         }
         following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
         following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
@@ -371,6 +372,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         following_position_->pose.position.y = 0.0;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
+        NODELET_ERROR("Result :          NO_EXISTS (SSD) attention_leg_idx = %d",attention_leg_idx_ );
         return;
     } else {
         attention_leg_time_ = -1.0;
