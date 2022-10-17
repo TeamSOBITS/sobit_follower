@@ -365,7 +365,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
         if ( ros::Time::now().toSec() - attention_leg_time_ >= 2.0 ) {
             attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
             attention_leg_time_ = ros::Time::now().toSec();
-        }
+        } else attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ : leg_poses.size()-1;
         following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
         following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
         following_position_->pose.position.x = 0.0;
