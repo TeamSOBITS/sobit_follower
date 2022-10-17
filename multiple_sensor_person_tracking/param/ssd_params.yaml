@@ -3,7 +3,7 @@ ssd_execute_default : true
 ssd_pub_result_image : true
 rqt_image_view_flag : false
 
-ssd_image_topic_name : /camera/rgb/image_raw
+ssd_image_topic_name : /camera/camera/rgb/image_raw
 ssd_cloud_topic_name : /camera/depth/points
 target_frame : base_footprint
 

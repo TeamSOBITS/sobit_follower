@@ -90,7 +90,7 @@ $ roslaunch multiple_sensor_person_tracking camera_720p_16_9.launch
 |トピック名|型|意味|
 |---|---|---|
 |/camera/depth/points|sensor_msgs/PointCloud2|入力点群|
-|/camera/rgb/image_raw|sensor_msgs/Image|入力画像|
+|/camera/camera/rgb/image_raw|sensor_msgs/Image|入力画像|
 |/ssd_object_detect/detect_ctrl|std_msgs/Bool|検出のオンオフ|
 
 #### Publications

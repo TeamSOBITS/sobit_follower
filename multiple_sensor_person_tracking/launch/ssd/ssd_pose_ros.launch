@@ -8,8 +8,8 @@
     <arg name="rqt_image_view_flag"         default="true" />
     <arg name="use_tf"                      default="true" />
 
-    <arg name="ssd_image_topic_name"        default="/rgb/image_raw" />
-    <arg name="ssd_cloud_topic_name"        default="/points2" />
+    <arg name="ssd_image_topic_name"        default="/camera/rgb/image_raw" />
+    <arg name="ssd_cloud_topic_name"        default="/camera/depth/points" />
     <arg name="target_frame"                default="base_footprint" />
 
     <arg name="ssd_in_scale_factor"         default="0.007843" />

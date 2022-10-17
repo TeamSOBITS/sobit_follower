@@ -7,7 +7,7 @@
     <!-- <arg name="ssd_pub_result_image"        default="true" /> -->
     <arg name="rqt_image_view_flag"         default="false" />
 
-    <arg name="ssd_image_topic_name"        default="/camera/rgb/image_raw" />
+    <arg name="ssd_image_topic_name"        default="/camera/camera/rgb/image_raw" />
 
     <arg name="ssd_in_scale_factor"         default="0.007843" />
     <arg name="ssd_confidence_threshold"    default="0.5" />

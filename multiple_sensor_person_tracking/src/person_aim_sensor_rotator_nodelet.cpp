@@ -96,15 +96,15 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 	geometry_msgs::Point pt;
     //if ( ( odom_msg->twist.twist.linear.x >= 0.1 && odom_msg->twist.twist.linear.x != 0.0 ) || odom_msg->twist.twist.angular.z == 0.0 ) {
     if ( use_smoothing_ ) {
-        tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.x;
-        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * following_position_msg->rotation_position.y;
-    } else *tracking_position_ = following_position_msg->rotation_position;
+        tracking_position_->x = smoothing_gain_ * tracking_position_->x + ( 1.0 - smoothing_gain_ ) * following_position_msg->pose.position.x;
+        tracking_position_->y = smoothing_gain_ * tracking_position_->y + ( 1.0 - smoothing_gain_ ) * following_position_msg->pose.position.y;
+    } else *tracking_position_ = following_position_msg->pose.position;
     //}
     pt = *tracking_position_;
 	double distance = std::hypotf( pt.x, pt.y );
 	double angle = std::atan2( pt.y, pt.x );
 	double pan_angle, tilt_angle;
-	double sec = ( distance == 0.0 ) ? 0.5 : 0.01;
+	double sec = ( distance == 0.0 ) ? 0.5 : 0.05;
 
 	tilt_angle = std::atan2( person_height_, distance );
 	if ( distance == 0.0 ) tilt_angle = 0.2;

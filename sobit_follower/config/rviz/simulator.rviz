@@ -60,7 +60,7 @@ Visualization Manager:
           Value: true
         base_laser_link:
           Value: true
-        camera_rgb_optical_frame:
+        head_camera_rgb_optical_frame:
           Value: true
         odom:
           Value: false
@@ -77,7 +77,7 @@ Visualization Manager:
           base_footprint:
             base_laser_link:
               {}
-            camera_rgb_optical_frame:
+            head_camera_rgb_optical_frame:
               xtion_pan_link:
                 {}
       Update Interval: 0
@@ -112,7 +112,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /rgb/image_raw
+      Image Topic: /camera/rgb/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0

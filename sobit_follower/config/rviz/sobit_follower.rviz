@@ -58,7 +58,7 @@ Visualization Manager:
         All Enabled: false
         base_footprint:
           Value: true
-        camera_rgb_optical_frame:
+        head_camera_rgb_optical_frame:
           Value: false
         odom:
           Value: false
@@ -75,7 +75,7 @@ Visualization Manager:
       Tree:
         odom:
           base_footprint:
-            camera_rgb_optical_frame:
+            head_camera_rgb_optical_frame:
               xtion_pan_link:
                 {}
             urg_base_link:
@@ -84,7 +84,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /rgb/image_raw
+      Image Topic: /camera/rgb/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
