@@ -12,7 +12,7 @@ spring_constant_angular     : 1.0       # k_2 [N・m/rad]
 weight_robot                : 30.0      # M [Kg]
 moment_inertia              : 15.0      # I [Kg・m^2]
 viscous_friction_linear     : 1.00      # k_3 [N・s/m]
-viscous_friction_angular    : 1.00      # k_4 [N・s/rad]
+viscous_friction_angular    : 10.0  #1.00      # k_4 [N・s/rad]
 radius_robot                : 0.3       # L [m]
 # display_vsm_path            : true
 display_vsm_target          : false
@@ -33,7 +33,7 @@ weight_obstacle : 1.0
 weight_velocity : 1.5
 # Dynamic Window Approach : VSM-DWA Weight
 weight_vsm_heading : 1.0
-weight_vsm_obstacle : 3.5
+weight_vsm_obstacle : 0.5 #3.5
 weight_vsm_linear : 2.7
 weight_vsm_angular : 0.35
 # Dynamic Window Approach : Cost Distance
