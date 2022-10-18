@@ -18,8 +18,8 @@ radius_robot                : 0.3       # L [m]
 display_vsm_target          : false
 
 # Dynamic Window Approach :Velocity Limit
-min_linear : 0.1
-max_linear : 0.8
+min_linear : 0.10
+max_linear : 0.80
 min_angular_deg : -150.0
 max_angular_deg : 150.0
 # Dynamic Window Approach : Step Value
