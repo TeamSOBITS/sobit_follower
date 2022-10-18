@@ -24,7 +24,7 @@ min_angular_deg : -150.0
 max_angular_deg : 150.0
 # Dynamic Window Approach : Step Value
 predict_step : 10
-sampling_time : 0.2     # Predicted time[s] = predict_step[step] * sampling_time[s]
+sampling_time : 0.08     # Predicted time[s] = predict_step[step] * sampling_time[s]
 velocity_step : 7.0
 angle_velocity_step : 30.0
 # Dynamic Window Approach : Weight
@@ -33,7 +33,7 @@ weight_obstacle : 1.0
 weight_velocity : 1.5
 # Dynamic Window Approach : VSM-DWA Weight
 weight_vsm_heading : 3.0
-weight_vsm_obstacle : 1.2 #3.5
+weight_vsm_obstacle : 2.0 #3.5
 weight_vsm_linear : 2.0
 weight_vsm_angular : 0.5
 # Dynamic Window Approach : Cost Distance
