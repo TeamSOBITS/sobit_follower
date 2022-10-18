@@ -137,6 +137,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
 
         Path path, pre_path;
         bool is_collision = false;
+        double distance = 0.0;
         double theta = 0.0;
         // 衝突チェック
         for ( int step = 0; step < predict_step; ++step) {
@@ -145,18 +146,18 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
             path.point.y = linear * sin(theta) * sampling_time + pre_path.point.y;
             path.theta = angular * sampling_time + pre_path.theta;
             path.theta = angular * sampling_time + pre_path.theta;
-            // if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
-            //     double distance = std::sqrt(k_distances[0]);
-            //     if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
-            //     if ( dist_nearest_obstacle <= obstacle_cost_radius ) {
-            //         is_collision = true;
-            //         break;
-            //     }
-            // }
+            if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
+                distance = std::sqrt(k_distances[0]);
+                if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
+                if ( dist_nearest_obstacle <= obstacle_cost_radius ) {
+                    is_collision = true;
+                    break;
+                }
+            }
             theta = path.theta;
         }
         if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
-            double distance = std::sqrt(k_distances[0]);
+            distance = std::sqrt(k_distances[0]);
             if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
             if ( dist_nearest_obstacle <= obstacle_cost_radius ) is_collision = true;
         }
@@ -263,6 +264,7 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
 
         Path path, pre_path;
         bool is_collision = false;
+        double distance = 0.0;
         double theta = 0.0;
         // 衝突チェック
         for ( int step = 0; step < predict_step; ++step) {
@@ -270,21 +272,21 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
             path.point.x = linear * cos(theta) * sampling_time + pre_path.point.x;
             path.point.y = linear * sin(theta) * sampling_time + pre_path.point.y;
             path.theta = angular * sampling_time + pre_path.theta;
-            // if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
-            //     double distance = std::sqrt(k_distances[0]);
-            //     if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
-            //     if ( dist_nearest_obstacle <= obstacle_cost_radius ) {
-            //         is_collision = true;
-            //         break;
-            //     }
-            // }
+            if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
+                distance = std::sqrt(k_distances[0]);
+                if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
+                if ( dist_nearest_obstacle <= obstacle_cost_radius ) {
+                    is_collision = true;
+                    break;
+                }
+            }
             theta = path.theta;
         }
-        if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
-            double distance = std::sqrt(k_distances[0]);
-            if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
-            if ( dist_nearest_obstacle <= obstacle_cost_radius ) is_collision = true;
-        }
+        // if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
+        //     distance = std::sqrt(k_distances[0]);
+        //     if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
+        //     if ( dist_nearest_obstacle <= obstacle_cost_radius ) is_collision = true;
+        // }
         eval.is_collision = is_collision;
         if ( !is_collision ) {
             // [ heading(v,ω) ] Evaluate the angle of difference between predicted point and Target point :
