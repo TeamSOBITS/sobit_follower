@@ -2,6 +2,7 @@ import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import patches
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--following_position_csv_path", default='', help="File path of following_position.csv")
@@ -59,15 +60,22 @@ robot_y = robot['field.y'].values
 robot_y = -robot_y
 
 fig, ax = plt.subplots()
-ax.set_xlabel('y[m]')  # x軸ラベル
-ax.set_ylabel('x[m]')  # y軸ラベル
+ax.set_xlabel('x[m]')  # x軸ラベル
+ax.set_ylabel('y[m]')  # y軸ラベル
 ax.set_title('Tracking and Robot Trajectory') # グラフタイトル
 ax.set_aspect('equal', adjustable='box') # スケールを揃える
 ax.grid()            # 罫線
-#ax.set_xlim([-10, 10]) # x方向の描画範囲を指定
-#ax.set_ylim([0, 1])    # y方向の描画範囲を指定
 ax.plot(target_y, target_x, color="blue", label="Tracking")
 ax.plot(robot_y, robot_x, color="green", label="Robot")
+# # obstacle
+# r = patches.Rectangle( (2.1,1.4) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
+# ax.add_patch(r)
+# r = patches.Rectangle( (4.2,0.0) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
+# ax.add_patch(r)
+# c = patches.Circle( xy=(7.05,1.85), radius=0.05,fill=True, fc="Black")
+# ax.add_patch(c)
+# ax.set_xlim([-0.5, 9.0]) # x方向の描画範囲を指定
+# ax.set_ylim([0, 2.3])    # y方向の描画範囲を指定
 
 ax.legend(loc=0)    # 凡例
 fig.tight_layout()  # レイアウトの設定
