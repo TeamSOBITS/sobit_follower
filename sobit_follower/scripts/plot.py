@@ -52,12 +52,15 @@ print("\tTracking and Robot Trajectory")
 usecols = ['field.x', 'field.y']
 target = pd.read_csv( options.target_postion_odom_csv_path, encoding='shift-jis', usecols=usecols, dtype={ 'field.x': float, 'field.y': float } )
 robot = pd.read_csv( options.odom_csv_path, encoding='shift-jis', usecols=usecols, dtype={ 'field.x': float, 'field.y': float } )
-target_x = target['field.x'].values.tolist()
+target_x = target['field.x'].values
+# target_x = target_x+0.25
 target_y = target['field.y'].values
 target_y = -target_y
-robot_x = robot['field.x'].values.tolist()
+robot_x = robot['field.x'].values
+# robot_x = robot_x+0.25
 robot_y = robot['field.y'].values
 robot_y = -robot_y
+
 
 fig, ax = plt.subplots()
 ax.set_xlabel('x[m]')  # x軸ラベル
