@@ -53,11 +53,11 @@ usecols = ['field.x', 'field.y']
 target = pd.read_csv( options.target_postion_odom_csv_path, encoding='shift-jis', usecols=usecols, dtype={ 'field.x': float, 'field.y': float } )
 robot = pd.read_csv( options.odom_csv_path, encoding='shift-jis', usecols=usecols, dtype={ 'field.x': float, 'field.y': float } )
 target_x = target['field.x'].values
-# target_x = target_x+0.25
+target_x = target_x+0.25
 target_y = target['field.y'].values
 target_y = -target_y
 robot_x = robot['field.x'].values
-# robot_x = robot_x+0.25
+robot_x = robot_x+0.25
 robot_y = robot['field.y'].values
 robot_y = -robot_y
 
@@ -68,17 +68,17 @@ ax.set_ylabel('y[m]')  # y軸ラベル
 ax.set_title('Tracking and Robot Trajectory') # グラフタイトル
 ax.set_aspect('equal', adjustable='box') # スケールを揃える
 ax.grid()            # 罫線
-ax.plot(target_y, target_x, color="blue", label="Tracking")
+ax.plot(target_y, target_x, color="blue", label="Person")
 ax.plot(robot_y, robot_x, color="green", label="Robot")
-# # obstacle
-# r = patches.Rectangle( (2.1,1.4) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
-# ax.add_patch(r)
-# r = patches.Rectangle( (4.2,0.0) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
-# ax.add_patch(r)
-# c = patches.Circle( xy=(7.05,1.85), radius=0.05,fill=True, fc="Black")
-# ax.add_patch(c)
-# ax.set_xlim([-0.5, 9.0]) # x方向の描画範囲を指定
-# ax.set_ylim([0, 2.3])    # y方向の描画範囲を指定
+# obstacle
+r = patches.Rectangle( (2.1,1.4) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
+ax.add_patch(r)
+r = patches.Rectangle( (4.2,0.0) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
+ax.add_patch(r)
+c = patches.Circle( xy=(7.05,1.85), radius=0.05,fill=True, fc="Black")
+ax.add_patch(c)
+ax.set_xlim([-0.5, 9.0]) # x方向の描画範囲を指定
+ax.set_ylim([0, 2.3])    # y方向の描画範囲を指定
 
 ax.legend(loc=0)    # 凡例
 fig.tight_layout()  # レイアウトの設定
