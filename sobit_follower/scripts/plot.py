@@ -68,8 +68,8 @@ ax.set_ylabel('y[m]')  # y軸ラベル
 ax.set_title('Tracking and Robot Trajectory') # グラフタイトル
 ax.set_aspect('equal', adjustable='box') # スケールを揃える
 ax.grid()            # 罫線
-ax.plot(target_y, target_x, color="blue", label="Person")
-ax.plot(robot_y, robot_x, color="green", label="Robot")
+ax.plot(target_y, target_x, color="deepskyblue", linestyle='-', linewidth=3, label="Person")
+ax.plot(robot_y, robot_x, color="coral", linestyle='--', linewidth=3, label="Robot")
 # obstacle
 r = patches.Rectangle( (2.1,1.4) , 1.2, 0.9, fill=True, fc="Black", linewidth=0)
 ax.add_patch(r)
@@ -135,7 +135,7 @@ print(f"\t\tRotational max        = {np.max(angular)}")
 print(f"\t\tRotational min        = {np.min(angular)}")
 
 fig = plt.figure(figsize = (10, 10))
-fig.suptitle('Smooth velocity')
+fig.suptitle('Velocity')
 ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_title("Translational")
 ax1.set_xlabel('t')
@@ -169,7 +169,7 @@ print(f"\t\tRotational max        = {np.max(angular)}")
 print(f"\t\tRotational min        = {np.min(angular)}")
 
 fig = plt.figure(figsize = (10, 10))
-fig.suptitle('Smooth velocity')
+fig.suptitle('tOdometry velocity')
 ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_title("Translational")
 ax1.set_xlabel('t')
