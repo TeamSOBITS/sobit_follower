@@ -169,7 +169,7 @@ print(f"\t\tRotational max        = {np.max(angular)}")
 print(f"\t\tRotational min        = {np.min(angular)}")
 
 fig = plt.figure(figsize = (10, 10))
-fig.suptitle('tOdometry velocity')
+fig.suptitle('Odometry velocity')
 ax1 = fig.add_subplot(2, 1, 1)
 ax1.set_title("Translational")
 ax1.set_xlabel('t')
