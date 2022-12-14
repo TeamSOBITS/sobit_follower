@@ -20,12 +20,14 @@ fig, ax = plt.subplots()
 # 軸目盛の設定と目盛り線の表示
 plt.rcParams['font.size'] = 20
 ax.set_xticks([0.0, 0.9, 2.1, 3.3, 4.2, 5.4, 7.05, 8.4, -1.0, 9.0])
-ax.set_yticks([0.0, 1.85, 1.15, 0, 0.0, 2.3])
+ax.set_yticks([0.0, 0.9, 1.85, 1.15, 1.4, 0.0, 2.3])
 xticklabels = ax.get_xticklabels()
 yticklabels = ax.get_yticklabels()
 # 各要素の設定をおこなうsetコマンド
 ax.set_xticklabels([0.0, 0.9, 2.1, 3.3, 4.2, 5.4, 7.05, 8.4, -1.0, 9.0],fontsize=20)
-ax.set_yticklabels([0.0, 1.85, 1.15, 0, 0.0, 2.3],fontsize=20)
+ax.set_yticklabels([0.0, 0.9, 1.85, 1.15, 1.4, 0.0, 2.3],fontsize=20)
+ax.set_xlim([-1.0, 9.0]) # x方向の描画範囲を指定
+ax.set_ylim([0, 2.3])    # y方向の描画範囲を指定
 
 # 軸ラベルの設定
 ax.set_xlabel("x[m]", size = 20)
@@ -61,6 +63,6 @@ c = patches.Circle( xy=(8.4,1.15), radius=0.1,fill=True, fc="Green")
 ax.add_patch(c)
 #ax.text(8.4,0.9, "B地点", size=30, horizontalalignment="center", verticalalignment="center", color="Black", fontfamily='TakaoGothic')
 ax.set_aspect('equal', adjustable='box') # スケールを揃える
-
+fig.tight_layout()  # レイアウトの設定
 # plt.legend()
 plt.show()
