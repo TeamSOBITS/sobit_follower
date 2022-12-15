@@ -198,7 +198,7 @@ options = parser.parse_args()
 # # plt.show()
 # plt.clf()
 
-fig = plt.figure(figsize = (20, 15))
+fig = plt.figure(figsize = (10, 7))
 ax1 = fig.add_subplot(2, 1, 1) 
 print("\tTracking and Robot Trajectory")
 usecols = ['field.x', 'field.y']
