@@ -33,28 +33,28 @@ rosbag_files=(
     # "tsuru_1_2022-10-18-20-13-46"
     # "tsuru_2_2022-10-18-20-15-04" \
     # "tsuru_3_2022-10-18-20-16-31"
-
-    "ikeda_1_2022-10-18-19-16-04" \
-    "tsuru_1_2022-10-18-20-13-46"
+    "kani_1_2022-10-18-20-01-34"
+#     "ikeda_1_2022-10-18-19-16-04" \
+#     "tsuru_1_2022-10-18-20-13-46"
 )
 
 for ((i = 0; i < ${#rosbag_files[@]}; i++)) {
     cd ~/catkin_ws/src
     echo "${rosbag_files[i]}"
-    rostopic echo -b ${rosbag_files[i]}.bag -p /sobit_follower/following_position/pose/position > following_position_${rosbag_files[i]}.csv
-    rostopic echo -b ${rosbag_files[i]}.bag -p /sobit_follower/target_postion_odom/point > target_postion_odom_${rosbag_files[i]}.csv
-    rostopic echo -b ${rosbag_files[i]}.bag -p /odom/pose/pose/position > odom_${rosbag_files[i]}.csv
-    rostopic echo -b ${rosbag_files[i]}.bag -p /sobit_follower/velocity_smoother/raw_cmd_vel > raw_cmd_vel_${rosbag_files[i]}.csv
-    rostopic echo -b ${rosbag_files[i]}.bag -p /cmd_vel_mux/input/teleop  > smooth_cmd_vel_${rosbag_files[i]}.csv
-    rostopic echo -b ${rosbag_files[i]}.bag -p /odom/twist/twist> odom_velocity_${rosbag_files[i]}.csv
+    # rostopic echo -b ${rosbag_files[i]}.bag -p /sobit_follower/following_position/pose/position > following_position_${rosbag_files[i]}.csv
+    # rostopic echo -b ${rosbag_files[i]}.bag -p /sobit_follower/target_postion_odom/point > target_postion_odom_${rosbag_files[i]}.csv
+    # rostopic echo -b ${rosbag_files[i]}.bag -p /odom/pose/pose/position > odom_${rosbag_files[i]}.csv
+    # rostopic echo -b ${rosbag_files[i]}.bag -p /sobit_follower/velocity_smoother/raw_cmd_vel > raw_cmd_vel_${rosbag_files[i]}.csv
+    # rostopic echo -b ${rosbag_files[i]}.bag -p /cmd_vel_mux/input/teleop  > smooth_cmd_vel_${rosbag_files[i]}.csv
+    # rostopic echo -b ${rosbag_files[i]}.bag -p /odom/twist/twist> odom_velocity_${rosbag_files[i]}.csv
     path="sobit_follower/sobit_follower/experimental_data/${rosbag_files[i]}"
-    mkdir $path
-    mv following_position_${rosbag_files[i]}.csv $path
-    mv target_postion_odom_${rosbag_files[i]}.csv $path
-    mv odom_${rosbag_files[i]}.csv $path
-    mv raw_cmd_vel_${rosbag_files[i]}.csv $path
-    mv smooth_cmd_vel_${rosbag_files[i]}.csv $path
-    mv odom_velocity_${rosbag_files[i]}.csv $path
+    # mkdir $path
+    # mv following_position_${rosbag_files[i]}.csv $path
+    # mv target_postion_odom_${rosbag_files[i]}.csv $path
+    # mv odom_${rosbag_files[i]}.csv $path
+    # mv raw_cmd_vel_${rosbag_files[i]}.csv $path
+    # mv smooth_cmd_vel_${rosbag_files[i]}.csv $path
+    # mv odom_velocity_${rosbag_files[i]}.csv $path
 
     # echo "$path"
     python3 sobit_follower/sobit_follower/scripts/plot.py \

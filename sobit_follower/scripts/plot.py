@@ -212,7 +212,7 @@ yticklabels = ax.get_yticklabels()
 # 各要素の設定をおこなうsetコマンド
 ax.set_xticklabels([0.0, 0.9, 2.1, 3.3, 4.2, 5.4, 7.05, 8.4, -1.0, 9.0],fontsize=20)
 ax.set_yticklabels([0.0, 0.9, 1.85, 1.15, 1.4, 0.0, 2.3],fontsize=20)
-# plt.savefig( options.save_plot_path + "_tracking_and_robot.png" ) # 画像の保存
+plt.savefig( options.save_plot_path + "_tracking_and_robot.png" ) # 画像の保存
 # plt.show()
 plt.clf()
 
