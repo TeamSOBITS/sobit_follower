@@ -217,79 +217,79 @@ plt.savefig( options.save_plot_path + "_tracking_and_robot.png" ) # 画像の保
 plt.clf()
 
 # smooth velocity
-# print("\tSmooth velocity")
-# usecols = [ '%time', 'field.linear.x', 'field.angular.z']
-# smooth_velocity = pd.read_csv( options.smooth_cmd_vel_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
-# time = smooth_velocity['%time'].values
-# time = time * (10 ** -9)
-# time = time - base_time
-# linear = smooth_velocity['field.linear.x'].values
-# angular = smooth_velocity['field.angular.z'].values
-# print(f"\t\tTranslational average = {np.mean(linear[linear > 0.0])}")
-# print(f"\t\tTranslational max     = {np.max(linear[linear > 0.0])}")
-# print(f"\t\tTranslational min     = {np.min(linear[linear > 0.0])}")
-# print(f"\t\tRotational average    = {np.mean(angular)}")
-# print(f"\t\tRotational max        = {np.max(angular)}")
-# print(f"\t\tRotational min        = {np.min(angular)}")
+print("\tSmooth velocity")
+usecols = [ '%time', 'field.linear.x', 'field.angular.z']
+smooth_velocity = pd.read_csv( options.smooth_cmd_vel_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
+time = smooth_velocity['%time'].values
+time = time * (10 ** -9)
+time = time - base_time
+linear = smooth_velocity['field.linear.x'].values
+angular = smooth_velocity['field.angular.z'].values
+print(f"\t\tTranslational average = {np.mean(linear[linear > 0.0])}")
+print(f"\t\tTranslational max     = {np.max(linear[linear > 0.0])}")
+print(f"\t\tTranslational min     = {np.min(linear[linear > 0.0])}")
+print(f"\t\tRotational average    = {np.mean(angular)}")
+print(f"\t\tRotational max        = {np.max(angular)}")
+print(f"\t\tRotational min        = {np.min(angular)}")
 
-# fig = plt.figure(figsize = (20, 20))
-# fig.suptitle('Smooth velocity')
-# ax1 = fig.add_subplot(2, 1, 1)
-# ax1.set_title("Translational")
-# ax1.set_xlabel('t[sec]')
-# ax1.set_ylabel('m/s')
-# ax1.plot(time, linear, color="blue", label="Translational")
+fig = plt.figure(figsize = (20, 20))
+fig.suptitle('Smooth velocity')
+ax1 = fig.add_subplot(2, 1, 1)
+ax1.set_title("Translational")
+ax1.set_xlabel('t[sec]')
+ax1.set_ylabel('m/s')
+ax1.plot(time, linear, color="blue", label="Translational")
 
-# # ax1.set_aspect('equal', adjustable='box')
-# ax1.grid()
-# ax2 = fig.add_subplot(2, 1, 2)
-# ax2.set_title("Rotational")
-# ax2.set_xlabel('t[sec]')
-# ax2.set_ylabel('rad/s')
-# ax2.plot(time, angular, color="green", label='Rotational')
-# # ax2.set_aspect('equal', adjustable='box')
-# ax2.grid()
-# plt.savefig( options.save_plot_path + "_smooth_velocity.png" ) # 画像の保存
-# # plt.show()
-# plt.clf()
+# ax1.set_aspect('equal', adjustable='box')
+ax1.grid()
+ax2 = fig.add_subplot(2, 1, 2)
+ax2.set_title("Rotational")
+ax2.set_xlabel('t[sec]')
+ax2.set_ylabel('rad/s')
+ax2.plot(time, angular, color="green", label='Rotational')
+# ax2.set_aspect('equal', adjustable='box')
+ax2.grid()
+plt.savefig( options.save_plot_path + "_smooth_velocity.png" ) # 画像の保存
+# plt.show()
+plt.clf()
 
 
 
-# # velocity
-# print("\tVelocity")
-# velocity = pd.read_csv( options.raw_cmd_vel_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
-# time = velocity['%time'].values
-# time = time * (10 ** -9)
-# time = time - base_time
-# linear = velocity['field.linear.x'].values
-# angular = velocity['field.angular.z'].values
-# print(f"\t\tTranslational average = {np.mean(linear[linear > 0.0])}")
-# print(f"\t\tTranslational max     = {np.max(linear[linear > 0.0])}")
-# print(f"\t\tTranslational min     = {np.min(linear[linear > 0.0])}")
-# print(f"\t\tRotational average    = {np.mean(angular)}")
-# print(f"\t\tRotational max        = {np.max(angular)}")
-# print(f"\t\tRotational min        = {np.min(angular)}")
+# velocity
+print("\tVelocity")
+velocity = pd.read_csv( options.raw_cmd_vel_csv_path, encoding='shift-jis', usecols=usecols, dtype={ '%time':float, 'field.linear.x':float, 'field.angular.z':float } )
+time = velocity['%time'].values
+time = time * (10 ** -9)
+time = time - base_time
+linear = velocity['field.linear.x'].values
+angular = velocity['field.angular.z'].values
+print(f"\t\tTranslational average = {np.mean(linear[linear > 0.0])}")
+print(f"\t\tTranslational max     = {np.max(linear[linear > 0.0])}")
+print(f"\t\tTranslational min     = {np.min(linear[linear > 0.0])}")
+print(f"\t\tRotational average    = {np.mean(angular)}")
+print(f"\t\tRotational max        = {np.max(angular)}")
+print(f"\t\tRotational min        = {np.min(angular)}")
 
-# fig = plt.figure(figsize = (20, 20))
-# fig.suptitle('Velocity')
-# ax1 = fig.add_subplot(2, 1, 1)
-# ax1.set_title("Translational")
-# ax1.set_xlabel('t[sec]')
-# ax1.set_ylabel('m/s')
-# ax1.plot(time, linear, color="blue", label="Translational")
+fig = plt.figure(figsize = (20, 20))
+fig.suptitle('Velocity')
+ax1 = fig.add_subplot(2, 1, 1)
+ax1.set_title("Translational")
+ax1.set_xlabel('t[sec]')
+ax1.set_ylabel('m/s')
+ax1.plot(time, linear, color="blue", label="Translational")
 
-# # ax1.set_aspect('equal', adjustable='box')
-# ax1.grid()
-# ax2 = fig.add_subplot(2, 1, 2)
-# ax2.set_title("Rotational")
-# ax2.set_xlabel('t[sec]')
-# ax2.set_ylabel('rad/s')
-# ax2.plot(time, angular, color="green", label='Rotational')
-# # ax2.set_aspect('equal', adjustable='box')
-# ax2.grid()
-# plt.savefig( options.save_plot_path + "_velocity.png" ) # 画像の保存
-# # plt.show()
-# plt.clf()
+# ax1.set_aspect('equal', adjustable='box')
+ax1.grid()
+ax2 = fig.add_subplot(2, 1, 2)
+ax2.set_title("Rotational")
+ax2.set_xlabel('t[sec]')
+ax2.set_ylabel('rad/s')
+ax2.plot(time, angular, color="green", label='Rotational')
+# ax2.set_aspect('equal', adjustable='box')
+ax2.grid()
+plt.savefig( options.save_plot_path + "_velocity.png" ) # 画像の保存
+# plt.show()
+plt.clf()
 
 
 # fig = plt.figure(figsize = (20, 20))
