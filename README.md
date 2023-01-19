@@ -58,6 +58,7 @@ $ catkin_make
 ### [follower_me.launch](sobit_follower/launch/follower_me.launch)
 - Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
 - path：`sobit_follower/launch/follower_me.launch`
+- 詳細は[こちら](sobit_follower)
 ```python
 $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # 引数

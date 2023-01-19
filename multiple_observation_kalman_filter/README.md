@@ -5,6 +5,7 @@
 - Multiple Sensor Person Trackingで使用
 - [multiple_observation_kalman_filter.cpp](multiple_observation_kalman_filter/src/multiple_observation_kalman_filter.cpp)
 - [multiple_observation_kalman_filter.hpp](multiple_observation_kalman_filter/src/multiple_observation_kalman_filter.cpp)
+- カルマンフィルタについては[kalman_filter_tutorial](https://github.com/TeamSOBITS/kalman_filter_tutorial)を参照
 
 ## Functions
 ### init
