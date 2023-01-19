@@ -1,5 +1,6 @@
 #include <person_following_control/pid_controller.hpp>
 
+// PID制御による方向転換
 namespace person_following_control {
 
     PIDController::PIDController ( ) {

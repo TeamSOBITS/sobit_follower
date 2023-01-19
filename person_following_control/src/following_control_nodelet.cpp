@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 
+// 仮想ばねモデルを用いた追従制御とDynamic Window Approachによる障害物回避を組み込んだ走行制御
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 

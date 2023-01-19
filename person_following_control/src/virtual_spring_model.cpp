@@ -1,5 +1,6 @@
 #include <person_following_control/virtual_spring_model.hpp>
 
+// 仮想ばねモデルを用いた追従制御
 using namespace person_following_control;
 
 void VirtualSpringModel::displayVirtualSpringPathMarker ( float vel, float ang_vel ) {

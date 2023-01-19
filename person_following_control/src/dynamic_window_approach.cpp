@@ -1,5 +1,6 @@
 #include <person_following_control/dynamic_window_approach.hpp>
 
+// Dynamic Window Approachによる障害物回避
 using namespace person_following_control;
 
 void DynamicWindowApproach::displayOptimalPathMarker ( const EvaluatedPath& optimal_path ) {

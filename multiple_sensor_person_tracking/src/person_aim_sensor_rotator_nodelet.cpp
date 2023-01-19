@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 
+// パンチルト回転機構上のRGB-Dセンサの制御
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 

@@ -1,3 +1,4 @@
+// 2D-LiDARセンサとパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
 #include <ros/ros.h>
 
 #include <nodelet/nodelet.h>
