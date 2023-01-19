@@ -73,32 +73,40 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 - [tracker.launch.xml](sobit_follower/launch/include/tracker.launch.xml)
     - 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
     - path：`sobit_follower/launch/include/tracker.launch.xml`
+    - 詳細は[こちら](sobit_follower#trackerlaunchxml)
 - [ssd_pose_ros.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.xml)
     - RGB画像ベースの人物検出器
     - path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
+    - 詳細は[こちら](sobit_follower#ssd_pose_roslaunchxml)
 - [dr_spaam_ros.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
     - 2D LiDARベースの人物検出器
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
+    - 詳細は[こちら](sobit_follower#dr_spaam_roslaunchxml)
 - [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
     - 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
     - path：`sobit_follower/launch/include/person_following_control.launch.xml`
+    - 詳細は[こちら](sobit_follower#person_following_controllaunchxml)
 
 #### Parameter file
 - [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
     - 人物追跡に関するパラメータ
     - path：`sobit_follower/param/tracker_param.launch.xml`
+    - パラメータの詳細は[こちら](sobit_follower#parametersperson_tracker)
 - [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
     - RGB画像ベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/ssd_param.launch.xml`
+    - パラメータの詳細は[こちら](sobit_follower#parameters)
 - [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
     - 2D LiDARベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/dr_spaam_param.launch.xml`
+    - パラメータの詳細は[こちら](sobit_follower#parameters-1)
 - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
     - RGB-Dセンサのパンチルト回転制御に関するパラメータ
     - path：`sobit_follower/param/sensor_rotator_param.launch.xml`
 - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
     - 走行制御に関するパラメータ
     - path：`sobit_follower/param/following_control_param.launch.xml`
+    - パラメータの詳細は[こちら](sobit_follower##parameterfollowing-control)
 - [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
     - 速度平滑化に関するパラメータ
     - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
