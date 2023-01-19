@@ -1,5 +1,6 @@
 # SOBIT Follower (version 5.0)
 - 複数のセンサを用いたロボットの人追従走行システム
+- [要旨](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf)
 
 ## Setup
 ```python
@@ -47,6 +48,10 @@ $ catkin_make
 - ユーザはこのパッケージのLaunchを起動することで人追従走行を動作させることが可能
 - 実験用のrosbag取得や取得したデータのplotも可能なシェルスクリプトも完備
 - 詳細は[こちら](sobit_follower)
+
+<div align="center">
+    <img src="sobit_follower/doc/img/system_overview.png" width="800">
+</div>
 
 ## How to Use
 ### [follower_me.launch](sobit_follower/launch/follower_me.launch)
