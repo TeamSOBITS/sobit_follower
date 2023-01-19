@@ -1,5 +1,5 @@
 # SOBIT Follower (version 5.0)
-- 複数のセンサを用いたロボットの人追従走行システム
+- 複数のセンサを用いたロボットの人追従走行システム(SOBIT EDUのみ使用可能)
 - [要旨](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf)
 
 <div align="center">
