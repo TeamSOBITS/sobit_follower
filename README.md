@@ -83,7 +83,7 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
     - 詳細は[こちら](sobit_follower#dr_spaam_roslaunchxml)
 - [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
-    - 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
+    - 仮想ばねモデルを用いた追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
     - path：`sobit_follower/launch/include/person_following_control.launch.xml`
     - 詳細は[こちら](sobit_follower#person_following_controllaunchxml)
 
