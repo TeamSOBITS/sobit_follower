@@ -4,12 +4,12 @@
 - 実験用のrosbag取得や取得したデータのplotも可能なシェルスクリプトも完備
 
 <div align="center">
-    <img src="sobit_follower/doc/img/system_overview.jpg" width="800">
-    <img src="sobit_follower/doc/img/move_control.jpg" width="1080">
+    <img src="doc/img/system_overview.jpg" width="800">
+    <img src="doc/img/move_control.jpg" width="1080">
 </div>
 
 # How to Use
-## [follower_me.launch](sobit_follower/launch/follower_me.launch)
+## [follower_me.launch](launch/follower_me.launch)
 - Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
 - path：`sobit_follower/launch/follower_me.launch`
 ```python
@@ -23,7 +23,7 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 ※SOBIT EDU，RGB-Dセンサ，2D LiDARの起動をすること
 
 # Configuration
-### [tracker.launch.xml](sobit_follower/launch/include/tracker.launch.xml)
+### [tracker.launch.xml](launch/include/tracker.launch.xml)
 - 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
 - path：`sobit_follower/launch/include/tracker.launch.xml`
 
@@ -77,14 +77,14 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 |/smoothing_gain|double|平滑化ゲイン|
 
 #### Parameter file
-- [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
+- [tracker_param.yaml](param/tracker_param.yaml)
     - 人物追跡に関するパラメータ
     - path：`sobit_follower/param/tracker_param.launch.xml`
-- [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
+- [sensor_rotator_param.yaml](param/sensor_rotator_param.yaml)
     - RGB-Dセンサのパンチルト回転制御に関するパラメータ
     - path：`sobit_follower/param/sensor_rotator_param.launch.xml`
 
-### [ssd_pose_ros.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.xml)
+### [ssd_pose_ros.launch.xml](launch/include/ssd_pose_ros.launch.xml)
 - RGB画像ベースの人物検出器
 - path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
 
@@ -128,11 +128,11 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 |/use_tf|bool|tfによる座標登録するか|
 
 #### Parameter file
-- [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
+- [ssd_param.yaml](param/ssd_param.yaml)
     - RGB画像ベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/ssd_param.launch.xml`
 
-### [dr_spaam_ros.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
+### [dr_spaam_ros.launch.xml](launch/include/dr_spaam_ros.launch.xml)
 - 2D LiDARベースの人物検出器
 - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
 
@@ -163,11 +163,11 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 |/panoramic_scan|bool|スキャンが360度をカバーするか|
 
 #### Parameter file
-- [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
+- [dr_spaam_param.yaml](param/dr_spaam_param.yaml)
     - 2D LiDARベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/dr_spaam_param.launch.xml`
 
-### [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
+### [person_following_control.launch.xml](launch/include/person_following_control.launch.xml)
 - 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
 - path：`sobit_follower/launch/include/person_following_control.launch.xml`
 
@@ -266,9 +266,9 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * an
 |/max_pid_angular_deg|double|最大回転速度|
 
 #### Parameter file
-- [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
+- [following_control_param.yaml](param/following_control_param.yaml)
     - 走行制御に関するパラメータ
     - path：`sobit_follower/param/following_control_param.launch.xml`
-- [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
+- [velocity_smoother_param.yaml](param/velocity_smoother_param.yaml)
     - 速度平滑化に関するパラメータ
     - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
