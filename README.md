@@ -64,10 +64,10 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 - [tracker.launch.xml](sobit_follower/launch/include/tracker.launch.xml)
     - 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
     - path：`sobit_follower/launch/include/tracker.launch.xml`
-- [ssd_pose_ros.launch.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.launch.xml)
+- [ssd_pose_ros.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.xml)
     - RGB画像ベースの人物検出器
     - path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
-- [dr_spaam_ros.launch.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.launch.xml)
+- [dr_spaam_ros.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
     - 2D LiDARベースの人物検出器
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
 - [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
