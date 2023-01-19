@@ -3,7 +3,8 @@
 - [要旨](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf)
 
 <div align="center">
-    <img src="sobit_follower/doc/img/system_overview.png" width="800">
+    <img src="sobit_follower/doc/img/system_overview.jpg" width="800">
+    <img src="sobit_follower/doc/img/move_control.jpg" width="1080">
 </div>
 
 ## Setup
@@ -80,7 +81,6 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 - [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
     - 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
     - path：`sobit_follower/launch/include/person_following_control.launch.xml`
-
 
 #### Parameter file
 - [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
