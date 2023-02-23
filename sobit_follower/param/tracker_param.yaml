@@ -10,8 +10,8 @@ body_tracking_range : 0.35
 target_cloud_radius : 0.4
 outlier_radius : 0.1
 outlier_min_pts : 2
-leaf_size : 0.1
-target_change_tolerance : 1.0
+leaf_size : 0.14
+target_change_tolerance : 2.0
 # display_marker : true
 
 # Kalman Filter

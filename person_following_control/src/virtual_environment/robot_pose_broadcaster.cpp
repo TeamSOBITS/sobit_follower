@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "robot_pose_broadcaster_node");
 
 	ros::NodeHandle nh;
-    ros::Subscriber sub_robot_pose = nh.subscribe( "/cmd_vel_mux/input/teleop", 10, &callbackTwist );
+    ros::Subscriber sub_robot_pose = nh.subscribe( "/mobile_base/commands/velocity", 10, &callbackTwist );
     ros::Publisher pub_odom = nh.advertise< nav_msgs::Odometry >( "/odom", 1 );
     ros::Publisher pub_vel = nh.advertise< geometry_msgs::Twist >( "/mobile_base/commands/velocity", 1 );
     ros::Publisher pub_marker = nh.advertise< visualization_msgs::Marker >( "robot_trajectory", 1 );

@@ -8,7 +8,7 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
-#include <sobit_edu_library/sobit_edu_controller.hpp>
+#include <sobit_pro_library/sobit_pro_joint_controller.h>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -18,7 +18,7 @@
 #include <multiple_sensor_person_tracking/SensorRotatorParameterConfig.h>
 #include <multiple_sensor_person_tracking/FollowingPosition.h>
 
-typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::FollowingPosition, nav_msgs::Odometry> MySyncPolicy;
+//typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::FollowingPosition, nav_msgs::Odometry> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     class PersonAimSensorRotator : public nodelet::Nodelet {
@@ -36,7 +36,7 @@ namespace multiple_sensor_person_tracking {
 			dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>::CallbackType f_;
 
-			std::unique_ptr<sobit_edu::SobitEduController> sobit_edu_ctr_;
+			std::unique_ptr<sobit_pro::SobitProJointController> sobit_pro_ctr_;
 
 			geometry_msgs::PointPtr tracking_position_;
 			double pre_tilt_;
@@ -116,7 +116,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 
 	NODELET_INFO("\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
 
-	if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, false );
+	if ( use_rotate_ ) sobit_pro_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, false );
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;
@@ -128,7 +128,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
 	pub_marker_ = nh_.advertise< visualization_msgs::Marker >( "rotator_marker", 1 );
 
-	sobit_edu_ctr_.reset( new sobit_edu::SobitEduController );
+	sobit_pro_ctr_.reset( new sobit_pro::SobitProJointController );
 	tracking_position_.reset( new geometry_msgs::Point );
 
     server_ = new dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>(pnh_);
@@ -145,8 +145,8 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
 
 	if ( !use_rotate_ ) return;
-	sobit_edu_ctr_->moveToPose( "initial_pose" );
-	sobit_edu_ctr_->moveHeadPanTilt ( 0.0, 0.2, 0.3, false );
+	sobit_pro_ctr_->moveToPose( "initial_pose" );
+	sobit_pro_ctr_->moveHeadPanTilt ( 0.0, 0.0, 0.3, false );
 }
 
 PLUGINLIB_EXPORT_CLASS(multiple_sensor_person_tracking::PersonAimSensorRotator, nodelet::Nodelet);

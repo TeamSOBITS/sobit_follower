@@ -20,12 +20,12 @@
         <param name="display_optimal_path"  value="$(arg display_marker)" />
         <param name="display_all_path"      value="$(arg display_marker)" />
         <remap if="$(arg use_smoother)"         from="cmd_vel" to="/$(arg group_name)/velocity_smoother/raw_cmd_vel"/>
-        <remap unless="$(arg use_smoother)"     from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+        <remap unless="$(arg use_smoother)"     from="cmd_vel" to="/mobile_base/commands/velocity"/>
     </node>
 
     <node if="$(arg use_smoother)" pkg="nodelet" type="nodelet" name="velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet $(arg manager_name)">
         <rosparam file="$(find sobit_follower)/param/velocity_smoother_param.yaml" command="load"/>
-        <remap from="/$(arg group_name)/velocity_smoother/smooth_cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+        <remap from="/$(arg group_name)/velocity_smoother/smooth_cmd_vel" to="/mobile_base/commands/velocity"/>
 
         <!-- Robot velocity feedbacks; use the default base configuration -->
         <remap from="/$(arg group_name)/velocity_smoother/odometry" to="/odom"/>

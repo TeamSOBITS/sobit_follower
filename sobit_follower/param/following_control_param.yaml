@@ -18,10 +18,10 @@ radius_robot                : 0.3       # L [m]
 display_vsm_target          : false
 
 # Dynamic Window Approach :Velocity Limit
-min_linear : 0.10
-max_linear : 0.80
-min_angular_deg : -150.0
-max_angular_deg : 150.0
+min_linear : 0.05
+max_linear : 0.20
+min_angular_deg : -15.0
+max_angular_deg : 15.0
 # Dynamic Window Approach : Step Value
 predict_step : 10
 sampling_time : 0.08     # Predicted time[s] = predict_step[step] * sampling_time[s]
@@ -43,7 +43,7 @@ obstacle_cost_radius : 0.4
 # display_all_path : true
 
 # PID Controller
-p_gain : 1.2
-i_gain : 0.6
+p_gain : 0.6
+i_gain : 0.4
 d_gain : 0.0
-max_pid_angular_deg : 70.0
+max_pid_angular_deg : 20.0
