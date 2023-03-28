@@ -6,7 +6,7 @@ echo -e "\e[34m\n Install ros-${ROS_DISTRO}-pointcloud-to-laserscan \e[m"
 sudo apt install ros-${ROS_DISTRO}-pointcloud-to-laserscan -y
 
 echo -e "\e[34m\n Git Clone 2d_lidar_person_detection \e[m"
-git clone -b hotfix/np_int64 https://github.com/TeamSOBITS/2d_lidar_person_detection.git
+git clone https://github.com/TeamSOBITS/2d_lidar_person_detection.git
 
 cd ~/catkin_ws/src/
 
