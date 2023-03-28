@@ -1,7 +1,0 @@
-weight_file: "/home/sobits/catkin_ws/src/2D_lidar_person_detection/self_supervised_person_detection/ckpt_jrdb_pl_dr_spaam_phce_mixup_e20.pth"
-detector_model: "DR-SPAAM"  # DROW3 or DR-SPAAM
-# weight_file: "/home/jia/ckpts/ckpt_jrdb_ann_dr_spaam_e20.pth"
-# detector_model: "DR-SPAAM"  # DROW3 or DR-SPAAM
-conf_thresh: 0.90
-stride: 1  # use this to skip laser points
-panoramic_scan: False  # Set to true if the scan covers 360 degree
