@@ -8,6 +8,7 @@
 </div>
 
 ## Setup
+- 以下を行ってください
 ```python
 $ cd ~/catkin_ws/src/
 $ git clone https://github.com/TeamSOBITS/sobit_follower
@@ -16,6 +17,8 @@ $ bash install.sh
 $ cd ~/catkin_ws
 $ catkin_make
 ```
+- 次に、共有新サーバーの、Competitions/RoboCup/RCJP2023/COMMON/lerning_data/2d_lidar_person_detection内にあるweight_fileをコピーする
+- catkin_ws/src/sobit_follower/dr_spaam_ros/の中にペーストする（※学習データなので、git cloneなどではなく、コピー&ペーストで良い）
 
 ## Package Configuration
 ### 01. 2D Lidar Person Detection
