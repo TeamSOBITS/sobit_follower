@@ -9,6 +9,7 @@
 
 ## Setup
 - 以下を行ってください
+```
 ※sobit_eduでfollow_meをする場合
 ```python
 $ cd ~/catkin_ws/src/
