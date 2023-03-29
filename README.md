@@ -9,7 +9,7 @@
 
 ## Setup
 - 以下を行ってください
-- ```python
+```python
 ```
 ※sobit_eduでfollow_meをする場合
 ```python
