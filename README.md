@@ -20,7 +20,7 @@ $ catkin_make
 - 次に、weght_fileを入れる
     1. 共有新サーバーの、Competitions/RoboCup/RCJP2023/COMMON/lerning_data/2d_lidar_person_detection内にあるweight_fileをコピーする
     2. catkin_ws/src/sobit_follower/dr_spaam_ros/の中にペーストする
-        -（※学習データなので、git cloneなどではなく、コピー&ペーストで良い）
+    （※学習データなので、git cloneなどではなく、コピー&ペーストで良い）
 
 ## Package Configuration
 ### 01. 2D Lidar Person Detection
