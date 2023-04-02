@@ -17,7 +17,7 @@ echo -e "\e[34m\n Git Clone sobit_common\e[m"
 git clone https://github.com/TeamSOBITS/sobit_common.git
 
 echo -e "\e[34m\n Git Clone SOBIT EDU \e[m"
-git clone https://github.com/TeamSOBITS/sobit_edu.git
+git clone https://github.com/TeamSOBITS/sobit_pro.git
 
 echo -e "\e[34m\n Git Clone scan2d_handler \e[m"
 git clone https://github.com/TeamSOBITS/scan2d_handler.git
