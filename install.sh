@@ -16,7 +16,7 @@ git clone https://github.com/TeamSOBITS/ssd_nodelet.git
 echo -e "\e[34m\n Git Clone sobit_common\e[m"
 git clone https://github.com/TeamSOBITS/sobit_common.git
 
-echo -e "\e[34m\n Git Clone SOBIT EDU \e[m"
+echo -e "\e[34m\n Git Clone SOBIT PRO \e[m"
 git clone https://github.com/TeamSOBITS/sobit_pro.git
 
 echo -e "\e[34m\n Git Clone scan2d_handler \e[m"
