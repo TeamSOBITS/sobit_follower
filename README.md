@@ -22,7 +22,7 @@ $ catkin_make
 ※sobit_proでfollow_meをする場合（sobit_pro用のbranchを指定する）
 ```python
 $ cd ~/catkin_ws/src/
-$ git clone -b sobit_pro/develop https://github.com/TeamSOBITS/sobit_follower
+$ git clone -b noetic-devel_pro https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
 $ bash install.sh
 $ cd ~/catkin_ws
