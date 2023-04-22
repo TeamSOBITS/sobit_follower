@@ -146,7 +146,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
 	if ( !use_rotate_ ) return;
 	sobit_pro_ctr_->moveToPose( "initial_pose" );
-	sobit_pro_ctr_->moveHeadPanTilt ( 0.0, 0.0, 0.3, false );
+	sobit_pro_ctr_->moveHeadPanTilt ( 0.0, 0.0, 0.0, false );
 }
 
 PLUGINLIB_EXPORT_CLASS(multiple_sensor_person_tracking::PersonAimSensorRotator, nodelet::Nodelet);

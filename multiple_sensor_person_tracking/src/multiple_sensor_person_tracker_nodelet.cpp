@@ -313,9 +313,15 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::PersonTracker::tran
     }
     return pt_transformed;
 }
-
+bool start = true;
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
+    // if (start) {
+    //     NODELET_ERROR("Result :          NO_EXISTS (START)" );
+    //     sleep(3);
+    //     start = false;
+    //     return;
+    // }
     // variable initialization
     std::string target_frame = target_frame_;
     sensor_msgs::PointCloud2 cloud_scan_msg;
@@ -367,11 +373,24 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
             attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
             attention_leg_time_ = ros::Time::now().toSec();
         } else attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ : leg_poses.size()-1;
-        following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
-        following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
-        following_position_->pose.position.x = 0.0;
-        following_position_->pose.position.y = 0.0;
-        following_position_->status = Status::NO_EXISTS;
+        if (start) {
+            NODELET_ERROR("Result :          NO_EXISTS (START1)" );
+            following_position_->rotation_position.x = 0.0;
+            following_position_->rotation_position.y = 0.0;
+            following_position_->pose.position.x = 0.0;
+            following_position_->pose.position.y = 0.0;
+            following_position_->status = Status::NO_EXISTS;
+            sleep(3);
+            start = true;
+            // return;
+        }
+        else {
+            following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
+            following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
+            following_position_->pose.position.x = 0.0;
+            following_position_->pose.position.y = 0.0;
+            following_position_->status = Status::NO_EXISTS;
+        }
         pub_following_position_.publish( following_position_ );
         NODELET_ERROR("Result :          NO_EXISTS (SSD) attention_leg_idx = %d",attention_leg_idx_ );
         return;
@@ -397,10 +416,23 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
 
     // Tracking by Kalman Filter
     if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
-        kf_->init( body_observed_value );
-        estimated_value[0] = body_observed_value[0];
-        estimated_value[1] = body_observed_value[1];
-        exists_target_ = true;
+        if (start) {
+            NODELET_ERROR("Result :          NO_EXISTS (START)" );
+            following_position_->rotation_position.x = 0.5;
+            following_position_->rotation_position.y = 0.0;
+            following_position_->pose.position.x = 0.0;
+            following_position_->pose.position.y = 0.0;
+            following_position_->status = Status::NO_EXISTS;
+            sleep(3);
+            start = false;
+            // return;
+        }
+        else {
+            kf_->init( body_observed_value );
+            estimated_value[0] = body_observed_value[0];
+            estimated_value[1] = body_observed_value[1];
+            exists_target_ = true;
+        }
     } else if ( !exists_target_ && result != EXISTS_LEG_AND_BODY ) {
         NODELET_ERROR("Result :          NO_EXISTS" );
         exists_target_ = false;
