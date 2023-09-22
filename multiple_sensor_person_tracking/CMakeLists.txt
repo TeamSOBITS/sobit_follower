@@ -66,6 +66,11 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME} src/multiple_sensor_person_tracker_nodelet.cpp
-                            src/person_aim_sensor_rotator_nodelet.cpp)
+                            src/multiple_sensor_person_tracker_nodelet2.cpp
+                            src/multiple_sensor_person_tracker_nodelet_no_exits_search.cpp
+                            src/multiple_sensor_person_tracker_nodelet_stop_state.cpp
+                            src/multiple_sensor_person_tracker_nodelet_id_prediction.cpp
+                            src/person_aim_sensor_rotator_nodelet.cpp
+                            src/person_aim_sensor_rotator_nodelet_pro.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 #add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -1,0 +1,14 @@
+<launch>
+    <arg name="manager_name"                default="nodelet_manager" />
+    <arg name="manager_threads"             default="4" />
+    <arg name="pub_target_img"               default="true"/>
+    <!-- person_id_follow -->
+    <group ns = "person_id_follow_nodelet">
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+            <param name="num_worker_threads" value="$(arg manager_threads)" />
+        </node>
+        <node pkg="nodelet" type="nodelet" name="person_id_nodelet" args="load person_id_follow_nodelet/CCFPersonId $(arg manager_name)" >
+            <rosparam file="$(find person_id_follow_nodelet)/param/person_id.yaml" command="load" />
+        </node>  
+    </group>     
+</launch>

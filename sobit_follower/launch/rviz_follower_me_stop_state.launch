@@ -1,6 +1,6 @@
 <launch>
     <arg name="rviz"                    default="true"/>
-    <arg name="display_marker"                    default="true"/>
+    <arg name="display_marker"          default="true"/>
     <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
     <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
 
@@ -8,7 +8,7 @@
     <arg name="use_rotate"              default="true"/>
 
     <arg name="manager_name"            default="sobit_follower_nodelet_manager" />
-    <arg name="manager_threads"         default="8" />
+    <arg name="manager_threads"         default="4" />
 
     <arg name="following_method"        default="0" />
     <!--
@@ -19,31 +19,33 @@
     -->
     <arg name="use_smoother"       default="true" />
 
-    <arg name="speech_mode"        default="false" />
+    <arg name="speech_mode"        default="true" />
 
     <include file="$(find sobit_follower)\launch\include\dr_spaam_ros.launch.xml"/>
     <include file="$(find sobit_follower)\launch\include\ssd_pose_ros.launch.xml"/>
+    <!-- person_id_nodelet -->
+    <include file="$(find sobit_follower)\launch\include\person_id.launch.xml"/>
 
     <!-- 呼び止めるプログラム -->
     <group if="$(arg speech_mode)">
         <!-- text_to_speech -->
-        <include file="$(find text_to_speech)\launch\english.launch"/>
+        <include file="$(find text_to_speech)\launch\japanese.launch"/>
         <!-- speech_node -->
         <!-- no_exists -->
-        <node pkg="sobit_follower" type="speech_no_exists.py" name="speech1" output="screen">
-        </node>
+        <!-- <node pkg="sobit_follower" type="speech_no_exists.py" name="speech1" output="screen"> -->
+        <!-- </node> -->
         <!-- reid_state -->
-        <!-- <node pkg="sobit_follower" type="speech_reid_state.py" name="speech2" output="screen">
-        </node> -->
+        <node pkg="sobit_follower" type="speech_reid_state.py" name="speech2" output="screen">
+        </node>
     </group>
 
-
     <group ns = "sobit_follower">
-        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+        <!-- <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen"> -->
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager">
             <param name="num_worker_threads" value="$(arg manager_threads)" />
         </node>
 
-        <include file="$(find sobit_follower)/launch/include/tracker.launch.xml">
+        <include file="$(find sobit_follower)/launch/include/tracker_stop_state.launch.xml">
             <arg name="manager_name"        value="$(arg manager_name)" />
             <arg name="use_rotate"          value="$(arg use_rotate)"/>
             <arg name="display_marker"      value="$(arg display_marker)"/>

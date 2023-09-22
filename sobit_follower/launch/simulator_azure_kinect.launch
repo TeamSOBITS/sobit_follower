@@ -9,6 +9,6 @@
         <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
         <arg name="rqt_reconfigure"     value="$(arg rqt_reconfigure)"/>
     </include>
-    <include file="$(find virtual_multiple_sensor_publisher)/launch/ccf_initial_sensor_data_publisher2.launch">
+    <include file="$(find virtual_multiple_sensor_publisher)/launch/ccf_initial_sensor_data_publisher.launch">
     </include>
 </launch>

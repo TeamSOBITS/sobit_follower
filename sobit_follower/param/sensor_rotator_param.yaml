@@ -1,7 +1,7 @@
 # use_rotate : true
 following_position_topic_name : /sobit_follower/following_position
 tilt_angle_min_deg : 0.0
-tilt_angle_max_deg : 70.0
+tilt_angle_max_deg : 20.0
 camera2person_height : 0.5
-use_smoothing : false
-smoothing_gain : 0.8
+use_smoothing : true
+smoothing_gain : 0.5

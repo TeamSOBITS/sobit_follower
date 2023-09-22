@@ -1,6 +1,6 @@
 # Single Shot Multibox Detector
-ssd_image_topic_name : /camera/rgb/image_raw
-ssd_cloud_topic_name : /camera/depth/points
+ssd_image_topic_name : /rgb_to_depth/image_raw
+ssd_cloud_topic_name : /points2
 target_frame : base_footprint
 
 ssd_img_show_flag : false

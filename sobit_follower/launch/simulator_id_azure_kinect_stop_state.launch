@@ -2,13 +2,13 @@
     <arg name="rviz"                    default="true"/>
     <arg name="rqt_reconfigure"         default="true"/>
 
-    <include file="$(find sobit_follower)/launch/follower_me.launch">
+    <include file="$(find sobit_follower)/launch/follower_me_stop_state.launch">
         <arg name="use_rotate"          value="false"/>
         <arg name="rviz"                value="$(arg rviz)"/>
         <!-- <arg name="rviz_cfg"            value="$(find sobit_follower)/config/rviz/simulator.rviz"/> -->
         <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
         <arg name="rqt_reconfigure"     value="$(arg rqt_reconfigure)"/>
     </include>
-    <include file="$(find virtual_multiple_sensor_publisher)/launch/ccf_initial_sensor_data_publisher2.launch">
+    <include file="$(find virtual_multiple_sensor_publisher)/launch/ccf_initial_sensor_data_publisher.launch">
     </include>
 </launch>

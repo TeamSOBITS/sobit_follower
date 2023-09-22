@@ -1,0 +1,42 @@
+<launch>
+    <arg name="manager_name" default="tracker_nodelet_manager" />
+    <arg name="manager_threads" default="4" />
+
+    <arg name="rviz"                    default="true"/>
+    <arg name="rviz_cfg"                default="$(find multiple_sensor_person_tracking)/config/rviz/person_tracker.rviz"/>
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    <arg name="use_rotate"              default="false"/>
+
+    <arg name="rqt_reconfigure"         default="true"/>
+
+    <include file="$(find multiple_sensor_person_tracking)\launch\dr_spaam\dr_spaam_ros.launch"/>
+    <include file="$(find multiple_sensor_person_tracking)\launch\ssd\ssd_pose_ros.launch">
+        <arg name="rviz"                        value="false" />
+        <arg name="ssd_img_show_flag"           value="false" />
+        <arg name="ssd_execute_default"         value="true" />
+        <arg name="ssd_pub_result_image"        value="true" />
+        <arg name="rqt_image_view_flag"         value="false" />
+        <arg name="use_tf"                      value="false" />
+    </include>
+
+    <group ns = "multiple_sensor_person_tracking">
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+            <param name="num_worker_threads" value="$(arg manager_threads)" />
+        </node>
+
+        <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/PersonTracker2 $(arg manager_name)" >
+            <rosparam file="$(find multiple_sensor_person_tracking)/param/topic_params.yaml" command="load" />
+            <rosparam file="$(find multiple_sensor_person_tracking)/param/kalman_filter_params.yaml" command="load" />
+            <rosparam file="$(find multiple_sensor_person_tracking)/param/tracking_params.yaml" command="load" />
+            <param name="display_marker" value="$(arg rviz)" />
+        </node>
+
+        <node pkg="nodelet" type="nodelet" name="sensor_rotator" args="load multiple_sensor_person_tracking/PersonAimSensorRotator $(arg manager_name)" >
+            <rosparam file="$(find multiple_sensor_person_tracking)/param/sensor_rotator_param.yaml" command="load" />
+            <param name="use_rotate" value="$(arg use_rotate)" />
+            <param name="display_marker" value="$(arg rviz)" />
+        </node>
+    </group>
+    <node if="$(arg rqt_reconfigure)" pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+</launch>

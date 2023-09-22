@@ -1,8 +1,8 @@
 <launch>
     <arg name="rviz"                    default="true"/>
-    <arg name="rqt_reconfigure"         default="true"/>
+    <arg name="rqt_reconfigure"         default="false"/>
 
-    <include file="$(find sobit_follower)/launch/follower_me.launch">
+    <include file="$(find sobit_follower)/launch/follower_me_no_exists_search.launch">
         <arg name="use_rotate"          value="false"/>
         <arg name="rviz"                value="$(arg rviz)"/>
         <!-- <arg name="rviz_cfg"            value="$(find sobit_follower)/config/rviz/simulator.rviz"/> -->

@@ -5,8 +5,38 @@
         <description>
         </description>
     </class>
+    <class name="multiple_sensor_person_tracking/PersonTracker2"
+        type="multiple_sensor_person_tracking::PersonTracker2"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/PersonTrackerNoExistsSearch"
+        type="multiple_sensor_person_tracking::PersonTrackerNoExistsSearch"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/PersonTrackerStopState"
+        type="multiple_sensor_person_tracking::PersonTrackerStopState"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+     <class name="multiple_sensor_person_tracking/PersonTrackerIdPrediction"
+        type="multiple_sensor_person_tracking::PersonTrackerIdPrediction"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
     <class name="multiple_sensor_person_tracking/PersonAimSensorRotator"
         type="multiple_sensor_person_tracking::PersonAimSensorRotator"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/PersonAimSensorRotatorPro"
+        type="multiple_sensor_person_tracking::PersonAimSensorRotatorPro"
         base_class_type="nodelet::Nodelet">
         <description>
         </description>

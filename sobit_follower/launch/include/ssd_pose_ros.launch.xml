@@ -1,6 +1,6 @@
 <launch>
     <arg name="manager_name"                default="ssd_nodelet_manager" />
-    <arg name="manager_threads"             default="8" />
+    <arg name="manager_threads"             default="4" />
 
     <group ns = "ssd_object_detect">
         <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
