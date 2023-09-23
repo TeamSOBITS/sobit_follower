@@ -5,20 +5,8 @@
         <description>
         </description>
     </class>
-    <class name="multiple_sensor_person_tracking/PersonTracker2"
-        type="multiple_sensor_person_tracking::PersonTracker2"
-        base_class_type="nodelet::Nodelet">
-        <description>
-        </description>
-    </class>
-    <class name="multiple_sensor_person_tracking/PersonTrackerNoExistsSearch"
-        type="multiple_sensor_person_tracking::PersonTrackerNoExistsSearch"
-        base_class_type="nodelet::Nodelet">
-        <description>
-        </description>
-    </class>
-    <class name="multiple_sensor_person_tracking/PersonTrackerStopState"
-        type="multiple_sensor_person_tracking::PersonTrackerStopState"
+    <class name="multiple_sensor_person_tracking/PersonTrackerId"
+        type="multiple_sensor_person_tracking::PersonTrackerId"
         base_class_type="nodelet::Nodelet">
         <description>
         </description>

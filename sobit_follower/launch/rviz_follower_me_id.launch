@@ -1,5 +1,5 @@
 <launch>
-    <arg name="rviz"                    default="false"/>
+    <arg name="rviz"                    default="true"/>
     <arg name="display_marker"          default="true"/>
     <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
     <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
@@ -45,7 +45,7 @@
             <param name="num_worker_threads" value="$(arg manager_threads)" />
         </node>
 
-        <include file="$(find sobit_follower)/launch/include/tracker_stop_state.launch.xml">
+        <include file="$(find sobit_follower)/launch/include/tracker_id.launch.xml">
             <arg name="manager_name"        value="$(arg manager_name)" />
             <arg name="use_rotate"          value="$(arg use_rotate)"/>
             <arg name="display_marker"      value="$(arg display_marker)"/>

@@ -5,7 +5,7 @@
     <arg name="display_marker"          default="true"/>
     <arg name="node_start_delay" default="5.0" />
 
-    <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/PersonTrackerStopState $(arg manager_name)" output="screen">
+    <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/PersonTrackerId $(arg manager_name)" output="screen">
         <rosparam file="$(find sobit_follower)/param/tracker_param.yaml" command="load" />
         <param name="display_marker" value="$(arg display_marker)" />
     </node>

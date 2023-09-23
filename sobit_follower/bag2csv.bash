@@ -3,14 +3,9 @@
 cd ~/catkin_ws/src
 # csvを作るrosbagファイル
 rosbag_files=(
-	"hiro_tenten_2023-09-21-18-48-53"
-	"hiro_tenten_2023-09-21-18-49-26"
-	"hiro_tenten_2023-09-21-18-50-14"
-	"hiro_tenten_ren_2023-09-21-19-07-20"
-	"ren_hiro_2023-09-21-18-45-51"
-	"ren_hiro_tenten_2023-09-21-18-57-42"
-	"tenten_ren_2023-09-21-18-53-04"
-	"tenten_ren_hiro_2023-09-21-19-10-34"
+	# 上のパスに存在するbag名を指定する
+	"test_2023-09-23-17-39-22"
+	
 )
 
 for ((i = 0; i < ${#rosbag_files[@]}; i++)) {
