@@ -1,4 +1,15 @@
 # SOBIT Follower (version 5.0)
+---
+####OSSに向けて
+- ソースコードの整理
+  - tf2化
+  - sobit_common_msgを変更
+  - PRO用とEDU用で統合する
+  - 命名規則や不必要なファイルの削除
+- READMEの修正
+  - 体裁を整える
+---
+##概要
 - 複数のセンサを用いたロボットの人追従走行システム(SOBIT EDUのみ使用可能)
 - [要旨](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf)
 
