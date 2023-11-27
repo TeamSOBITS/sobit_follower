@@ -20,7 +20,9 @@
 #include <multiple_sensor_person_tracking/LegPoseArray.h>
 #include <multiple_sensor_person_tracking/FollowingPosition.h>
 
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_listener.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2/transform_datatypes.h"
 
 #include <laser_geometry/laser_geometry.h>
 #include <pcl_ros/point_cloud.h>
@@ -72,7 +74,9 @@ namespace multiple_sensor_person_tracking {
             visualization_msgs::MarkerArrayPtr marker_array_;
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
 
-            tf::TransformListener tf_listener_;
+            tf2_ros::Buffer tfBuffer_;
+            // tf2_ros::TransformListener tfListener_;
+            boost::shared_ptr<tf2_ros::TransformListener> tf_sub_;
             std::string target_frame_;
 
             geometry_msgs::Point previous_target_;
@@ -201,10 +205,13 @@ visualization_msgs::Marker multiple_sensor_person_tracking::PersonTracker::makeT
     target_marker.pose.position.x = target_pose[0];
     target_marker.pose.position.y = target_pose[1];
     target_marker.pose.position.z = 0.5;
-    tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, std::atan2(target_pose[3], target_pose[2]));
-    geometry_msgs::Quaternion geometry_quat;
-    quaternionTFToMsg(quat, geometry_quat);
-    target_marker.pose.orientation = geometry_quat;
+    tf2::Quaternion quat_tf;
+    quat_tf.setRPY(0, 0, std::atan2(target_pose[3], target_pose[2]));
+    geometry_msgs::Quaternion quat_msg;
+    tf2::convert(quat_tf, quat_msg);
+
+    
+    target_marker.pose.orientation = quat_msg;
     target_marker.lifetime = ros::Duration(0.3);
     return target_marker;
 }
@@ -306,13 +313,13 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::PersonTracker::tran
     pt.header.frame_id = org_frame;
     pt.header.stamp = ros::Time(0);
     pt.point = point;
-    try {
-        tf_listener_.transformPoint( target_frame, pt, pt_transformed );
-    } catch ( const tf::TransformException& ex ) {
-        NODELET_ERROR( "%s",ex.what( ) );
+    try{
+        tfBuffer_.transform(pt, pt_transformed, target_frame);
+    } catch (const tf2::TransformException &ex) {
+            ROS_ERROR("%s", ex.what());
     }
-    return pt_transformed;
 }
+
 bool start = true;
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
@@ -330,13 +337,12 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     double dt = ( dr_spaam_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
     previous_time_ = dr_spaam_msg->header.stamp.toSec();
 
-    // Sensor data to TF conversion
+    // Sensor data to TF2 conversion
     try {
-        tf_listener_.waitForTransform( target_frame, dr_spaam_msg->header.frame_id, dr_spaam_msg->header.stamp, ros::Duration(5.0) );
-        projector_.transformLaserScanToPointCloud( target_frame, dr_spaam_msg->scan, cloud_scan_msg, tf_listener_ );
+        projector_.transformLaserScanToPointCloud( target_frame, dr_spaam_msg->scan, cloud_scan_msg, tfBuffer_ );
         pcl::fromROSMsg<PointT>( cloud_scan_msg, *cloud_scan_);
         cloud_scan_->header.frame_id = target_frame;
-    } catch ( const tf::TransformException& ex ) {
+    } catch ( const tf2::TransformException& ex ) {
         ROS_ERROR("%s", ex.what());
         following_position_->pose.position.x = 0.0;
         following_position_->pose.position.y = 0.0;
@@ -464,10 +470,12 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
     // following_position_ : pose :
     following_position_->pose.position.x = estimated_value[0];
     following_position_->pose.position.y = estimated_value[1];
-    tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, std::atan2(estimated_value[3], estimated_value[2]));
-    geometry_msgs::Quaternion geometry_quat;
-    quaternionTFToMsg(quat, geometry_quat);
-    following_position_->pose.orientation = geometry_quat;
+    tf2::Quaternion quat_tf;
+    quat_tf.setRPY(0, 0, std::atan2(estimated_value[3], estimated_value[2]));
+    geometry_msgs::Quaternion quat_msg;
+    tf2::convert(quat_tf, quat_msg);
+    
+    following_position_->pose.orientation = quat_msg;
     following_position_->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
     following_position_->status = result;
 
@@ -504,6 +512,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const m
 void multiple_sensor_person_tracking::PersonTracker::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
+
+    tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
     cloud_scan_.reset(new PointCloud());
     marker_array_.reset(new visualization_msgs::MarkerArray);
     following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );

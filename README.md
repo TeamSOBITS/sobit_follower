@@ -2,6 +2,7 @@
 ---
 ####OSSに向けて
 - ソースコードの整理
+  - install.shやパッケージ周りの修正
   - tf2化
   - sobit_common_msgを変更
   - PRO用とEDU用で統合する
@@ -23,7 +24,9 @@
 $ cd ~/catkin_ws/src/
 $ git clone https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
+# follow meに必要なパッケージのインストールを行う
 $ bash install.sh
+# インストールしたパッケージのセットアップを行った後、catkin_make
 $ cd ~/catkin_ws
 $ catkin_make
 ```

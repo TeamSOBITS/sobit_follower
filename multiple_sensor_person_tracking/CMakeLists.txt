@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   pcl_ros
   pcl_conversions
+  tf2
+  tf2_ros
   laser_geometry
   dr_spaam_ros
   sobit_pro_library

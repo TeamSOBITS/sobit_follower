@@ -5,7 +5,11 @@
 #include <pluginlib/class_list_macros.h>
 
 #include <ros/time.h>
-#include <tf/transform_listener.h>
+
+#include <tf2_ros/transform_listener.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2/transform_datatypes.h"
+
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
 #include <sobit_pro_library/sobit_pro_joint_controller.h>
@@ -27,7 +31,10 @@ namespace multiple_sensor_person_tracking {
 			ros::NodeHandle pnh_;
 			ros::Publisher pub_marker_;
             ros::Subscriber sub_following_position_;
-			tf::TransformListener tf_listener_;
+
+            tf2_ros::Buffer tfBuffer_;
+            // tf2_ros::TransformListener tfListener_;
+            boost::shared_ptr<tf2_ros::TransformListener> tf_sub_;
 
             // std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
             // std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
@@ -75,11 +82,12 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const 
 	marker.pose.position.x = 0.0;
     marker.pose.position.y = 0.0;
     marker.pose.position.z = 0.8;
-    tf::Quaternion quat = tf::createQuaternionFromRPY(0, -tilt_angle, pan_angle);
-    geometry_msgs::Quaternion geometry_quat;
-    quaternionTFToMsg(quat, geometry_quat);
-    marker.pose.orientation = geometry_quat;
-    pub_marker_.publish ( marker );
+
+    tf2::Quaternion quat_tf;
+    quat_tf.setRPY(0, -tilt_angle, pan_angle);
+    geometry_msgs::Quaternion quat_msg;
+    tf2::convert(quat_tf, quat_msg);
+    marker.pose.orientation = quat_msg;
 }
 void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level) {
 	use_rotate_ = config.use_rotate;
@@ -125,6 +133,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
+    tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
 
 	pub_marker_ = nh_.advertise< visualization_msgs::Marker >( "rotator_marker", 1 );
 

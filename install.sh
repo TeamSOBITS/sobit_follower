@@ -16,20 +16,21 @@ git clone https://github.com/TeamSOBITS/ssd_nodelet.git
 echo -e "\e[34m\n Git Clone sobit_common\e[m"
 git clone https://github.com/TeamSOBITS/sobit_common.git
 
+echo -e "\e[34m\n Git Clone SOBIT EDU \e[m"
+git clone https://github.com/TeamSOBITS/sobit_edu.git
+
 echo -e "\e[34m\n Git Clone SOBIT PRO \e[m"
 git clone https://github.com/TeamSOBITS/sobit_pro.git
 
 echo -e "\e[34m\n Git Clone scan2d_handler \e[m"
 git clone https://github.com/TeamSOBITS/scan2d_handler.git
 
-echo -e "\e[34m\n Git Clone virtual_multiple_sensor_publisher \e[m"
-git clone https://github.com/TeamSOBITS/virtual_multiple_sensor_publisher.git
-
 echo -e "\e[34m\n Git Clone following_control_methods \e[m"
 git clone https://github.com/TeamSOBITS/following_control_methods.git
 
-# echo -e "\e[34m\n Git Clone SOBIT PRO \e[m"
-# git clone https://github.com/TeamSOBITS/sobit_pro.git
+# sensor_dataのrosbagを利用したい場合（※ファイル容量大きい）
+# echo -e "\e[34m\n Git Clone virtual_multiple_sensor_publisher \e[m"
+# git clone https://github.com/TeamSOBITS/virtual_multiple_sensor_publisher.git
 
 echo -e "\e[34m\n Install: Sobit Common (STARTING) \e[m"
 sudo apt-get update
