@@ -53,11 +53,11 @@ visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen
     marker.pose.position.x = pt[0];
     marker.pose.position.y = pt[1];
     marker.pose.position.z = 0.3;
-
-    tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, pt[2]);
-    geometry_msgs::Quaternion geometry_quat;
-    quaternionTFToMsg(quat, geometry_quat);
-    marker.pose.orientation = geometry_quat;
+    tf2::Quaternion quat_tf;
+    quat_tf.setRPY(0, 0, pt[2]);
+    geometry_msgs::Quaternion quat_msg;
+    tf2::convert(quat_tf, quat_msg);
+    marker.pose.orientation = quat_msg;
 
     marker.scale.x = 0.7;
     marker.scale.y = 0.15;

@@ -2,7 +2,12 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
-#include <tf/transform_listener.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -27,7 +32,8 @@ namespace multiple_observation_tracing_simulator {
             dynamic_reconfigure::Server<multiple_observation_tracing_simulator::TrackerParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_observation_tracing_simulator::TrackerParameterConfig>::CallbackType f_;
             geometry_msgs::PointPtr target_smooth_;
-            tf::TransformListener tf_listener_;
+            tf2_ros::Buffer               tfBuffer_;
+            tf2_ros::TransformListener    tfListener_;
             std::unique_ptr<multiple_observation_kalman_filter::KalmanFilter> kf_;
             visualization_msgs::Marker trajectory_;
             visualization_msgs::Marker trajectory_smooth_;
@@ -72,14 +78,17 @@ void multiple_observation_tracing_simulator::Tracker::callbackDynamicReconfigure
 
 geometry_msgs::Point multiple_observation_tracing_simulator::Tracker::transformPoint ( std::string org_frame, std::string target_frame, geometry_msgs::Point point ) {
     geometry_msgs::PointStamped pt_transformed;
+    geometry_msgs::TransformStamped transform_stamped;
     geometry_msgs::PointStamped pt;
     pt.header.frame_id = org_frame;
     pt.header.stamp = ros::Time(0);
     pt.point = point;
-    if ( tf_listener_.frameExists( target_frame ) ) {
+    bool can_tf = tfBuffer_.canTransform(target_frame, org_frame, ros::Time(0));
+    if (can_tf){
         try {
-            tf_listener_.transformPoint( target_frame, pt, pt_transformed );
-        } catch ( const tf::TransformException& ex ) {
+            transform_stamped = tfBuffer_.lookupTransform( target_frame, org_frame, ros::Time(0), ros::Duration(1.0));
+            pt_transformed = tfBuffer_.transform(pt, target_frame);
+        } catch ( const tf2::TransformException& ex ) {
             ROS_ERROR( "%s",ex.what( ) );
         }
     } else {
@@ -171,7 +180,7 @@ void multiple_observation_tracing_simulator::Tracker::callbackMessage(
     return;
 }
 
-multiple_observation_tracing_simulator::Tracker::Tracker( ) : nh_(), pnh_("~") {
+multiple_observation_tracing_simulator::Tracker::Tracker( ) : nh_(), pnh_("~"), tfBuffer_(), tfListener_(tfBuffer_) {
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "/track_marker", 1 );
     pub_target_ = nh_.advertise< geometry_msgs::PoseStamped >( "/target_pose", 1 ); ;
     sub_true_value_ .reset ( new message_filters::Subscriber<geometry_msgs::PointStamped> ( nh_, "/true_value", 1 ) );

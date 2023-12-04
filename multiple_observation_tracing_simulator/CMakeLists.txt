@@ -10,7 +10,9 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roscpp
   std_msgs
-  tf
+# tf
+  tf2
+  tf2_ros
   visualization_msgs
   multiple_observation_kalman_filter
   message_filters
@@ -53,7 +55,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES multiple_observation_tracing_simulator
-  CATKIN_DEPENDS dynamic_reconfigure geometry_msgs nav_msgs roscpp std_msgs tf visualization_msgs message_filters
+  CATKIN_DEPENDS dynamic_reconfigure geometry_msgs nav_msgs roscpp std_msgs visualization_msgs message_filters
 #  DEPENDS system_lib
 )
 

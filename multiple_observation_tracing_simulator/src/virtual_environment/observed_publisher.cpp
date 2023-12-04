@@ -1,8 +1,13 @@
 #include <ros/ros.h>
-#include <tf/transform_broadcaster.h>
-#include <tf/transform_listener.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
 #include <bits/stdc++.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <dynamic_reconfigure/server.h>
@@ -17,7 +22,8 @@ namespace multiple_observation_tracing_simulator {
             ros::Publisher pub_observed_value_;
             ros::Publisher pub_observed_value_add_;
             ros::Publisher pub_marker_;
-            tf::TransformListener tf_listener_;
+            tf2_ros::Buffer               tfBuffer_;
+            tf2_ros::TransformListener    tfListener_;
             std::unique_ptr<ros::Rate> rate_;
             std::unique_ptr<std::normal_distribution<double>> dist_;
             std::unique_ptr<std::normal_distribution<double>> dist_add_;
@@ -38,7 +44,7 @@ void multiple_observation_tracing_simulator::ObservedPublisher::callbackDynamicR
     dist_add_.reset( new std::normal_distribution<double>( 0.0, config.observation_noise_add ) );
 }
 
-multiple_observation_tracing_simulator::ObservedPublisher::ObservedPublisher( ) : nh_(), pnh_("~") {
+multiple_observation_tracing_simulator::ObservedPublisher::ObservedPublisher( ) : nh_(), pnh_("~"), tfBuffer_(), tfListener_(tfBuffer_)  {
     rate_.reset( new ros::Rate(30) );
     dist_.reset( new std::normal_distribution<double>( 0.0, 0.1 ) );
     dist_add_.reset( new std::normal_distribution<double>( 0.0, 0.1 ) );
@@ -53,7 +59,7 @@ multiple_observation_tracing_simulator::ObservedPublisher::ObservedPublisher( ) 
     server_->setCallback(f_);
 }
 
-void multiple_observation_tracing_simulator::ObservedPublisher::loopPublish( ) {
+void multiple_observation_tracing_simulator::ObservedPublisher::loopPublish( ){
     visualization_msgs::Marker observed, observed_add;
     observed.header.frame_id = observed_add.header.frame_id ="map";
     observed.header.stamp = observed_add.header.stamp = ros::Time::now();
@@ -71,21 +77,21 @@ void multiple_observation_tracing_simulator::ObservedPublisher::loopPublish( ) {
     std::mt19937 engine(seed());            // メルセンヌ・ツイスター法
 
     while(ros::ok()){
-        tf::Transform transform;
-        tf::StampedTransform transform_stamped;
         geometry_msgs::Pose true_value_pose;
+        geometry_msgs::PoseStamped true_value_pose_stamped;
         geometry_msgs::PointStamped true_value, observed_value, observed_value_add;
+        geometry_msgs::TransformStamped transform_stamped;
+        tf2::Stamped<tf2::Transform> tf2_stamped_transform;
         visualization_msgs::MarkerArray marker_array;
-
         try {
-            tf_listener_.waitForTransform("/robot", "/target", ros::Time(0), ros::Duration(10.0) );
-            tf_listener_.lookupTransform("/robot", "/target",  ros::Time(0), transform_stamped);
-        } catch ( const tf::TransformException& ex){
+            transform_stamped = tfBuffer_.lookupTransform("robot", "target", ros::Time(0), ros::Duration(10.0));
+        } catch ( const tf2::TransformException& ex){
             ROS_ERROR("%s",ex.what());
             ros::Duration(1.0).sleep();
         }
-        tf::poseTFToMsg(transform_stamped, true_value_pose);
-        true_value.point = true_value_pose.position;
+        tf2::fromMsg(transform_stamped, tf2_stamped_transform);
+        tf2::toMsg (tf2_stamped_transform, true_value_pose_stamped);
+        true_value.point = true_value_pose_stamped.pose.position;
 
         observed_value.point.x = true_value.point.x + (*dist_)(engine);
         observed_value.point.y = true_value.point.y + (*dist_)(engine);
@@ -107,9 +113,9 @@ void multiple_observation_tracing_simulator::ObservedPublisher::loopPublish( ) {
         pub_observed_value_.publish ( observed_value );
         pub_observed_value_add_.publish ( observed_value_add );
         pub_marker_.publish ( marker_array );
-        // ROS_INFO("[ true_value ]            x = %.3f , y = %.3f", true_value.point.x, true_value.point.y );
-        // ROS_INFO("[ observed_value ]        x = %.3f , y = %.3f", observed_value.point.x, observed_value.point.y );
-        // ROS_INFO("[ observed_value_add ]    x = %.3f , y = %.3f\n", observed_value_add.point.x, observed_value_add.point.y );
+        ROS_INFO("[ true_value ]            x = %.3f , y = %.3f", true_value.point.x, true_value.point.y );
+        ROS_INFO("[ observed_value ]        x = %.3f , y = %.3f", observed_value.point.x, observed_value.point.y );
+        ROS_INFO("[ observed_value_add ]    x = %.3f , y = %.3f\n", observed_value_add.point.x, observed_value_add.point.y );
         ros::spinOnce();
         rate_->sleep();
     }

@@ -1,5 +1,10 @@
 #include <ros/ros.h>
-#include <tf/transform_broadcaster.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/LinearMath/Transform.h>
+#include <tf2/convert.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/TransformStamped.h>
 #include<bits/stdc++.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/Twist.h>
@@ -51,7 +56,7 @@ multiple_observation_tracing_simulator::VirtualEnvironment::VirtualEnvironment (
 }
 
 void multiple_observation_tracing_simulator::VirtualEnvironment::pubData (  ) {
-    static tf::TransformBroadcaster br;
+    static tf2_ros::TransformBroadcaster br;
     visualization_msgs::Marker trajectory;
     trajectory.header.frame_id ="map";
     trajectory.header.stamp = ros::Time::now();
@@ -68,13 +73,18 @@ void multiple_observation_tracing_simulator::VirtualEnvironment::pubData (  ) {
 
     while(ros::ok()){
         visualization_msgs::MarkerArray marker_array;
-        tf::Transform transform;
-        transform.setOrigin( tf::Vector3(tgt_pt_.x, tgt_pt_.y, 0.0) );
-        tf::Quaternion q;
+        tf2::Transform transform;
+        transform.setOrigin( tf2::Vector3(tgt_pt_.x, tgt_pt_.y, 0.0) );
+        tf2::Quaternion q;
         q.setRPY(0, 0, tgt_theta_);
         transform.setRotation(q);
-        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "target" ));
-
+        geometry_msgs::TransformStamped transform_stamped;
+        transform_stamped.header.stamp = ros::Time::now();
+        transform_stamped.header.frame_id = "map";
+        transform_stamped.child_frame_id = "target";
+        tf2::convert(transform, transform_stamped.transform);
+        br.sendTransform(transform_stamped);
+        
         geometry_msgs::PointStamped position, observed_value, observed_value_add;
         position.point.x = tgt_pt_.x;
         position.point.y = tgt_pt_.y;

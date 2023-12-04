@@ -94,10 +94,11 @@ VirtualSpringModel::VirtualSpringModel ( ) : nh_(), pnh_("~") {
 }
 
 void VirtualSpringModel::compute ( const geometry_msgs::PoseStampedConstPtr &pose_msg, const double curt_vel_linear, const double curt_vel_angular, geometry_msgs::TwistPtr &output_vel ) {
-    tf::Quaternion quat;
-    double roll, pitch, yaw;
-	quaternionMsgToTF(pose_msg->pose.orientation, quat);
-	tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);  //rpy are Pass by Reference
+    tf2::Quaternion quat_tf;
+    double roll = 0., pitch = 0., yaw = 0.;
+    tf2::fromMsg(pose_msg->pose.orientation, quat_tf);
+    tf2::Matrix3x3(quat_tf).getRPY(roll, pitch, yaw);
+
     std::cout  << "\n============================================================"
             << "\n[Position]"
             << "\n* x     : " << pose_msg->pose.position.x
