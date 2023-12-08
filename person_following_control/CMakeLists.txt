@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10.2)
 project(person_following_control)
 
 add_compile_options(-std=c++14 -O2 -g -Wall)

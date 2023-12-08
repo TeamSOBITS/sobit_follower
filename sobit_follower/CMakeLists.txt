@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10.2)
 project(sobit_follower)
 
 find_package(catkin REQUIRED COMPONENTS
