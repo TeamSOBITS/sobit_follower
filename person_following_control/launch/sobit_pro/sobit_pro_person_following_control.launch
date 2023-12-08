@@ -1,0 +1,43 @@
+<launch>
+    <arg name="manager_name"            default="following_control_nodelet_manager" />
+    <arg name="manager_threads"         default="4" />
+
+    <arg name="rviz"                    default="false"/>
+    <arg name="rviz_cfg"                default="$(find person_following_control)/config/rviz/person_following_control.rviz"/>
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    <arg name="rqt_reconfigure"         default="true"/>
+    <arg name="following_method"        default="0" />
+    <!--
+        0 : VirtualSpringModel-DynamicWindowApproach
+        1 : VirtualSpringModel
+        2 : DynamicWindowApproach
+        3 : PIDController
+    -->
+    <arg name="use_smoother"        default="false" />
+
+    <group ns = "person_following_control">
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+            <param name="num_worker_threads" value="$(arg manager_threads)" />
+        </node>
+
+        <node pkg="nodelet" type="nodelet" name="person_following_control" args="load person_following_control/SobitProPersonFollowing $(arg manager_name)" >
+            <rosparam file="$(find person_following_control)/param/following_control_param.yaml" command="load" />
+            <param name="following_method"      value="$(arg following_method)" />
+
+            <remap if="$(arg use_smoother)"         from="cmd_vel" to="/person_following_control/velocity_smoother/raw_cmd_vel"/>
+            <remap unless="$(arg use_smoother)"     from="cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+        </node>
+
+        <node if="$(arg use_smoother)" pkg="nodelet" type="nodelet" name="velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet $(arg manager_name)">
+            <rosparam file="$(find person_following_control)/param/velocity_smoother_param.yaml" command="load"/>
+            <remap from="/person_following_control/velocity_smoother/smooth_cmd_vel" to="/cmd_vel_mux/input/teleop"/>
+
+            <!-- Robot velocity feedbacks; use the default base configuration -->
+            <remap from="/person_following_control/velocity_smoother/odometry" to="/odom"/>
+            <remap from="/person_following_control/velocity_smoother/robot_cmd_vel" to="/mobile_base/commands/velocity"/>
+        </node>
+
+    </group>
+    <node if="$(arg rqt_reconfigure)" pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+</launch>

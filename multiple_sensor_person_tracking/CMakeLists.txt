@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   laser_geometry
   dr_spaam_ros
+  sobit_edu_library
   sobit_pro_library
   ssd_nodelet
   pluginlib
@@ -67,7 +68,9 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-add_library(${PROJECT_NAME} src/multiple_sensor_person_tracker_nodelet.cpp
-                            src/person_aim_sensor_rotator_nodelet.cpp)
+add_library(${PROJECT_NAME} src/sobit_edu_multiple_sensor_person_tracker_nodelet.cpp
+                            src/sobit_edu_person_aim_sensor_rotator_nodelet.cpp
+                            src/sobit_pro_multiple_sensor_person_tracker_nodelet.cpp
+                            src/sobit_pro_person_aim_sensor_rotator_nodelet.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 #add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

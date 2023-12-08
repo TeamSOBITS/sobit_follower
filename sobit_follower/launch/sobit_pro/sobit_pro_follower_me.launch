@@ -1,0 +1,43 @@
+<launch>
+    <arg name="rviz"                    default="true"/>
+    <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
+
+    <arg name="rqt_reconfigure"         default="false"/>
+    <arg name="use_rotate"              default="true"/>
+
+    <arg name="manager_name"            default="sobit_follower_nodelet_manager" />
+    <arg name="manager_threads"         default="8" />
+
+    <arg name="following_method"        default="0" />
+    <!--
+        0 : VirtualSpringModel-DynamicWindowApproach
+        1 : VirtualSpringModel
+        2 : DynamicWindowApproach
+        3 : PIDController
+    -->
+    <arg name="use_smoother"            default="false" />
+
+    <include file="$(find sobit_follower)\launch\include\dr_spaam_ros.launch.xml"/>
+    <include file="$(find sobit_follower)\launch\include\ssd_pose_ros.launch.xml"/>
+
+    <group ns = "sobit_follower">
+        <node pkg="nodelet" type="nodelet" name="$(arg manager_name)" args="manager" output="screen">
+            <param name="num_worker_threads" value="$(arg manager_threads)" />
+        </node>
+
+        <include file="$(find sobit_follower)/launch/include/sobit_pro/sobit_pro_tracker.launch.xml">
+            <arg name="manager_name"        value="$(arg manager_name)" />
+            <arg name="use_rotate"          value="$(arg use_rotate)"/>
+            <arg name="display_marker"      value="$(arg rviz)"/>
+        </include>
+
+        <include file="$(find sobit_follower)/launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml" >
+            <arg name="manager_name"        value="$(arg manager_name)" />
+            <arg name="display_marker"      value="$(arg rviz)"/>
+            <arg name="following_method"    value="$(arg following_method)"/>
+            <arg name="use_smoother"        value="$(arg use_smoother)"/>
+        </include>
+    </group>
+    <node if="$(arg rqt_reconfigure)" pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/>
+</launch>

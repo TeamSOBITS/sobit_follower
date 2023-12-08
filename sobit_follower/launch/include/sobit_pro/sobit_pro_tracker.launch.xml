@@ -4,12 +4,12 @@
     <arg name="use_rotate"              default="true"/>
     <arg name="display_marker"          default="true"/>
 
-    <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/PersonTracker $(arg manager_name)" >
+    <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/SobitProPersonTracker $(arg manager_name)" >
         <rosparam file="$(find sobit_follower)/param/tracker_param.yaml" command="load" />
         <param name="display_marker" value="$(arg display_marker)" />
     </node>
 
-    <node pkg="nodelet" type="nodelet" name="sensor_rotator" args="load multiple_sensor_person_tracking/PersonAimSensorRotator $(arg manager_name)" >
+    <node pkg="nodelet" type="nodelet" name="sensor_rotator" args="load multiple_sensor_person_tracking/SobitProPersonAimSensorRotator $(arg manager_name)" >
         <rosparam file="$(find sobit_follower)/param/sensor_rotator_param.yaml" command="load" />
         <param name="use_rotate" value="$(arg use_rotate)" />
         <param name="display_marker" value="$(arg display_marker)" />

@@ -1,6 +1,12 @@
 <library path="lib/libperson_following_control">
-    <class name="person_following_control/PersonFollowing"
-        type="person_following_control::PersonFollowing"
+    <class name="person_following_control/SobitProPersonFollowing"
+        type="person_following_control::SobitProPersonFollowing"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="person_following_control/SobitEduPersonFollowing"
+        type="person_following_control::SobitEduPersonFollowing"
         base_class_type="nodelet::Nodelet">
         <description>
         </description>

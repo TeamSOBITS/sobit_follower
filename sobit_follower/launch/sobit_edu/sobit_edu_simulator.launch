@@ -2,7 +2,7 @@
     <arg name="rviz"                    default="true"/>
     <arg name="rqt_reconfigure"         default="true"/>
 
-    <include file="$(find sobit_follower)/launch/follower_me.launch">
+    <include file="$(find sobit_follower)/launch/sobit_edu/sobit_edu_follower_me.launch">
         <arg name="use_rotate"          value="false"/>
         <arg name="rviz"                value="$(arg rviz)"/>
         <!-- <arg name="rviz_cfg"            value="$(find sobit_follower)/config/rviz/simulator.rviz"/> -->

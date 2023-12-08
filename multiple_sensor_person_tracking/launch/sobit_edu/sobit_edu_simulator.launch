@@ -2,7 +2,7 @@
     <arg name="use_rotate"              default="false"/>
     <arg name="rviz"                    default="true"/>
     <arg name="rqt_reconfigure"         default="true"/>
-    <include file="$(find multiple_sensor_person_tracking)/launch/tracker.launch">
+    <include file="$(find multiple_sensor_person_tracking)/launch/sobit_edu/sobit_edu_tracker.launch">
         <arg name="use_rotate"          value="$(arg use_rotate)"/>
         <arg name="rviz"                value="$(arg rviz)"/>
         <arg name="rqt_reconfigure"     value="$(arg rqt_reconfigure)"/>

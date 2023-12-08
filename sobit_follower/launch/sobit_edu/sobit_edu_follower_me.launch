@@ -26,13 +26,13 @@
             <param name="num_worker_threads" value="$(arg manager_threads)" />
         </node>
 
-        <include file="$(find sobit_follower)/launch/include/tracker.launch.xml">
+        <include file="$(find sobit_follower)/launch/include/sobit_edu/sobit_edu_tracker.launch.xml">
             <arg name="manager_name"        value="$(arg manager_name)" />
             <arg name="use_rotate"          value="$(arg use_rotate)"/>
             <arg name="display_marker"      value="$(arg rviz)"/>
         </include>
 
-        <include file="$(find sobit_follower)/launch/include/person_following_control.launch.xml" >
+        <include file="$(find sobit_follower)/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml" >
             <arg name="manager_name"        value="$(arg manager_name)" />
             <arg name="display_marker"      value="$(arg rviz)"/>
             <arg name="following_method"    value="$(arg following_method)"/>

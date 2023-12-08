@@ -82,7 +82,8 @@ add_executable(person_following_control_virtual_environment src/virtual_environm
 target_link_libraries(person_following_control_virtual_environment  ${catkin_LIBRARIES})
 # add_dependencies(person_following_control_virtual_environment ${PROJECT_NAME}_generate_messages_cpp)
 
-add_library(${PROJECT_NAME} src/following_control_nodelet.cpp
+add_library(${PROJECT_NAME} src/sobit_edu_following_control_nodelet.cpp
+                            src/sobit_pro_following_control_nodelet.cpp
                             src/virtual_spring_model.cpp
                             src/dynamic_window_approach.cpp
                             src/pid_controller.cpp

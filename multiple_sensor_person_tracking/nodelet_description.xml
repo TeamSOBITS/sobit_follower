@@ -1,12 +1,24 @@
 <library path="lib/libmultiple_sensor_person_tracking">
-    <class name="multiple_sensor_person_tracking/PersonTracker"
-        type="multiple_sensor_person_tracking::PersonTracker"
+    <class name="multiple_sensor_person_tracking/SobitProPersonTracker"
+        type="multiple_sensor_person_tracking::SobitProPersonTracker"
         base_class_type="nodelet::Nodelet">
         <description>
         </description>
     </class>
-    <class name="multiple_sensor_person_tracking/PersonAimSensorRotator"
-        type="multiple_sensor_person_tracking::PersonAimSensorRotator"
+    <class name="multiple_sensor_person_tracking/SobitEduPersonTracker"
+        type="multiple_sensor_person_tracking::SobitEduPersonTracker"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/SobitProPersonAimSensorRotator"
+        type="multiple_sensor_person_tracking::SobitProPersonAimSensorRotator"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/SobitEduPersonAimSensorRotator"
+        type="multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator"
         base_class_type="nodelet::Nodelet">
         <description>
         </description>
