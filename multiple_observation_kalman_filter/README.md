@@ -44,3 +44,9 @@ void compute(
     Eigen::Vector4f* estimated_value            // 推定値
 )
 ```
+
+## 参考文献
+- [tracking-with-Extended-Kalman-Filter](https://github.com/JunshengFu/tracking-with-Extended-Kalman-Filter/blob/master/src/tracking.cpp)
+- [カルマンフィルターのプロセスノイズ共分散行列
+](https://gordiustears.net/process-noise-covariance-matrix-of-kalman-filter/)
+- [Is acceleration noise modelled differently in EKF and UKF Kalman Filters?]( https://dsp.stackexchange.com/questions/43966/is-acceleration-noise-modelled-differently-in-ekf-and-ukf-kalman-filters)
