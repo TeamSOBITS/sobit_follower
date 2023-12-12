@@ -51,7 +51,6 @@ class DrSpaamROS:
         self._leg_detect_srv = rospy.Service(service, LegDetectionService, self._scan_callback)
 
     def _scan_callback(self, req):
-        # todo check the computation here
         if not self._detector.is_ready():
             self._detector.set_laser_fov(
                 np.rad2deg(req.scan.angle_increment * len(req.scan.ranges))
@@ -62,9 +61,7 @@ class DrSpaamROS:
         scan[np.isinf(scan)] = 29.99
         scan[np.isnan(scan)] = 29.99
 
-        # t = time.time()
         dets_xy, dets_cls, _ = self._detector(scan)
-        # print("[DrSpaamROS] End-to-end inference time: %f" % (t - time.time()))
 
         # confidence threshold
         conf_mask = (dets_cls >= self.conf_thresh).reshape(-1)

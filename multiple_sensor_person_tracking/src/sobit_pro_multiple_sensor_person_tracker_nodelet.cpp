@@ -1,4 +1,3 @@
-// 2D-LiDARセンサとパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
 #include <ros/ros.h>
 
 #include <nodelet/nodelet.h>
@@ -14,15 +13,15 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseArray.h>
-#include <sobit_common_msg/StringArray.h>
-#include <sobit_common_msg/BoundingBoxes.h>
-#include <sobit_common_msg/ObjectPoseArray.h>
-#include <multiple_sensor_person_tracking/LegPoseArray.h>
-#include <multiple_sensor_person_tracking/FollowingPosition.h>
+#include "sobit_common_msg/StringArray.h"
+#include "sobit_common_msg/BoundingBoxes.h"
+#include "sobit_common_msg/ObjectPoseArray.h"
+#include "multiple_sensor_person_tracking/LegPoseArray.h"
+#include "multiple_sensor_person_tracking/FollowingPosition.h"
 
 #include <tf2_ros/transform_listener.h>
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "tf2/transform_datatypes.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/transform_datatypes.h>
 
 #include <laser_geometry/laser_geometry.h>
 #include <pcl_ros/point_cloud.h>
@@ -33,9 +32,9 @@
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/voxel_grid.h>
 
-#include <ssd_nodelet/single_shot_multibox_detector.hpp>
-#include <multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp>
-#include <multiple_sensor_person_tracking/TrackerParameterConfig.h>
+#include "ssd_nodelet/single_shot_multibox_detector.hpp"
+#include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
+#include "multiple_sensor_person_tracking/TrackerParameterConfig.h"
 #include <dynamic_reconfigure/server.h>
 
 typedef pcl::PointXYZ PointT;
@@ -75,7 +74,6 @@ namespace multiple_sensor_person_tracking {
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
 
             tf2_ros::Buffer tfBuffer_;
-            // tf2_ros::TransformListener tfListener_;
             boost::shared_ptr<tf2_ros::TransformListener> tf_sub_;
             std::string target_frame_;
 
@@ -209,8 +207,6 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTracke
     quat_tf.setRPY(0, 0, std::atan2(target_pose[3], target_pose[2]));
     geometry_msgs::Quaternion quat_msg;
     tf2::convert(quat_tf, quat_msg);
-
-    
     target_marker.pose.orientation = quat_msg;
     target_marker.lifetime = ros::Duration(0.3);
     return target_marker;
@@ -318,6 +314,7 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitProPersonTrack
     } catch (const tf2::TransformException &ex) {
             ROS_ERROR("%s", ex.what());
     }
+    return pt_transformed;
 }
 
 bool start = true;
@@ -367,14 +364,14 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::callbackPoseArray (
         exists_target_ = false;
         std::vector<geometry_msgs::Pose> leg_poses = dr_spaam_msg->poses;
         // Rotate the RGB-D sensor in the direction in which the leg_poses
-        // 近い順にソート
+        // Sort by proximity
         std::sort(
             leg_poses.begin(),
             leg_poses.end(),
             []( const auto & a, const auto & b)
             { return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y); } );
-        // attention_leg_idx_ の位置を設定 ※attention_leg_idx_が配列より大きい場合は修正
-        // 2秒でattention_leg_idx_を変える
+        // set the position of attention_leg_idx_ -> (if attention_leg_idx_ is larger than the array, modify)
+        // change attention_leg_idx_ in 2 seconds
         if ( ros::Time::now().toSec() - attention_leg_time_ >= 2.0 ) {
             attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
             attention_leg_time_ = ros::Time::now().toSec();

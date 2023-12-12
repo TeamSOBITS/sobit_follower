@@ -53,7 +53,6 @@ class DrSpaamROS:
         )
 
     def _scan_callback(self, msg):
-        # TODO check the computation here
         if not self._detector.is_ready():
             self._detector.set_laser_fov(
                 np.rad2deg(msg.angle_increment * len(msg.ranges))
@@ -64,10 +63,7 @@ class DrSpaamROS:
         scan[np.isinf(scan)] = 29.99
         scan[np.isnan(scan)] = 29.99
 
-        # t = time.time()
         dets_xy, dets_cls, _ = self._detector(scan)
-        # print("[DrSpaamROS] End-to-end inference time: %f" % (time.time() - t))
-
         # confidence threshold
         conf_mask = (dets_cls >= self.conf_thresh).reshape(-1)
         dets_xy = dets_xy[conf_mask]
@@ -77,10 +73,8 @@ class DrSpaamROS:
         dets_msg = detections_to_pose_array(dets_xy, dets_cls)
         dets_msg.header = msg.header
         dets_msg.scan = msg
-        # print(dets_msg)
         self._dets_pub.publish(dets_msg)
-        # rospy.loginfo("publish LegPoseArray")
-
+        
 def detections_to_pose_array(dets_xy, dets_cls):
     dets_msg = LegPoseArray()
     poses_append = dets_msg.poses.append

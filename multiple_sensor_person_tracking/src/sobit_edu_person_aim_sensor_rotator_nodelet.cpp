@@ -1,22 +1,22 @@
 #include <ros/ros.h>
-
-// パンチルト回転機構上のRGB-Dセンサの制御
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 
 #include <ros/time.h>
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/transform_datatypes.h>
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
-#include <sobit_edu_library/sobit_edu_controller.hpp>
+#include "sobit_edu_library/sobit_edu_controller.hpp"
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <multiple_sensor_person_tracking/SensorRotatorParameterConfig.h>
-#include <multiple_sensor_person_tracking/FollowingPosition.h>
+#include "multiple_sensor_person_tracking/SensorRotatorParameterConfig.h"
+#include "multiple_sensor_person_tracking/FollowingPosition.h"
 
 typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::FollowingPosition, nav_msgs::Odometry> MySyncPolicy;
 
@@ -27,7 +27,8 @@ namespace multiple_sensor_person_tracking {
 			ros::NodeHandle pnh_;
 			ros::Publisher pub_marker_;
             ros::Subscriber sub_following_position_;
-			tf::TransformListener tf_listener_;
+			tf2_ros::Buffer tfBuffer_;
+            boost::shared_ptr<tf2_ros::TransformListener> tf_sub_;
 
             // std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
             // std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
@@ -75,10 +76,11 @@ void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::makeMarker
 	marker.pose.position.x = 0.0;
     marker.pose.position.y = 0.0;
     marker.pose.position.z = 0.8;
-    tf::Quaternion quat = tf::createQuaternionFromRPY(0, -tilt_angle, pan_angle);
-    geometry_msgs::Quaternion geometry_quat;
-    quaternionTFToMsg(quat, geometry_quat);
-    marker.pose.orientation = geometry_quat;
+    tf2::Quaternion quat_tf;
+    quat_tf.setRPY(0, -tilt_angle, pan_angle);
+    geometry_msgs::Quaternion quat_msg;
+    tf2::convert(quat_tf, quat_msg);
+    marker.pose.orientation = quat_msg;
     pub_marker_.publish ( marker );
 }
 void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::callbackDynamicReconfigure(multiple_sensor_person_tracking::SensorRotatorParameterConfig& config, uint32_t level) {
@@ -125,6 +127,7 @@ void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::callbackDa
 void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
+    tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
 
 	pub_marker_ = nh_.advertise< visualization_msgs::Marker >( "rotator_marker", 1 );
 

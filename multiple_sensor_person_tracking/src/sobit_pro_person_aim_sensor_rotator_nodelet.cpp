@@ -1,26 +1,24 @@
 #include <ros/ros.h>
-
-// パンチルト回転機構上のRGB-Dセンサの制御
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 
 #include <ros/time.h>
 
 #include <tf2_ros/transform_listener.h>
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "tf2/transform_datatypes.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/transform_datatypes.h>
 
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
-#include <sobit_pro_library/sobit_pro_joint_controller.h>
+#include "sobit_pro_library/sobit_pro_joint_controller.h"
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <multiple_sensor_person_tracking/SensorRotatorParameterConfig.h>
-#include <multiple_sensor_person_tracking/FollowingPosition.h>
+#include "multiple_sensor_person_tracking/SensorRotatorParameterConfig.h"
+#include "multiple_sensor_person_tracking/FollowingPosition.h"
 
 //typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::FollowingPosition, nav_msgs::Odometry> MySyncPolicy;
 
@@ -33,7 +31,6 @@ namespace multiple_sensor_person_tracking {
             ros::Subscriber sub_following_position_;
 
             tf2_ros::Buffer tfBuffer_;
-            // tf2_ros::TransformListener tfListener_;
             boost::shared_ptr<tf2_ros::TransformListener> tf_sub_;
 
             // std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
