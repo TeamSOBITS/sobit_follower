@@ -1,6 +1,8 @@
 #include <ros/ros.h>
-#include <tf/transform_broadcaster.h>
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2/LinearMath/Transform.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/convert.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
@@ -63,7 +65,7 @@ void callbackTwist ( const geometry_msgs::TwistConstPtr &msg ) {
     g_odom.twist.twist.angular.z += 0.1 * ( msg->angular.z - g_odom.twist.twist.angular.z );
     g_odom.pose.pose.position.x = g_robot.x;
     g_odom.pose.pose.position.y = g_robot.y;
-    tf::Quaternion q;
+    tf2::Quaternion q;
     q.setRPY(0, 0, g_robot.theta);
     g_odom.pose.pose.orientation.w = q.getW();
     g_odom.pose.pose.orientation.x = q.getX();
@@ -81,7 +83,7 @@ int main(int argc, char *argv[]) {
     ros::Publisher pub_vel = nh.advertise< geometry_msgs::Twist >( "/mobile_base/commands/velocity", 1 );
     ros::Publisher pub_marker = nh.advertise< visualization_msgs::Marker >( "robot_trajectory", 1 );
     ros::Publisher pub_mrk_path = nh.advertise< visualization_msgs::Marker >( "path", 1 );
-    static tf::TransformBroadcaster br;
+    static tf2_ros::TransformBroadcaster br;
 
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
@@ -108,12 +110,18 @@ int main(int argc, char *argv[]) {
 
     ros::Rate rate(50);
     while(ros::ok()){
-        tf::Transform transform;
-        transform.setOrigin( tf::Vector3(g_robot.x, g_robot.y, 0.0) );
-        tf::Quaternion q;
+        tf2::Transform transform;
+        transform.setOrigin( tf2::Vector3(g_robot.x, g_robot.y, 0.0) );
+        tf2::Quaternion q;
         q.setRPY(0, 0, g_robot.theta);
         transform.setRotation(q);
-        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "base_footprint" ));
+
+        geometry_msgs::TransformStamped transform_stamped;
+        transform_stamped.header.stamp = ros::Time::now();
+        transform_stamped.header.frame_id = "map";
+        transform_stamped.child_frame_id = "base_footprint";
+        tf2::convert(transform, transform_stamped.transform);
+        br.sendTransform(transform_stamped);
         g_odom.header.stamp = ros::Time::now();
         pub_odom.publish( g_odom );
         pub_vel.publish( g_odom.twist.twist );

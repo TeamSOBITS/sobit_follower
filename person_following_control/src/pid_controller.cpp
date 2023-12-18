@@ -1,6 +1,5 @@
-#include <person_following_control/pid_controller.hpp>
+#include "person_following_control/pid_controller.hpp"
 
-// PID制御による方向転換
 namespace person_following_control {
 
     PIDController::PIDController ( ) {
@@ -22,7 +21,6 @@ namespace person_following_control {
         if ( target_angle < 0.0 ) ctl_qty = -ctl_qty;
         output_vel->linear.x = 0.0;
         output_vel->angular.z = ctl_qty;
-        // output_vel->angular.z = target_angle;
         return true;
     }
 }

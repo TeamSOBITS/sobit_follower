@@ -1,4 +1,4 @@
-#include <person_following_control/dynamic_window_approach.hpp>
+#include "person_following_control/dynamic_window_approach.hpp"
 using namespace person_following_control;
 
 void DynamicWindowApproach::displayOptimalPathMarker ( const EvaluatedPath& optimal_path ) {
@@ -103,7 +103,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
     const PointCloud::Ptr obstacles,
     geometry_msgs::TwistPtr output_path )
 {
-    // 経路予測して、経路リストを作成
+    // Predict paths and create a path list
     std::vector< EvaluatedPath > path_list;
     MinMaxValue mmv;
 
@@ -127,7 +127,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
     EvaluatedPath optimal_path;
     bool exists_path = false;
 
-    // 経路予測
+    // Predict paths
     for ( auto& linear : linear_list ) for ( auto& angular : angular_list ) {
         dist_nearest_obstacle = DBL_MAX;
         EvaluatedPath eval;
@@ -138,7 +138,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
         bool is_collision = false;
         double distance = 0.0;
         double theta = 0.0;
-        // 衝突チェック
+        // Collision check
         for ( int step = 0; step < predict_step; ++step) {
             pre_path = path;
             path.point.x = linear * cos(theta) * sampling_time + pre_path.point.x;
@@ -179,7 +179,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
         }
         path_list.push_back( eval );
     }
-    // 各スコアを正規化して、評価関数に入力
+    // Normalize each score and input into the evaluation function
     double heading_range = mmv.heading.max_score - mmv.heading.min_score;
     double obstacle_range = mmv.obstacle.max_score - mmv.obstacle.min_score;
     double velocity_range = mmv.velocity.max_score - mmv.velocity.min_score;
@@ -201,12 +201,10 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
             exists_path = true;
         }
     }
-    // 最適な経路の速度を出力
+    // Output optimal path speed
     if ( exists_path ) {
         output_path->linear.x = optimal_path.linear;
         output_path->angular.z = optimal_path.angular;
-        //ROS_INFO("heading = %.5f,\tobstacle = %.5f,\tvelocity = %.5f",
-        //    optimal_path.heading, optimal_path.obstacle, optimal_path.velocity);
     } else {
         ROS_ERROR("No Optimal Path");
     }
@@ -222,7 +220,7 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
     const geometry_msgs::TwistPtr base_path,
     geometry_msgs::TwistPtr output_path ) {
 
-    // 経路予測して、経路リストを作成
+    // Predict paths and create a path list
     std::vector< EvaluatedPath > path_list;
     MinMaxValue mmv;
     double base_linear = ( base_path->linear.x < dwap_->max_vel ) ? base_path->linear.x : dwap_->max_vel;
@@ -254,7 +252,7 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
     EvaluatedPath optimal_path;
     bool exists_path = false;
 
-    // 経路予測
+    // Predict paths
     for ( auto& linear : linear_list ) for ( auto& angular : angular_list ) {
         dist_nearest_obstacle = DBL_MAX;
         EvaluatedPath eval;
@@ -265,7 +263,7 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
         bool is_collision = false;
         double distance = 0.0;
         double theta = 0.0;
-        // 衝突チェック
+        // Collision check
         for ( int step = 0; step < predict_step; ++step) {
             pre_path = path;
             path.point.x = linear * cos(theta) * sampling_time + pre_path.point.x;
@@ -309,7 +307,7 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
         path_list.push_back( eval );
     }
 
-    // 各スコアを正規化して、評価関数に入力
+    // Normalize each score and input into the evaluation function
     double heading_range = mmv.heading.max_score - mmv.heading.min_score;
     double obstacle_range = mmv.obstacle.max_score - mmv.obstacle.min_score;
     double velocity_range = mmv.velocity.max_score - mmv.velocity.min_score;
@@ -334,12 +332,10 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
             exists_path = true;
         }
     }
-    // 最適な経路の速度を出力
+    // Output optimal path speed
     if ( exists_path ) {
         output_path->linear.x = optimal_path.linear;
         output_path->angular.z = optimal_path.angular;
-        //ROS_INFO("heading = %.5f,\tobstacle = %.5f,\tvelocity = %.5f,\tvelocity_angle = %.5f",
-        //    optimal_path.heading, optimal_path.obstacle, optimal_path.velocity, optimal_path.velocity_angle );
     } else {
         ROS_ERROR("No Optimal Path");
     }

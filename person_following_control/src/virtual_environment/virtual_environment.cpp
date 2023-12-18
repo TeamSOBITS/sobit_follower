@@ -1,7 +1,10 @@
 #include <ros/ros.h>
-#include <tf/transform_broadcaster.h>
-#include <tf/transform_listener.h>
-#include<bits/stdc++.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <bits/stdc++.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
@@ -10,11 +13,11 @@
 #include <pcl_ros/transforms.h>
 #include <pcl/point_types.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <multiple_sensor_person_tracking/FollowingPosition.h>
-
 #include <dynamic_reconfigure/server.h>
-#include <person_following_control/VirtualEnvironmentParameterConfig.h>
-#include <multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp>
+
+#include "multiple_sensor_person_tracking/FollowingPosition.h"
+#include "person_following_control/VirtualEnvironmentParameterConfig.h"
+#include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
@@ -27,7 +30,8 @@ namespace person_following_control{
             ros::Publisher pub_mrk_tgt_;
             ros::Publisher pub_mrk_sensor_;
             ros::Subscriber sub_tgt_pose_;
-            tf::TransformListener tf_listener_;
+            tf2_ros::Buffer               tfBuffer_;
+            tf2_ros::TransformListener    tfListener_;
             geometry_msgs::Point tgt_pt_;
             PointCloud::Ptr cloud_sensor_map_;
             double tgt_theta_;
@@ -147,7 +151,7 @@ void  person_following_control::VirtualEnvironment::displaySensorMarker ( ) {
     pub_mrk_sensor_.publish( marker_array );
 }
 
-person_following_control::VirtualEnvironment::VirtualEnvironment ( ) : nh_(), pnh_("~") {
+person_following_control::VirtualEnvironment::VirtualEnvironment ( ) : nh_(), pnh_("~"), tfBuffer_(), tfListener_(tfBuffer_) {
     tgt_pt_.x = 0.0;
     tgt_pt_.y = 0.0;
     tgt_theta_ = 0.0;
@@ -163,7 +167,7 @@ person_following_control::VirtualEnvironment::VirtualEnvironment ( ) : nh_(), pn
 
 void person_following_control::VirtualEnvironment::pubData (  ) {
     ros::Rate rate(30);
-    static tf::TransformBroadcaster br;
+    static tf2_ros::TransformBroadcaster br;
     ros::Publisher pub_trajectory = nh_.advertise< visualization_msgs::Marker >( "/target_trajectory", 1 );
     ros::Publisher pub_following_position = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "/following_position", 1 );
     ros::Publisher pub_following_position_marker_ = nh_.advertise< visualization_msgs::Marker >( "/following_position_marker", 1 );
@@ -202,17 +206,21 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
 
     multiple_sensor_person_tracking::FollowingPositionPtr following_position ( new multiple_sensor_person_tracking::FollowingPosition );
     std::random_device seed;
-    std::mt19937 engine(seed());            // メルセンヌ・ツイスター法
-    // geometry_msgs::Point pre_pt;
+    std::mt19937 engine(seed());
 
     while(ros::ok()){
-        tf::Transform transform;
-        transform.setOrigin( tf::Vector3(tgt_pt_.x, tgt_pt_.y, 0.0) );
-        tf::Quaternion q;
+        tf2::Transform transform;
+        transform.setOrigin( tf2::Vector3(tgt_pt_.x, tgt_pt_.y, 0.0) );
+        tf2::Quaternion q;
         q.setRPY(0, 0, tgt_theta_);
         transform.setRotation(q);
-        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "target" ));
-        ROS_INFO("[ Target ] x = %.3f , y = %.3f", tgt_pt_.x, tgt_pt_.y );
+
+        geometry_msgs::TransformStamped transform_stamped;
+        transform_stamped.header.stamp = ros::Time::now();
+        transform_stamped.header.frame_id = "map";
+        transform_stamped.child_frame_id = "target";
+        tf2::convert(transform, transform_stamped.transform);
+        br.sendTransform(transform_stamped);
 
         geometry_msgs::Point temp;
         temp.x = tgt_pt_.x;
@@ -223,48 +231,39 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
         if ( trajectory.points.size() > 200 ) trajectory.points.erase(trajectory.points.begin());
         trajectory.header.stamp = ros::Time::now();
         pub_trajectory.publish ( trajectory );
-
         PointCloud::Ptr cloud_sensor_base (new PointCloud() );
         sensor_msgs::PointCloud2Ptr sensor_msg ( new sensor_msgs::PointCloud2 );
+
         try {
-            tf_listener_.waitForTransform( "base_footprint", "map", ros::Time(0), ros::Duration(1.0));
-            pcl_ros::transformPointCloud( "base_footprint", ros::Time(0), *cloud_sensor_map_, "map",  *cloud_sensor_base, tf_listener_);
-        } catch (const tf::TransformException& ex) {ROS_ERROR("%s", ex.what());}
+            pcl_ros::transformPointCloud("base_footprint", *cloud_sensor_map_, *cloud_sensor_base, tfBuffer_);
+        } catch (const tf2::TransformException& ex) {ROS_ERROR("%s", ex.what());}
         pcl::toROSMsg(*cloud_sensor_base, *sensor_msg );
 
         displaySensorMarker ( );
 
-        tf::StampedTransform transform_stamped;
+        tf2::Stamped<tf2::Transform> tf2_stamped_transform;
         geometry_msgs::PoseStamped target_pose_base_robot;
         try {
-            // tf_listener_.waitForTransform("/base_footprint", "/target", ros::Time(0), ros::Duration(10.0) );
-            tf_listener_.lookupTransform("/base_footprint", "/target",  ros::Time(0), transform_stamped);
-        } catch ( const tf::TransformException& ex){
+            transform_stamped = tfBuffer_.lookupTransform("base_footprint", "target", ros::Time(0), ros::Duration(1.0));
+        } catch ( const tf2::TransformException& ex){
             ROS_ERROR("%s",ex.what());
             continue;
         }
-        tf::poseTFToMsg(transform_stamped, target_pose_base_robot.pose);
+        tf2::fromMsg(transform_stamped, tf2_stamped_transform);
+        tf2::toMsg (tf2_stamped_transform, target_pose_base_robot);
 
         target_pose_base_robot.header.stamp = ros::Time::now();
-        target_pose_base_robot.header.frame_id = "/base_footprint";
+        target_pose_base_robot.header.frame_id = "base_footprint";
 
         Eigen::Vector2f observed_value( 0.0, 0.0 );
         observed_value[0] = target_pose_base_robot.pose.position.x + (*dist_)(engine);
         observed_value[1] = target_pose_base_robot.pose.position.y + (*dist_)(engine);
         Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
         kf_->compute( 0.033, observed_value, &estimated_value );
-        // following_position : pose :
         following_position->pose.position.x = estimated_value[0];
         following_position->pose.position.y = estimated_value[1];
         following_position->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
         following_position->pose.orientation.w = 1.0;
-        // pre_pt = following_position->pose.position;
-        // double yaw = ( following_position->velocity > 0.1 ) ? std::atan2(estimated_value[3], estimated_value[2]) : 0.0;
-        // double yaw = std::atan2( pre_pt.y - following_position->pose.position.y, pre_pt.x - following_position->pose.position.x );
-        // tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0, yaw);
-        // geometry_msgs::Quaternion geometry_quat;
-        // quaternionTFToMsg(quat, geometry_quat);
-        // following_position->pose.orientation = geometry_quat;
 
         following_position->header.stamp = ros::Time::now();
         following_position->obstacles = *sensor_msg;

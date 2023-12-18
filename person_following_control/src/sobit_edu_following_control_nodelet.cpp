@@ -1,27 +1,21 @@
 #include <ros/ros.h>
-
-// 仮想ばねモデルを用いた追従制御とDynamic Window Approachによる障害物回避を組み込んだ走行制御
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
-
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
-
 #include <dynamic_reconfigure/server.h>
-#include <person_following_control/PersonFollowingParameterConfig.h>
-
 #include <pcl_ros/point_cloud.h>
 #include <pcl_ros/transforms.h>
 #include <pcl/point_types.h>
-
-#include <multiple_sensor_person_tracking/FollowingPosition.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 
-#include <person_following_control/virtual_spring_model.hpp>
-#include <person_following_control/dynamic_window_approach.hpp>
-#include <person_following_control/pid_controller.hpp>
+#include "multiple_sensor_person_tracking/FollowingPosition.h"
+#include "person_following_control/PersonFollowingParameterConfig.h"
+#include "person_following_control/virtual_spring_model.hpp"
+#include "person_following_control/dynamic_window_approach.hpp"
+#include "person_following_control/pid_controller.hpp"
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
@@ -119,7 +113,6 @@ void person_following_control::SobitEduPersonFollowing::callbackDynamicReconfigu
 void person_following_control::SobitEduPersonFollowing::callbackData (
     const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
     const nav_msgs::OdometryConstPtr &odom_msg) {
-    //std::cout << "\n====================================" << std::endl;
     if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) {
         velocity_->linear.x = 0.0;
         velocity_->angular.z = 0.0;

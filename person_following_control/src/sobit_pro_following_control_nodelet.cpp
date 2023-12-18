@@ -1,6 +1,5 @@
 #include <ros/ros.h>
 
-// 仮想ばねモデルを用いた追従制御とDynamic Window Approachによる障害物回避を組み込んだ走行制御
 #include <nodelet/nodelet.h>
 #include <pluginlib/class_list_macros.h>
 
@@ -9,19 +8,17 @@
 #include <message_filters/sync_policies/approximate_time.h>
 
 #include <dynamic_reconfigure/server.h>
-#include <person_following_control/PersonFollowingParameterConfig.h>
-
 #include <pcl_ros/point_cloud.h>
 #include <pcl_ros/transforms.h>
 #include <pcl/point_types.h>
-
-#include <multiple_sensor_person_tracking/FollowingPosition.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 
-#include <person_following_control/virtual_spring_model.hpp>
-#include <person_following_control/dynamic_window_approach.hpp>
-#include <person_following_control/pid_controller.hpp>
+#include "person_following_control/PersonFollowingParameterConfig.h"
+#include "multiple_sensor_person_tracking/FollowingPosition.h"
+#include "person_following_control/virtual_spring_model.hpp"
+#include "person_following_control/dynamic_window_approach.hpp"
+#include "person_following_control/pid_controller.hpp"
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
@@ -291,7 +288,7 @@ void person_following_control::SobitProPersonFollowing::onInit() {
     // sync_->registerCallback ( boost::bind( &SobitProPersonFollowing::callbackData, this, _1, _2 ) );
     sub_following_position_ = nh_.subscribe(pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1, &SobitProPersonFollowing::callbackData, this);
     sub_odom_ = nh_.subscribe(pnh_.param<std::string>( "odom_topic_name", "/odom"), 1, &SobitProPersonFollowing::odom_callback, this);
-    //片側イベント駆動型(odomのpublishがfollowing_positionのpublishよりも早いため、following_positionがsubscribeされたときにodomをsubscribeするようにしている)
+    // one-sided event-driven (odom's publish is earlier than following_position's publish, so odom is subscribed when following_position is subscribed)
 
     // dynamic_reconfigure :
     server_ = new dynamic_reconfigure::Server<person_following_control::PersonFollowingParameterConfig>(pnh_);
