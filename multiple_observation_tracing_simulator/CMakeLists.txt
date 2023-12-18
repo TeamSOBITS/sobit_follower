@@ -10,7 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roscpp
   std_msgs
-# tf
   tf2
   tf2_ros
   visualization_msgs
