@@ -57,7 +57,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS dr_spaam_ros sobit_pro_library ssd_nodelet
+  CATKIN_DEPENDS dr_spaam_ros sobit_edu_library sobit_pro_library ssd_nodelet
   DEPENDS OpenCV
 #  DEPENDS system_lib
 )
