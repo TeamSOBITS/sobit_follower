@@ -28,7 +28,7 @@ git clone https://github.com/TeamSOBITS/scan2d_handler.git
 echo -e "\e[34m\n Git Clone following_control_methods \e[m"
 git clone https://github.com/TeamSOBITS/following_control_methods.git
 
-# sensor_dataのrosbagを利用したい場合（※ファイル容量大きい）
+# If you want to use sensor_data rosbag (file size is large)
 # echo -e "\e[34m\n Git Clone virtual_multiple_sensor_publisher \e[m"
 # git clone https://github.com/TeamSOBITS/virtual_multiple_sensor_publisher.git
 
@@ -44,7 +44,6 @@ sudo apt-get install -y \
 
 sudo cp ~/catkin_ws/src/sobit_common/turtlebot2/turtlebot_simulator/turtlebot_gazebo/libgazebo_ros_kobuki.so /opt/ros/${ROS_DISTRO}/lib
 
-# 関係ない
 sudo apt-get install -y \
     ros-${ROS_DISTRO}-pcl-* \
     ros-${ROS_DISTRO}-openni2-*
