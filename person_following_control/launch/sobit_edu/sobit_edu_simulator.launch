@@ -19,7 +19,7 @@
         </node>
     </group>
 
-    <include file="$(find person_following_control)\launch\person_following_control.launch">
+    <include file="$(find person_following_control)\launch\sobit_edu\sobit_edu_person_following_control.launch">
         <arg name="following_method"            value="$(arg following_method)" />
         <arg name="rqt_reconfigure"             value="$(arg rqt_reconfigure)"/>
         <arg name="use_smoother"                value="$(arg use_smoother)" />
