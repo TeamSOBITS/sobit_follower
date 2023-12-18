@@ -2,38 +2,27 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 import numpy as np
 import matplotlib.font_manager
-# # フォントを全て読み込み
-# fonts = set([f.name for f in matplotlib.font_manager.fontManager.ttflist])
-# # 描画領域のサイズ調整
-# plt.figure(figsize=(10,len(fonts)/4))
-# # フォントの表示
-# for i, font in enumerate(fonts):
-#     plt.text(0, i, f"日本語：{font}", fontname=font)
-# # 見やすいように軸を消す
-# plt.ylim(0, len(fonts))
-# plt.axis("off")
-# plt.show()
 
-# figとaxの生成（グラフサイズを引数で設定）
+# Generate fig and ax (set graph size by argument)
 fig, ax = plt.subplots()
 
-# 軸目盛の設定と目盛り線の表示
+# Set axis scale and display scale lines
 plt.rcParams['font.size'] = 20
 ax.set_xticks([0.0, 0.9, 2.1, 3.3, 4.2, 5.4, 7.05, 8.4, -1.0, 9.0])
 ax.set_yticks([0.0, 0.9, 1.85, 1.15, 1.4, 0.0, 2.3])
 xticklabels = ax.get_xticklabels()
 yticklabels = ax.get_yticklabels()
-# 各要素の設定をおこなうsetコマンド
+# set command to set each element
 ax.set_xticklabels([0.0, 0.9, 2.1, 3.3, 4.2, 5.4, 7.05, 8.4, -1.0, 9.0],fontsize=20)
 ax.set_yticklabels([0.0, 0.9, 1.85, 1.15, 1.4, 0.0, 2.3],fontsize=20)
-ax.set_xlim([-1.0, 9.0]) # x方向の描画範囲を指定
-ax.set_ylim([0, 2.3])    # y方向の描画範囲を指定
+ax.set_xlim([-1.0, 9.0]) # Specify drawing range in x-direction
+ax.set_ylim([0, 2.3])    # Specify drawing range in y direction
 
-# 軸ラベルの設定
+# Set axis labels
 ax.set_xlabel("x[m]", size = 20)
 ax.set_ylabel("y[m]", size = 20)
-# ax.set_xlabel('x[m]')  # x軸ラベル
-# ax.set_ylabel('y[m]')  # y軸ラベル
+# ax.set_xlabel('x[m]')  # x-axis label
+# ax.set_ylabel('y[m]')  # y-axis label
 # ax.tick_params(direction = "inout", length = 5, colors = "#2a5caa")
 ax.grid()
 
@@ -62,7 +51,7 @@ ax.add_patch(c)
 c = patches.Circle( xy=(8.4,1.15), radius=0.1,fill=True, fc="Green")
 ax.add_patch(c)
 #ax.text(8.4,0.9, "B地点", size=30, horizontalalignment="center", verticalalignment="center", color="Black", fontfamily='TakaoGothic')
-ax.set_aspect('equal', adjustable='box') # スケールを揃える
-fig.tight_layout()  # レイアウトの設定
+ax.set_aspect('equal', adjustable='box') # Align scale
+fig.tight_layout()  # Set the layout
 # plt.legend()
 plt.show()

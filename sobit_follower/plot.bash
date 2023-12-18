@@ -1,11 +1,9 @@
 #!/bin/bash
 
 cd ~/catkin_ws/src
-# csvを作るrosbagファイル
+# rosbag file making csv
 rosbag_files=(
-    "murakami_0922_01" \
-    "murakami_0922_02" \
-    "murakami_0922_03"
+    "rosbag_file_names"
 )
 
 for ((i = 0; i < ${#rosbag_files[@]}; i++)) {
