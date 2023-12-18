@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <multiple_observation_tracing_simulator/virtual_spring_model.hpp>
 #include <dynamic_reconfigure/server.h>
-#include <multiple_observation_tracing_simulator/VirtualSpringModelParameterConfig.h>
+#include "multiple_observation_tracing_simulator/virtual_spring_model.hpp"
+#include "multiple_observation_tracing_simulator/VirtualSpringModelParameterConfig.h"
 
 namespace following_control {
     class FollowingControl {

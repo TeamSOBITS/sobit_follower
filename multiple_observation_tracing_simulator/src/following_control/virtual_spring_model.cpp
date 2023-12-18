@@ -1,4 +1,4 @@
-#include <multiple_observation_tracing_simulator/virtual_spring_model.hpp>
+#include "multiple_observation_tracing_simulator/virtual_spring_model.hpp"
 
 using namespace multiple_observation_tracing_simulator;
 
@@ -110,7 +110,7 @@ void VirtualSpringModel::compute ( const geometry_msgs::PoseStampedConstPtr &pos
             << "\n* yaw   : " << yaw
     << std::endl;
 
-    // 移動ロボットが人を追従するときのロボットの位置を求める(座標変換)
+    // Find the position of the robot when the mobile robot follows a person (coordinate transformation)
     double ang_follow = ang_follow_;
     Eigen::Vector3f robot(0.0f, 0.0f, 0.0f);
     Eigen::Vector3f human(pose_msg->pose.position.x, pose_msg->pose.position.y, yaw);
@@ -123,35 +123,34 @@ void VirtualSpringModel::compute ( const geometry_msgs::PoseStampedConstPtr &pos
     robot_transformed = F * ( robot - human - ang_follow_v );
     std::cout << "\n[Robot Transformed]\n"  << robot_transformed << std::endl;
 
-    // 人間,ロボットの位置関係から,仮想ばねの長さl,ロボットに対する角度φといった,仮想ばねの状態を求める
+    // Calculate the state of the virtual spring, such as the length l of the virtual spring and the angle φ with respect to the robot, based on the positional relationship between the human and the robot
     double length_spring = std::hypotf( robot_transformed[0], robot_transformed[1] );
     double angle_spring = std::atan2( robot_transformed[1], robot_transformed[0] );
     std::cout << "\n[Virtual Spring]"
         << "\n* length[m]  : " <<  length_spring
         << "\n* angle[deg] : " <<  angle_spring * 180.0 / M_PI << std::endl;
 
-    // 仮想ばねから移動ロボットに作用する弾性力を求める
-    // 伸びの方向には(length_spring - dist_follow_)に比例した弾性力F1
+    // Calculate the elastic force acting on the mobile robot from the virtual spring
+    // Elastic force F1 : proportional to (length_spring - dist_follow_) in the direction of elongation
     double elastic_force_linear = spring_constant_linear_ * ( length_spring - dist_follow_ );
     if ( std::isnan( elastic_force_linear ) ) elastic_force_linear = 0.0;
-    // 曲げの方向にはangle_springに比例した弾性力F2
+    // Elastic force F2 : proportional to angle_spring in the direction of bending
     double elastic_force_angular = (spring_constant_angular_ * angle_spring ) / length_spring;
     if ( std::isnan( elastic_force_angular ) ) elastic_force_angular = 0.0;
     std::cout << "\n[Elastic Force]"
         << "\n* elastic_force_linear  : " <<  elastic_force_linear 
         << "\n* elastic_force_angular : " <<  elastic_force_angular << std::endl;
 
-    // 仮想的な弾性力F1,F2を,移動ロボットの推進力として,以下のように運動方程式を導く
-    // 左辺が質量と移動ロボットの並進速度の微分の積
-    double linear = -elastic_force_linear * std::cos ( robot_transformed[2] - angle_spring )    // 第1項 : 移動ロボットにかかる伸びの弾性力F1の並進方向成分
-                    -elastic_force_angular * std::sin ( robot_transformed[2] - angle_spring )   // 第2項 : 曲げの方向の弾性力F2の並進方向成分
-                    -viscous_friction_linear_ * curt_vel_linear;                               // 第3項 : κ3と移動ロボットの並進速度の積によって粘性摩擦力
+    // The equations of motion are derived as follows, assuming the hypothetical elastic forces F1 and F2 as the propulsive forces of the mobile robot
+    // The left-hand side is the product of the mass and the derivative of the translational velocity of the mobile robot
+    double linear = -elastic_force_linear * std::cos ( robot_transformed[2] - angle_spring )    // Term 1 : Translational component of the elastic force of elongation F1 applied to the mobile robot
+                    -elastic_force_angular * std::sin ( robot_transformed[2] - angle_spring )   // Term 2 : Translational component of elastic force F2 in the direction of bending
+                    -viscous_friction_linear_ * curt_vel_linear;                                // Term 3 : Viscous frictional force by the product of κ3 and the translational velocity of the mobile robot
     linear = linear / weight_robot_;
-    // 左辺が回転モーメントと移動ロボットの回転角速度の微分の積
-    double angular = ( -elastic_force_linear * std::sin ( robot_transformed[2] - angle_spring )     // 第1項 : 移動ロボットにかかる伸びの弾性力F1の回転方向成分
-                    -elastic_force_angular * std::cos ( robot_transformed[2] - angle_spring )       // 第2項 : 曲げの方向の弾性力F2の回転方向成分
-                    -viscous_friction_angular_ * curt_vel_angular ) * radius_robot_;                // 第3項 : κ3と移動ロボットの回転速度の積によって粘性摩擦力
-    angular = angular / moment_inertia_;
+    // The left-hand side is the product of the rotational moment and the derivative of the rotational angular velocity of the mobile robot
+    double angular = ( -elastic_force_linear * std::sin ( robot_transformed[2] - angle_spring )     // Term 1 : Rotational component of the elastic force F1 of elongation applied to the mobile robot
+                    -elastic_force_angular * std::cos ( robot_transformed[2] - angle_spring )       // Term 2 : Rotational component of elastic force F2 in the direction of bending
+                    -viscous_friction_angular_ * curt_vel_angular ) * radius_robot_;                // Term 3 : Viscous frictional force by the product of K3 and the rotational speed of the mobile robot
     std::cout << "\n[Velocity]"
         << "\n* linear  [m/s]   : " <<  linear 
         << "\n* angular [rad/s] : " <<  angular << std::endl;

@@ -2,8 +2,8 @@
 #include <geometry_msgs/Twist.h>
 #include <iostream>
 #include <dynamic_reconfigure/server.h>
-#include <multiple_observation_tracing_simulator/TargetControllerParameterConfig.h>
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#include "multiple_observation_tracing_simulator/TargetControllerParameterConfig.h"
 
 #define FREE 0
 #define LINE 1

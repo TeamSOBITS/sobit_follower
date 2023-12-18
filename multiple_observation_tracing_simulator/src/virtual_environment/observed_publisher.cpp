@@ -3,7 +3,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <bits/stdc++.h>
 #include <geometry_msgs/Pose.h>
@@ -11,7 +11,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <dynamic_reconfigure/server.h>
-#include <multiple_observation_tracing_simulator/ObservationParameterConfig.h>
+#include "multiple_observation_tracing_simulator/ObservationParameterConfig.h"
 
 namespace multiple_observation_tracing_simulator {
     class ObservedPublisher {
@@ -74,7 +74,7 @@ void multiple_observation_tracing_simulator::ObservedPublisher::loopPublish( ){
     observed.pose.orientation.w = 1.0; observed_add.pose.orientation.w = 1.0;
 
     std::random_device seed;
-    std::mt19937 engine(seed());            // メルセンヌ・ツイスター法
+    std::mt19937 engine(seed());
 
     while(ros::ok()){
         geometry_msgs::Pose true_value_pose;
