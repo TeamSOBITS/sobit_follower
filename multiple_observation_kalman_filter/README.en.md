@@ -25,7 +25,7 @@
         <li><a href="#calculation-with-one-observation">Calculation with one observation</a></li>
         <li><a href="#observation-value-is-0-when-no-observation-value-was-obtained">Observation value is 0 (when no observation value was obtained)</a></li>
       </ul>
-    <li><a href="#参考文献">参考文献</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -39,43 +39,43 @@
 
 ## Function
 ### initialization
-- 観測値のinitialization
+- Initialization of observed values
 ```c++
 void init(
-    const Eigen::Vector2f& observed_value // 初期の観測値
+    const Eigen::Vector2f& observed_value // initial observations
 )
 ```
 
 ### Calculation with two observations
-- 2つの観測値を入力し，状態を更新
+- Input two observations and update the state
 ```c++
 void compute(
-        const double dt,                            // フレーム間の時間[s]
-        const Eigen::Vector2f& observed_value1,     // 観測値
-        const Eigen::Vector2f& observed_value2,     // 観測値
-        Eigen::Vector4f* estimated_value            // 推定値
+        const double dt,                            // frame time[s]
+        const Eigen::Vector2f& observed_value1,     // observed value
+        const Eigen::Vector2f& observed_value2,     // observed value
+        Eigen::Vector4f* estimated_value            // estimated value
     )
 ```
 
 ### Calculation with one observation
-- 1つの観測値を入力し，状態を更新
+- Input one observation and update the state
 ```c++
 void compute(
-    const double dt,                            // フレーム間の時間[s]
-    const Eigen::Vector2f& observed_value1,     // 観測値
-    Eigen::Vector4f* estimated_value            // 推定値
+    const double dt,                            // frame time[s]
+    const Eigen::Vector2f& observed_value1,     // observed value
+    Eigen::Vector4f* estimated_value            // estimated value
 )
 ```
 
 ### Observation value is 0 (when no observation value was obtained)
 ```c++
 void compute(
-    const double dt,                            // フレーム間の時間[s]
-    Eigen::Vector4f* estimated_value            // 推定値
+    const double dt,                            // frame time[s]
+    Eigen::Vector4f* estimated_value            // estimated value
 )
 ```
 
-## 参考文献
+## Acknowledgments
 - [tracking-with-Extended-Kalman-Filter](https://github.com/JunshengFu/tracking-with-Extended-Kalman-Filter/blob/master/src/tracking.cpp)
 - [カルマンフィルターのプロセスノイズ共分散行列
 ](https://gordiustears.net/process-noise-covariance-matrix-of-kalman-filter/)
