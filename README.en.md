@@ -10,55 +10,44 @@
 
 # SOBIT Follower
 
-<!-- 目次 -->
+<!-- Table of Contents -->
 <details>
-  <summary>目次</summary>
+  <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#概要">概要</a>
+      <a href="#summary">Summary</a>
     </li>
     <li>
-      <a href="#環境構築">環境構築</a>
+      <a href="#setup">Setup</a>
+    </li>
+    <li>
+    　<a href="#package-configuration">Package Configuration</a>
       <ul>
-        <li><a href="#環境条件">環境条件</a></li>
-        <li><a href="#インストール方法">インストール方法</a></li>
+        <li><a href="#01-2d-lidar-person-detection">01. 2D Lidar Person Detection</a></li>
+        <li><a href="#02-multiple-observation-kalman-filter">02. Multiple Observation Kalman Filter</a></li>
+        <li><a href="#03-multiple-sensor-person-tracking">03. Multiple Sensor Person Tracking</a></li>
+        <li><a href="#04-person-following-control">04. Person Following Control</a></li>
+        <li><a href="#05-sobit-follower">05. SOBIT Follower</a></li>
       </ul>
     </li>
     <li>
-    　<a href="#実行操作方法">実行・操作方法</a>
+    　<a href="#launch-and-usage">Launch and Usage</a>
       <ul>
-        <li><a href="#移動機構のみを使用する場合">移動機構のみを使用する場合</a></li>
-        <li><a href="#Rviz上の可視化">Rviz上の可視化</a></li>
+        <li><a href="#launch-configuration">Launch Configuration</a></li>
+        <li><a href="#parameter-file">Parameter file</a></li>
       </ul>
     </li>
-    <li>
-    　<a href="#ソフトウェア">ソフトウェア</a>
-      <ul>
-        <li><a href="#ジョイントコントローラ">ジョイントコントローラ</a></li>
-        <li><a href="#ホイルコントローラ">ホイルコントローラ</a></li>
-      </ul>
-    </li>
-    <li>
-    　<a href="#ハードウェア">ハードウェア</a>
-      <ul>
-        <li><a href="#パーツのダウンロード方法">パーツのダウンロード方法</a></li>
-        <li><a href="#電子回路図">電子回路図</a></li>
-        <li><a href="#ロボットの組み立て">ロボットの組み立て</a></li>
-        <li><a href="#ロボットの特徴">ロボットの特徴</a></li>
-        <li><a href="#部品リストBOM">部品リスト（BOM）</a></li>
-      </ul>
-    </li>
-    <li><a href="#マイルストーン">マイルストーン</a></li>
+    <li><a href="#milestone">Milestone</a></li>
     <!-- <li><a href="#contributing">Contributing</a></li> -->
     <!-- <li><a href="#license">License</a></li> -->
-    <li><a href="#参考文献">参考文献</a></li>
+    <!-- <li><a href="#acknowledgments">Acknowledgments</a></li> -->
   </ol>
 </details>
 
-##概要
-- 複数のセンサを用いたロボットの人追従走行システム(SOBIT EDU, SOBIT PROで使用可能)
-- [論文](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf)
-- [LRFとパン・チルト回転機構上のRGB-Dセンサを用いた人追従走行ロボットの開発](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)
+##Summary
+- Robot person-following system with multiple sensors (usable with SOBIT EDU and SOBIT PRO)
+<!-- - [論文](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf) -->
+- [Development of a person-following  robot using LRF and RGB-D sensor on the pan-tilt-rotate mechanism](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)
 
 <div align="center">
     <img src="sobit_follower/doc/img/system_overview.jpg" width="800">
@@ -70,130 +59,148 @@
 $ cd ~/catkin_ws/src/
 $ git clone https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
-# follow meに必要なパッケージのインストールを行う
+# Install the necessary packages for follow me
 $ bash install.sh
-# インストールしたパッケージのセットアップを行った後、catkin_make
+# Setup the installed package, then catkin_make
 $ cd ~/catkin_ws
 $ catkin_make
 ```
 
 ## Package Configuration
 ### 01. 2D Lidar Person Detection
-- DR-SPAAMによる2次元点群脚検出
-- [GitHub：Person Detection in 2D Range Data](https://github.com/VisualComputingInstitute/2D_lidar_person_detection)をPython3で動作するように改良したもの
-- Multiple Sensor Person Trackingで使用
-- 詳細は[こちら](2d_lidar_person_detection)
+- 2D Point Cloud Leg Detection with DR-SPAAM
+- [GitHub：Person Detection in 2D Range Data](https://github.com/VisualComputingInstitute/2D_lidar_person_detection) modified to work with Python3
+- Used in Multiple Sensor Person Tracking
+- [For more information](2d_lidar_person_detection)
 
 ### 02. Multiple Observation Kalman Filter
-- 2つの観測値を入力とするカルマンフィルタライブラリ
-- 1つの観測値でも動作可能
--　状態方程式は等速モデル
-- Multiple Sensor Person Trackingで使用
-- 詳細は[こちら](multiple_observation_kalman_filter)
+- Kalman filter library with two observables as input
+- Can also work with a single observation
+- Equation of state is a constant velocity model
+- Used in Multiple Sensor Person Tracking
+- [For more information](multiple_observation_kalman_filter)
 
 ### 03. Multiple Sensor Person Tracking
-- 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
-- DR-SPAAMによる2次元点群脚検出とSSDによる画像人検出を用いた人物追跡
-- 詳細は[こちら](multiple_sensor_person_tracking)
+- Person tracking using a 2D-LiDAR sensor combined with an RGB-D sensor on a pan-tilt rotation mechanism
+- Person tracking using 2D point cloud leg detection with DR-SPAAM and person detection with SSD
+- [For more information](multiple_sensor_person_tracking)
 
 <!-- <div align="center">
     <img src="multiple_sensor_person_tracking/doc/img/tracker.png" width="1080">
 </div> -->
 
 ### 04. Person Following Control
-- 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
-- 詳細は[こちら](person_following_control)
+- Person-following control using a Virtual Spring Model with obstacle avoidance by Dynamic Window Approach
+- [For more information](person_following_control)
 
 <!-- <div align="center">
     <img src="person_following_control/doc/img/person_following_control.png" width="1080">
 </div> -->
 
 ### 05. SOBIT Follower
-- Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
-- ユーザはこのパッケージのLaunchを起動することで人追従走行を動作させることが可能
-- 実験用のrosbag取得や取得したデータのplotも可能なシェルスクリプトも完備
-- 詳細は[こちら](sobit_follower)
+- Person-following control using Multiple Sensor Person Tracking and Person Following Control
+- Users can activate person-following by launching this package's Launch
+- Shell scripts are also available to acquire rosbags for experiments and plot the acquired data
+- [For more information](sobit_follower)
 
-## How to Use
-### [follower_me.launch](sobit_follower/launch/follower_me.launch)
-- Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
-- path：`sobit_follower/launch/follower_me.launch`
-- 詳細は[こちら](sobit_follower)
+## Launch and Usage
+### [sobit_edu_follower_me.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch)
+- Person-following control by Multiple Sensor Person Tracking and Person Following Control using SOBIT EDU
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch`
+- [For more information](sobit_follower)
 ```python
-$ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# 引数
-# rviz : Rvizを起動するか(bool)
-# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
-# use_rotate : SensorRotatorを起動するか(bool)
-# use_smoother : 速度の平滑化を行うか(bool)
+$ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
 ```
-※SOBIT EDU，RGB-Dセンサ，2D LiDARの起動をすること
+
+### [sobit_pro_follower_me.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch)
+- Person-following control by Multiple Sensor Person Tracking and Person Following Control using SOBIT PRO
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
+- [For more information](sobit_follower)
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+```
 
 #### Launch Configuration
-- [tracker.launch.xml](sobit_follower/launch/include/tracker.launch.xml)
-    - 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
-    - path：`sobit_follower/launch/include/tracker.launch.xml`
-    - 詳細は[こちら](sobit_follower#trackerlaunchxml)
 - [ssd_pose_ros.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.xml)
-    - RGB画像ベースの人物検出器
+    - RGB image-based person detector
     - path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
-    - 詳細は[こちら](sobit_follower#ssd_pose_roslaunchxml)
+    - [For more information](sobit_follower#ssd_pose_roslaunchxml)
 - [dr_spaam_ros.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
-    - 2D LiDARベースの人物検出器
+    - 2D LiDAR-based person detector
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
-    - 詳細は[こちら](sobit_follower#dr_spaam_roslaunchxml)
-- [person_following_control.launch.xml](sobit_follower/launch/include/person_following_control.launch.xml)
-    - 仮想ばねモデルを用いた追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
-    - path：`sobit_follower/launch/include/person_following_control.launch.xml`
-    - 詳細は[こちら](sobit_follower#person_following_controllaunchxml)
+    - [For more information](sobit_follower#dr_spaam_roslaunchxml)
+- [sobit_edu_tracker.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
+    - 2D-LiDAR sensor with SOBIT EDU combined with RGB-D sensor on pan-tilt rotation mechanism for person tracking
+    - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml`
+    - [For more information](sobit_follower#sobit_edu_trackerlaunchxml)
+- [sobit_pro_tracker.launch.xml](sobit_follower/launch/include/sobit_pro/sobit_pro_tracker.launch.xml)
+    - 2D-LiDAR sensor with SOBIT PRO combined with RGB-D sensor on pan-tilt rotation mechanism for person tracking
+    - path：`sobit_follower/launch/include/sobit_pro/sobit_pro_tracker.launch.xml`
+    - [For more information](sobit_follower#sobit_pro_trackerlaunchxml)
+- [sobit_edu_person_following_control.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml)
+    - Driving control that incorporates obstacle avoidance using the Dynamic Window Approach into tracking control using a Virtual Spring Model with SOBIT EDU
+    - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml`
+    - [For more information](sobit_follower#sobit_edu_person_following_controllaunchxml)
+- [sobit_pro_person_following_control.launch.xml](sobit_follower/launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml)
+    - Driving control that incorporates obstacle avoidance using the Dynamic Window Approach into tracking control using a Virtual Spring Model with SOBIT PRO
+    - path：`sobit_follower/launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml`
+    - [For more information](sobit_follower#sobit_pro_person_following_controllaunchxml)
 
 #### Parameter file
 - [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
-    - 人物追跡に関するパラメータ
+    - Parameters for person tracking
     - path：`sobit_follower/param/tracker_param.launch.xml`
-    - パラメータの詳細は[こちら](sobit_follower#parametersperson_tracker)
+    - [For more information](sobit_follower#parametersperson_tracker)
 - [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
     - RGB画像ベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/ssd_param.launch.xml`
-    - パラメータの詳細は[こちら](sobit_follower#parameters)
+    - [For more information](sobit_follower#parameters)
 - [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
     - 2D LiDARベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/dr_spaam_param.launch.xml`
-    - パラメータの詳細は[こちら](sobit_follower#parameters-1)
+    - [For more information](sobit_follower#parameters-1)
 - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
     - RGB-Dセンサのパンチルト回転制御に関するパラメータ
     - path：`sobit_follower/param/sensor_rotator_param.launch.xml`
 - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
     - 走行制御に関するパラメータ
     - path：`sobit_follower/param/following_control_param.launch.xml`
-    - パラメータの詳細は[こちら](sobit_follower##parameterfollowing-control)
+    - [For more information](sobit_follower##parameterfollowing-control)
 - [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
     - 速度平滑化に関するパラメータ
     - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
+    - [For more information](sobit_follower##velocity_smoother_param)
 
-### [simulator.launch](sobit_follower/launch/simulator.launch)
-- 仮想的にセンサデータをパブリッシュして，follower_me.launchの動作を確認
-- path：`sobit_follower/launch/simulator.launch`
-```python
-$ roslaunch sobit_follower simulator.launch rviz:=true rqt_reconfigure:=true
-# 引数
-# rviz : Rvizを起動するか(bool)
-# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
-```
-<div align="center">
-    <img src="sobit_follower/doc/img/sobit_follower.png" width="1080">
-</div>
-
-<!-- マイルストーン -->
-## マイルストーン
+<!-- Milestone -->
+## Milestone
 
 - [x] OSS
-    - [x] ドキュメンテーションの充実
-    - [x] コーディングスタイルの統一
+    - [x] fix tf2 
+    - [x] Improved documentation
+    - [x] Unified coding style
 
 現時点のバッグや新規機能の依頼を確認するために[Issueページ][license-url] をご覧ください．
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+See the [open issues][license-url]  for a full list of proposed features (and known issues).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Acknowledgments -->
+<!-- ## Acknowledgments
+
+* [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 <!-- CONTRIBUTING -->
@@ -210,7 +217,7 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 <!-- LICENSE -->
@@ -218,7 +225,7 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE.txt` for more NOTErmation.
 
-<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge

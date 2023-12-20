@@ -40,7 +40,7 @@
     <li><a href="#マイルストーン">マイルストーン</a></li>
     <!-- <li><a href="#contributing">Contributing</a></li> -->
     <!-- <li><a href="#license">License</a></li> -->
-    <li><a href="#参考文献">参考文献</a></li>
+    <!-- <li><a href="#参考文献">参考文献</a></li> -->
   </ol>
 </details>
 
@@ -81,7 +81,7 @@ $ catkin_make
 - 詳細は[こちら](multiple_observation_kalman_filter)
 
 ### 03. Multiple Sensor Person Tracking
-- 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
+- 2D-LiDARセンサとパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
 - DR-SPAAMによる2次元点群脚検出とSSDによる画像人検出を用いた人物追跡
 - 詳細は[こちら](multiple_sensor_person_tracking)
 
@@ -140,11 +140,11 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
     - 詳細は[こちら](sobit_follower#dr_spaam_roslaunchxml)
 - [sobit_edu_tracker.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
-    - SOBIT EDUによる2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
+    - SOBIT EDUによる2D-LiDARセンサとパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
     - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml`
     - 詳細は[こちら](sobit_follower#sobit_edu_trackerlaunchxml)
 - [sobit_pro_tracker.launch.xml](sobit_follower/launch/include/sobit_pro/sobit_pro_tracker.launch.xml)
-    - SOBIT PROによる2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
+    - SOBIT PROによる2D-LiDARセンサとパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
     - path：`sobit_follower/launch/include/sobit_pro/sobit_pro_tracker.launch.xml`
     - 詳細は[こちら](sobit_follower#sobit_pro_trackerlaunchxml)
 - [sobit_edu_person_following_control.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml)
@@ -179,6 +179,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 - [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
     - 速度平滑化に関するパラメータ
     - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
+    - パラメータの詳細は[こちら](sobit_follower##velocity_smoother_param)
 
 <!-- マイルストーン -->
 ## マイルストーン
