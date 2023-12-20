@@ -44,7 +44,7 @@
   </ol>
 </details>
 
-##Summary
+## Summary
 - Robot person-following system with multiple sensors (usable with SOBIT EDU and SOBIT PRO)
 <!-- - [論文](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf) -->
 - [Development of a person-following  robot using LRF and RGB-D sensor on the pan-tilt-rotate mechanism](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)

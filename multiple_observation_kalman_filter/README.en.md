@@ -11,40 +11,42 @@
 # Multiple Observation Kalman Filter
 
 <details>
-  <summary>目次</summary>
+  <summary>Table of Contents
+</summary>
   <ol>
     <li>
-      <a href="#概要">概要</a>
+      <a href="#summary">Summary</a>
     </li>
     <li>
-      <a href="#機能">機能</a>
+      <a href="#function">Function</a>
       <ul>
-        <li><a href="#初期化">初期化</a></li>
-        <li><a href="#観測値が2つの場合の計算">観測値が2つの場合の計算</a></li>
-        <li><a href="#観測値が1つの場合の計算">観測値が1つの場合の計算</a></li>
-        <li><a href="#観測値が0観測値が得られなかった場合">観測値が0(観測値が得られなかった場合)</a></li>
+        <li><a href="#initialization">initialization</a></li>
+        <li><a href="#calculation-with-two-observations">Calculation with two observations</a></li>
+        <li><a href="#calculation-with-one-observation">Calculation with one observation</a></li>
+        <li><a href="#observation-value-is-0-when-no-observation-value-was-obtained">Observation value is 0 (when no observation value was obtained)</a></li>
       </ul>
     <li><a href="#参考文献">参考文献</a></li>
   </ol>
 </details>
 
-## 概要
-- 2つの観測値を入力とするカルマンフィルタライブラリ
-- 1つの観測値でも動作可能
--　状態方程式は等速モデル
-- Multiple Sensor Person Trackingで使用
+## Summary
+- Kalman filter library with two observables as input
+- Can work with one observation value
+- Equation of state is a constant velocity model
+- Used in Multiple Sensor Person Tracking
 - [multiple_observation_kalman_filter.cpp](multiple_observation_kalman_filter/src/multiple_observation_kalman_filter.cpp)
 - [multiple_observation_kalman_filter.hpp](multiple_observation_kalman_filter/src/multiple_observation_kalman_filter.cpp)
-## 機能
-### 初期化
-- 観測値の初期化
+
+## Function
+### initialization
+- 観測値のinitialization
 ```c++
 void init(
     const Eigen::Vector2f& observed_value // 初期の観測値
 )
 ```
 
-### 観測値が2つの場合の計算
+### Calculation with two observations
 - 2つの観測値を入力し，状態を更新
 ```c++
 void compute(
@@ -55,7 +57,7 @@ void compute(
     )
 ```
 
-### 観測値が1つの場合の計算
+### Calculation with one observation
 - 1つの観測値を入力し，状態を更新
 ```c++
 void compute(
@@ -65,7 +67,7 @@ void compute(
 )
 ```
 
-### 観測値が0(観測値が得られなかった場合)
+### Observation value is 0 (when no observation value was obtained)
 ```c++
 void compute(
     const double dt,                            // フレーム間の時間[s]

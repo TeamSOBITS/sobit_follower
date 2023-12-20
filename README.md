@@ -44,7 +44,7 @@
   </ol>
 </details>
 
-##概要
+## 概要
 - 複数のセンサを用いたロボットの人追従走行システム(SOBIT EDU, SOBIT PROで使用可能)
 <!-- - [論文](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf) -->
 - [LRFとパン・チルト回転機構上のRGB-Dセンサを用いた人追従走行ロボットの開発](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)
