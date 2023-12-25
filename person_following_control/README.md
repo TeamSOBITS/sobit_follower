@@ -1,7 +1,61 @@
-# Person Following Control
-- 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ手法
+<a name="readme-top"></a>
 
-## About
+[JA](README.md) | [EN](README.en.md)
+
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
+
+# Person Following Control
+
+<!-- 目次 -->
+<details>
+  <summary>目次</summary>
+  <ol>
+    <li>
+      <a href="#概要">概要</a>
+    </li>
+    <li>
+    　<a href="#各追従制御手法について">各追従制御手法について</a>
+      <ul>
+        <li><a href="#virtual-spring-model">Virtual Spring Model</a></li>
+        <li><a href="#dynamic-window-approach">Dynamic Window Approach</a></li>
+        <li><a href="#virtual-spring-model-dynamic-window-approach">Virtual Spring Model Dynamic Window Approach</a></li>
+      </ul>
+    </li>
+    <li>
+    　<a href="#実行方法">実行方法</a>
+      <ul>
+        <li><a href="#sobit-edu-追従制御">SOBIT EDU 追従制御</a></li>
+        <li><a href="#sobit-edu-シミュレータ">SOBIT EDU シミュレータ</a></li>
+        <li><a href="#sobit-pro-追従制御">SOBIT PRO 追従制御</a></li>
+      </ul>
+    </li>
+    <li>
+    　<a href="#各パラメータについて">各パラメータについて</a>
+      <ul>
+        <li><a href="#node">Node</a></li>
+        <li><a href="#subscriptions">Subscriptions</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#parameterfollowing-control">Parameter：Following Control</a></li>
+        <li><a href="#parametervirtual-spring-model">Parameter：Virtual Spring Model</a></li>
+        <li><a href="#parameterdynamic-window-approach">Parameter：Dynamic Window Approach</a></li>
+        <li><a href="#parameterpid-controller">Parameter：PID Controller</a></li>
+        <li><a href="#parametersimulator">Parameter：Simulator</a></li>
+      </ul>
+    </li>
+    <li><a href="#マイルストーン">マイルストーン</a></li>
+    <!-- <li><a href="#contributing">Contributing</a></li> -->
+    <!-- <li><a href="#license">License</a></li> -->
+    <!-- <li><a href="#参考文献">参考文献</a></li> -->
+  </ol>
+</details>
+
+## 概要
+- 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ手法
+## 各追従制御手法について
 ### Virtual Spring Model
 * 仮想ばねモデルによる追従制御
 * ロボットと目標物の間に仮想的な"ばね"を作り、追従
@@ -26,10 +80,10 @@
     * ゴールの位置情報
     * 仮想ばねモデルで得た速度情報
 
-## How To Use
-### following_control
+## 実行方法
+### SOBIT EDU 追従制御
 ```python
-$ roslaunch person_following_control following_control.launch
+$ roslaunch person_following_control sobit_edu_person_following_control.launch
 # 引数
     # manager_name      :   Nodeletマネージャー名
     # manager_threads   :   Nodeletスレッド数
@@ -39,16 +93,28 @@ $ roslaunch person_following_control following_control.launch
     # following_method  :   追従手法
     # use_smoother      :   velocity_smootherを使用するか
 ```
-### simulator
+### SOBIT EDU シミュレータ
 ```python
-$ roslaunch person_following_control simulator.launch
+$ roslaunch person_following_control sobit_edu_simulator.launch
 # 引数
     # obstacle_number   :   障害物の個数
     # observation_noise :   観測ノイズ(正規分布の分散)
     # following_method  :   追従手法
     # use_smoother      :   velocity_smootherを使用するか
 ```
-
+### SOBIT PRO 追従制御
+```python
+$ roslaunch person_following_control sobit_pro_following_control.launch
+# 引数
+    # manager_name      :   Nodeletマネージャー名
+    # manager_threads   :   Nodeletスレッド数
+    # rqt_reconfigure   :   rqt_reconfigureを表示するか
+    # rviz              :   rvizを表示するか
+    # rviz_cfg          :   rvizの設定ファイルパス
+    # following_method  :   追従手法
+    # use_smoother      :   velocity_smootherを使用するか
+```
+## 各パラメータについて
 #### Node
 |ノード名|意味|
 |---|---|
@@ -148,3 +214,59 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * an
 |---|---|---|
 |/obstacle_number|int|障害物の個数|
 |/observation_noise|double|観測ノイズ(正規分布の分散)|
+
+<!-- マイルストーン -->
+## マイルストーン
+
+- [x] OSS
+    - [x] tf2化 
+    - [x] ドキュメンテーションの充実
+    - [x] コーディングスタイルの統一
+
+現時点のバッグや新規機能の依頼を確認するために[Issueページ][license-url] をご覧ください．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+<!-- 参考文献 -->
+<!-- ## 参考文献
+
+* [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/)
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+
+
+<!-- CONTRIBUTING -->
+<!-- ## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+
+
+<!-- LICENSE -->
+<!-- ## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more NOTErmation.
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[forks-url]: https://github.com/TeamSOBITS/sobit_follower/network/members
+[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[stars-url]: https://github.com/TeamSOBITS/sobit_follower/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[issues-url]: https://github.com/TeamSOBITS/sobit_follower/issues
+[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[license-url]: LICENSE
