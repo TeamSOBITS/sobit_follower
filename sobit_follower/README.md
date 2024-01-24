@@ -1,4 +1,40 @@
+<a name="readme-top"></a>
+
+[JA](README.md) | [EN](README.en.md)
+
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
+
 # SOBIT Follower
+---
+<!-- 目次 -->
+<details>
+  <summary>目次</summary>
+  <ol>
+    <li>
+      <a href="#概要">概要</a>
+    </li>
+    <li>
+      <a href="#実行方法">実行方法</a>
+    </li>
+    <li>
+      <a href="#構成">構成</a>
+      <ul>
+        <li><a href="#trackerlaunchxml">tracker.launch.xml</a></li>
+        <li><a href="#ssd_pose_roslaunchxml">ssd_pose_ros.launch.xml</a></li>
+        <li><a href="#dr_spaam_roslaunchxml">dr_spaam_ros.launch.xml</a></li>
+        <li><a href="#person_following_controllaunchxml">person_following_control.launch.xml</a></li>
+      </ul>
+    </li>
+    <li><a href="#マイルストーン">マイルストーン</a></li>
+  </ol>
+</details>
+
+---
+## 概要
 - Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
 - ユーザはこのパッケージのLaunchを起動することで人追従走行を動作させることが可能
 - 実験用のrosbag取得や取得したデータのplotも可能なシェルスクリプトも完備
@@ -8,12 +44,12 @@
     <img src="doc/img/move_control.jpg" width="1080">
 </div>
 
-# How to Use
-## [follower_me.launch](launch/follower_me.launch)
-- Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
-- path：`sobit_follower/launch/follower_me.launch`
+## 実行方法
+### [sobit_edu_follower_me.launch](launch/sobit_edu/sobit_edu_follower_me.launch)
+- SOBIT EDUを用いた人追従走行
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch`
 ```python
-$ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
 # rqt_reconfigure : rqt_reconfigureを起動するか(bool)
@@ -22,11 +58,24 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
 ```
 ※SOBIT EDU，RGB-Dセンサ，2D LiDARの起動をすること
 
-# Configuration
-### [tracker.launch.xml](launch/include/tracker.launch.xml)
-- 2D-LiDARセンサ(URG)とパンチルト回転機構上のRGB-Dセンサ(xtion)を組み合わせた人物追跡
-- path：`sobit_follower/launch/include/tracker.launch.xml`
+### [sobit_pro_follower_me.launch](launch/sobit_pro/sobit_pro_follower_me.launch)
+- SOBIT PROを用いた人追従走行
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+```
+※SOBIT PRO，RGB-Dセンサ，2D LiDARの起動をすること
 
+
+## 構成
+### tracker.launch.xml
+- #### [sobit_edu_tracker.launch.xml](launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
+- #### [sobit_pro_tracker.launch.xml](launch/include/sobit_pro/sobit_pro_tracker.launch.xml)
 #### Node
 |ノード名|意味|
 |---|---|
@@ -84,9 +133,10 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
     - RGB-Dセンサのパンチルト回転制御に関するパラメータ
     - path：`sobit_follower/param/sensor_rotator_param.launch.xml`
 
-### [ssd_pose_ros.launch.xml](launch/include/ssd_pose_ros.launch.xml)
-- RGB画像ベースの人物検出器
-- path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
+### ssd_pose_ros.launch.xml
+- #### [ssd_pose_ros.launch.xml](launch/include/ssd_pose_ros.launch.xml)
+  - RGB画像ベースの人物検出器
+  - path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
 
 #### Node
 |ノード名|意味|
@@ -132,9 +182,10 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
     - RGB画像ベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/ssd_param.launch.xml`
 
-### [dr_spaam_ros.launch.xml](launch/include/dr_spaam_ros.launch.xml)
-- 2D LiDARベースの人物検出器
-- path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
+### dr_spaam_ros.launch.xml
+- #### [dr_spaam_ros.launch.xml](launch/include/dr_spaam_ros.launch.xml)
+  - 2D LiDARベースの人物検出器
+  - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
 
 #### Node
 |ノード名|意味|
@@ -167,9 +218,11 @@ $ roslaunch sobit_follower follower_me.launch rviz:=false rqt_reconfigure:=false
     - 2D LiDARベースの人物検出器に関するパラメータ
     - path：`sobit_follower/param/dr_spaam_param.launch.xml`
 
-### [person_following_control.launch.xml](launch/include/person_following_control.launch.xml)
-- 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
-- path：`sobit_follower/launch/include/person_following_control.launch.xml`
+### person_following_control.launch.xml
+- #### [sobit_edu_person_following_control.launch.xml](launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml)
+- #### [sobit_pro_person_following_control.launch.xml](launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml)
+  - 仮想ばねモデルを用いた人間追従制御にDynamic Window Approachによる障害物回避を組み込んだ走行制御
+  - path：`sobit_follower/launch/include/person_following_control.launch.xml`
 
 #### Node
 |ノード名|意味|
@@ -272,3 +325,58 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * an
 - [velocity_smoother_param.yaml](param/velocity_smoother_param.yaml)
     - 速度平滑化に関するパラメータ
     - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
+
+<!-- マイルストーン -->
+## マイルストーン
+
+- [x] OSS
+    - [x] ドキュメンテーションの充実
+    - [x] コーディングスタイルの統一
+
+現時点のバッグや新規機能の依頼を確認するために[Issueページ][license-url] をご覧ください．
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p>
+
+<!-- 参考文献 -->
+<!-- ## 参考文献
+
+* [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/)
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+
+
+<!-- CONTRIBUTING -->
+<!-- ## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+
+
+<!-- LICENSE -->
+<!-- ## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more NOTErmation.
+
+<p align="right">(<a href="#readme-top">上に戻る</a>)</p> -->
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[forks-url]: https://github.com/TeamSOBITS/sobit_follower/network/members
+[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[stars-url]: https://github.com/TeamSOBITS/sobit_follower/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[issues-url]: https://github.com/TeamSOBITS/sobit_follower/issues
+[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[license-url]: LICENSE

@@ -162,22 +162,22 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
     - path：`sobit_follower/param/tracker_param.launch.xml`
     - [For more information](sobit_follower#parametersperson_tracker)
 - [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
-    - RGB画像ベースの人物検出器に関するパラメータ
+    - Parameters for RGB image-based person detector
     - path：`sobit_follower/param/ssd_param.launch.xml`
     - [For more information](sobit_follower#parameters)
 - [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
-    - 2D LiDARベースの人物検出器に関するパラメータ
+    - Parameters for 2D LiDAR-based person detector
     - path：`sobit_follower/param/dr_spaam_param.launch.xml`
     - [For more information](sobit_follower#parameters-1)
 - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
-    - RGB-Dセンサのパンチルト回転制御に関するパラメータ
+    - Parameters for pan-tilt rotation control of RGB-D sensor
     - path：`sobit_follower/param/sensor_rotator_param.launch.xml`
 - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
-    - 走行制御に関するパラメータ
+    - Parameters for driving control
     - path：`sobit_follower/param/following_control_param.launch.xml`
     - [For more information](sobit_follower##parameterfollowing-control)
 - [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
-    - 速度平滑化に関するパラメータ
+    - Parameters for speed smoothing
     - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
     - [For more information](sobit_follower##velocity_smoother_param)
 
@@ -185,11 +185,8 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 ## Milestone
 
 - [x] OSS
-    - [x] fix tf2 
     - [x] Improved documentation
     - [x] Unified coding style
-
-現時点のバッグや新規機能の依頼を確認するために[Issueページ][license-url] をご覧ください．
 
 See the [open issues][license-url]  for a full list of proposed features (and known issues).
 
