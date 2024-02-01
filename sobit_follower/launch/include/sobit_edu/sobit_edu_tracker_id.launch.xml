@@ -3,8 +3,9 @@
 
     <arg name="use_rotate"              default="true"/>
     <arg name="display_marker"          default="true"/>
+    <arg name="node_start_delay" default="5.0" />
 
-    <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/SobitEduPersonTracker $(arg manager_name)" >
+    <node pkg="nodelet" type="nodelet" name="person_tracker" args="load multiple_sensor_person_tracking/SobitEduPersonTrackerId $(arg manager_name)" output="screen">
         <rosparam file="$(find sobit_follower)/param/sobit_edu/edu_tracker_param.yaml" command="load" />
         <param name="display_marker" value="$(arg display_marker)" />
     </node>

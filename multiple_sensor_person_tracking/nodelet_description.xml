@@ -11,6 +11,18 @@
         <description>
         </description>
     </class>
+    <class name="multiple_sensor_person_tracking/SobitProPersonTrackerId"
+        type="multiple_sensor_person_tracking::SobitProPersonTrackerId"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/SobitEduPersonTrackerId"
+        type="multiple_sensor_person_tracking::SobitEduPersonTrackerId"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
     <class name="multiple_sensor_person_tracking/SobitProPersonAimSensorRotator"
         type="multiple_sensor_person_tracking::SobitProPersonAimSensorRotator"
         base_class_type="nodelet::Nodelet">

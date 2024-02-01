@@ -1,0 +1,20 @@
+# 設定例
+# - 速度制限は、物理的な制限の10%程度上です。
+# - 加速度制限は、揺れを避けるために十分に低い値です。
+
+# Mandatory parameters
+speed_lim_v: 0.8
+speed_lim_w: 5.4
+
+accel_lim_v: 0.3 # maximum is actually 2.0, but we push it down to be smooth
+accel_lim_w: 2.0
+
+# Optional parameters
+frequency: 20.0       # 出力される速度の周波数．入力データの周波数に関わらず，速度スムーサーはこの周波数を維持したままデータを解放する
+decel_factor: 10.0     # 減速/加速度比(大きな慣性モーメントがある場合に増加させることが可能)
+
+# Robot velocity feedback type:
+#  0 - none
+#  1 - odometry
+#  2 - end robot commands
+robot_feedback: 2

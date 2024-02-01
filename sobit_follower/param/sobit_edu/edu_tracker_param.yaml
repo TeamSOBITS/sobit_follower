@@ -5,16 +5,17 @@ target_frame : base_footprint
 
 # Tracking
 target_range : 3.0
+# leg_tracking_range : 0.70
+# body_tracking_range : 0.35
 leg_tracking_range : 0.70
 body_tracking_range : 0.35
 target_cloud_radius : 0.4
 outlier_radius : 0.1
 outlier_min_pts : 2
-leaf_size : 0.14
-target_change_tolerance : 2.0
+leaf_size : 0.1
+target_change_tolerance : 1.0
 # display_marker : true
 
 # Kalman Filter
 process_noise : 50.0
 system_noise : 1.0
-

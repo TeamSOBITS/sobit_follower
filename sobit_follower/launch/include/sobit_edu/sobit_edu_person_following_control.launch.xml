@@ -14,7 +14,7 @@
 
 
     <node pkg="nodelet" type="nodelet" name="person_following_control" args="load person_following_control/SobitEduPersonFollowing $(arg manager_name)" >
-        <rosparam file="$(find sobit_follower)/param/following_control_param.yaml" command="load" />
+        <rosparam file="$(find sobit_follower)/param/sobit_edu/edu_following_control_param.yaml" command="load" />
         <param name="following_method"      value="$(arg following_method)" />
         <param name="display_vsm_path"      value="$(arg display_marker)" />
         <param name="display_optimal_path"  value="$(arg display_marker)" />
@@ -24,7 +24,7 @@
     </node>
 
     <node if="$(arg use_smoother)" pkg="nodelet" type="nodelet" name="velocity_smoother" args="load yocs_velocity_smoother/VelocitySmootherNodelet $(arg manager_name)">
-        <rosparam file="$(find sobit_follower)/param/velocity_smoother_param.yaml" command="load"/>
+        <rosparam file="$(find sobit_follower)/param/sobit_edu/edu_velocity_smoother_param.yaml" command="load"/>
         <remap from="/$(arg group_name)/velocity_smoother/smooth_cmd_vel" to="/mobile_base/commands/velocity"/>
 
         <!-- Robot velocity feedbacks; use the default base configuration -->
