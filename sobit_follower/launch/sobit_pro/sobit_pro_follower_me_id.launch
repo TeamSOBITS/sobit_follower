@@ -1,5 +1,5 @@
 <launch>
-    <arg name="rviz"                    default="false"/>
+    <arg name="rviz"                    default="true"/>
     <arg name="display_marker"          default="true"/>
     <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
     <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>

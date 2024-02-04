@@ -415,6 +415,13 @@ void multiple_sensor_person_tracking::SobitEduPersonTrackerId::callbackPoseArray
     sensor_msgs::PointCloud2 cloud_scan_msg;
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
 
+    stop_state = id_msg->state.data == "" || id_msg->state.data == "init" || id_msg->state.data == "initial" || id_msg->state.data == "initial_training" ? true : false;
+    if (stop_state){
+        NODELET_INFO("\033[1;36m Initial Training! \033[m");
+        return;
+    }
+
+
     double dt = ( dr_spaam_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
     previous_time_ = dr_spaam_msg->header.stamp.toSec();
 
@@ -614,6 +621,7 @@ void multiple_sensor_person_tracking::SobitEduPersonTrackerId::onInit() {
 
     previous_time_ = 0.0;
     exists_target_ = false;
+    stop_state = false;
     leg_tracking_range_ = pnh_.param<double>("leg_tracking_range", 3.0);
     body_tracking_range_ = pnh_.param<double>("body_tracking_range", 1.0);
 

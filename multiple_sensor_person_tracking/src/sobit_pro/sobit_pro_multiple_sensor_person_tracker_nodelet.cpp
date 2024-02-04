@@ -421,7 +421,7 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::callbackPoseArray (
     if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
         if (start) {
             NODELET_ERROR("Result :          NO_EXISTS (START)" );
-            following_position_->rotation_position.x = 0.5;
+            following_position_->rotation_position.x = 0.0;
             following_position_->rotation_position.y = 0.0;
             following_position_->pose.position.x = 0.0;
             following_position_->pose.position.y = 0.0;

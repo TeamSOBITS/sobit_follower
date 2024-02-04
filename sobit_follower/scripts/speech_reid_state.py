@@ -70,42 +70,42 @@ def main():
             if(initial_training_flag == 1):
                 if initial_training_count == 1:
                     continue
-                speech_word = "初期学習開始、正面を向いてください"
+                speech_word = "初期学習開始"
                 speech(speech_word)
                 initial_training_count = 1
                 continue
-            if(initial_training_flag == 2):
-                if initial_training_count == 2:
-                    continue
-                speech_word = "反対を向いてください"
-                speech(speech_word)
-                initial_training_count = 2
-                continue
-            if(initial_training_flag == 3):
-                if initial_training_count == 3:
-                    continue
-                speech_word = "前に進んでください"
-                speech(speech_word)
-                initial_training_count = 3
-                continue
-            if(initial_training_flag == 4):
-                if initial_training_count == 4:
-                    continue
-                speech_word = "左を向いてください"
-                speech(speech_word)
-                initial_training_count = 4
-            if(initial_training_flag == 5):
-                if initial_training_count == 5:
-                    continue
-                speech_word = "右を向いてください"
-                speech(speech_word)
-                initial_training_count = 5
-            if(initial_training_flag == 6):
-                if initial_training_count == 6:
-                    continue
-                speech_word = "正面を向いてください"
-                speech(speech_word)
-                initial_training_count = 6
+            # if(initial_training_flag == 2):
+            #     if initial_training_count == 2:
+            #         continue
+            #     speech_word = "反対を向いてください"
+            #     speech(speech_word)
+            #     initial_training_count = 2
+            #     continue
+            # if(initial_training_flag == 3):
+            #     if initial_training_count == 3:
+            #         continue
+            #     speech_word = "前に進んでください"
+            #     speech(speech_word)
+            #     initial_training_count = 3
+            #     continue
+            # if(initial_training_flag == 4):
+            #     if initial_training_count == 4:
+            #         continue
+            #     speech_word = "左を向いてください"
+            #     speech(speech_word)
+            #     initial_training_count = 4
+            # if(initial_training_flag == 5):
+            #     if initial_training_count == 5:
+            #         continue
+            #     speech_word = "右を向いてください"
+            #     speech(speech_word)
+            #     initial_training_count = 5
+            # if(initial_training_flag == 6):
+            #     if initial_training_count == 6:
+            #         continue
+            #     speech_word = "正面を向いてください"
+            #     speech(speech_word)
+            #     initial_training_count = 6
         # 追跡開始
         if (no_exists_flag_global == 0):
             speech_word = "見失いました"

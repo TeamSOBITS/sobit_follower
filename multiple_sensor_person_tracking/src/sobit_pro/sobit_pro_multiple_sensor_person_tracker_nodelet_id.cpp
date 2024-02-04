@@ -74,7 +74,7 @@ namespace multiple_sensor_person_tracking {
             pcl::VoxelGrid<PointT> voxel_;
             PointCloud::Ptr cloud_scan_;
             visualization_msgs::MarkerArrayPtr marker_array_;
-            visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
+            // visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
 
             tf2_ros::Buffer tfBuffer_;
@@ -408,7 +408,7 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitProPersonTrack
     return pt_transformed;
 }
 
-bool start_id = true;
+bool start_id = false;
 void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobit_common_msg::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
     std::cout << "\n====================================" << std::endl;
     // if (start_id) {
@@ -421,6 +421,12 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
     std::string target_frame = target_frame_;
     sensor_msgs::PointCloud2 cloud_scan_msg;
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
+
+    stop_state = id_msg->state.data == "" || id_msg->state.data == "init" || id_msg->state.data == "initial" || id_msg->state.data == "initial_training" ? true : false;
+    if (stop_state){
+        NODELET_INFO("\033[1;36m Initial Training! \033[m");
+        return;
+    }
 
     double dt = ( dr_spaam_msg->header.stamp.toSec()  - previous_time_ );	//dt - expressed in seconds
     previous_time_ = dr_spaam_msg->header.stamp.toSec();
@@ -449,10 +455,10 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
             following_position_->rotation_position = following_position_->pose.position;
             following_position_->status = Status::NO_EXISTS;
             pub_following_position_.publish( following_position_ );
-            if ( display_marker_ ) {
-                no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
-                pub_marker_.publish ( no_exists_marker_array_ );
-            }
+            // if ( display_marker_ ) {
+            //     no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+            //     pub_marker_.publish ( no_exists_marker_array_ );
+            // }
             return;
         }
         if( attention_leg_time_ == -1.0 ) attention_leg_time_ = ros::Time::now().toSec();
@@ -512,10 +518,10 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
             following_position_->pose.position.y = 0.0;
             following_position_->status = Status::NO_EXISTS;
             pub_following_position_.publish( following_position_ );
-            if ( display_marker_ ) {
-                no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
-                pub_marker_.publish ( no_exists_marker_array_ );
-            }
+            // if ( display_marker_ ) {
+            //     no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+            //     pub_marker_.publish ( no_exists_marker_array_ );
+            // }
             return;
         }
     } else no_exists_time_ = -1.0;
@@ -524,12 +530,12 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
     if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
         if (start_id) {
             NODELET_ERROR("Result :          NO_EXISTS (start_id)" );
-            following_position_->rotation_position.x = 0.5;
+            following_position_->rotation_position.x = 0.0;
             following_position_->rotation_position.y = 0.0;
             following_position_->pose.position.x = 0.0;
             following_position_->pose.position.y = 0.0;
             following_position_->status = Status::NO_EXISTS;
-            sleep(3);
+            sleep(10);
             start_id = false;
             // return;
         }
@@ -546,10 +552,10 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
         following_position_->pose.position.y = 0.0;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
-        if ( display_marker_ ) {
-            no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
-            pub_marker_.publish ( no_exists_marker_array_ );
-        }
+        // if ( display_marker_ ) {
+        //     no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+        //     pub_marker_.publish ( no_exists_marker_array_ );
+        // }
         return;
     }else {
         if( result == Status::EXISTS_LEG ) {
@@ -642,6 +648,7 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::onInit() {
 
     previous_time_ = 0.0;
     exists_target_ = false;
+    stop_state = false;
     leg_tracking_range_ = pnh_.param<double>("leg_tracking_range", 0.5);
     body_tracking_range_ = pnh_.param<double>("body_tracking_range", 0.5);
 
