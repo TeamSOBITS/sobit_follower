@@ -71,7 +71,7 @@
 |Topic Name|Type|Meaning|
 |---|---|---|
 |/dr_spaam_detections|multiple_sensor_person_tracking/LegPoseArray|Detection results|
-|/ssd_object_detect/object_pose|sobits_msgs_msg/ObjectPoseArray|Detection result(3D position)|
+|/ssd_object_detect/object_pose|sobits_msgs/ObjectPoseArray|Detection result(3D position)|
 
 #### Publications
 |Topic Name|Type|Meaning|

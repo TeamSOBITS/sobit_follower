@@ -14,9 +14,9 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseArray.h>
-#include "sobits_msgs_msg/StringArray.h"
-#include "sobits_msgs_msg/BoundingBoxes.h"
-#include "sobits_msgs_msg/ObjectPoseArray.h"
+#include "sobits_msgs/StringArray.h"
+#include "sobits_msgs/BoundingBoxes.h"
+#include "sobits_msgs/ObjectPoseArray.h"
 #include "multiple_sensor_person_tracking/LegPoseArray.h"
 #include "multiple_sensor_person_tracking/FollowingPosition.h"
 
@@ -41,7 +41,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::LegPoseArray, sobits_msgs_msg::ObjectPoseArray, person_id_follow_nodelet::SOBITTarget> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::LegPoseArray, sobits_msgs::ObjectPoseArray, person_id_follow_nodelet::SOBITTarget> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     enum Status {
@@ -58,7 +58,7 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_target_odom_;
 
             std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray>> sub_dr_spaam_;
-            std::unique_ptr<message_filters::Subscriber<sobits_msgs_msg::ObjectPoseArray>> sub_ssd_;
+            std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
             std::unique_ptr<message_filters::Subscriber<person_id_follow_nodelet::SOBITTarget>> sub_id_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
@@ -99,7 +99,7 @@ namespace multiple_sensor_person_tracking {
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
-            visualization_msgs::Marker makeBodyPoseMarker( const std::vector<sobits_msgs_msg::ObjectPose>& body_poses );
+            visualization_msgs::Marker makeBodyPoseMarker( const std::vector<sobits_msgs::ObjectPose>& body_poses );
             visualization_msgs::Marker makeTargetPoseMarker( const Eigen::Vector4f& target_pose );
             visualization_msgs::Marker makeNoExistsTargetPoseMarker( const geometry_msgs::Pose& no_target_pose );
 
@@ -107,13 +107,13 @@ namespace multiple_sensor_person_tracking {
 
             int findTwoObservationValue(
                 const std::vector<geometry_msgs::Pose>& leg_poses,
-                const std::vector<sobits_msgs_msg::ObjectPose>& body_poses,
+                const std::vector<sobits_msgs::ObjectPose>& body_poses,
                 Eigen::Vector2f* leg_observed_value,
                 Eigen::Vector2f* body_observed_value );
             
             int findThreeObservationValue(
                 const std::vector<geometry_msgs::Pose>& leg_poses,
-                const std::vector<sobits_msgs_msg::ObjectPose>& body_poses,
+                const std::vector<sobits_msgs::ObjectPose>& body_poses,
                 int target_id,
                 Eigen::Vector2f* leg_observed_value,
                 Eigen::Vector2f* body_observed_value );
@@ -130,7 +130,7 @@ namespace multiple_sensor_person_tracking {
 
             void callbackPoseArray (
                 const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg,
-                const sobits_msgs_msg::ObjectPoseArrayConstPtr &ssd_msg, 
+                const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, 
                 const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg);
 
         public:
@@ -189,7 +189,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTracke
     return leg_marker;
 }
 
-visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerId::makeBodyPoseMarker( const std::vector<sobits_msgs_msg::ObjectPose>& body_poses ) {
+visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerId::makeBodyPoseMarker( const std::vector<sobits_msgs::ObjectPose>& body_poses ) {
     visualization_msgs::Marker body_marker;
     body_marker.header.frame_id = target_frame_;
     body_marker.header.stamp = ros::Time::now();
@@ -262,7 +262,7 @@ void multiple_sensor_person_tracking::SobitEduPersonTrackerId::callbackDynamicRe
 
 int multiple_sensor_person_tracking::SobitEduPersonTrackerId::findTwoObservationValue(
     const std::vector<geometry_msgs::Pose>& leg_poses,
-    const std::vector<sobits_msgs_msg::ObjectPose>& body_poses,
+    const std::vector<sobits_msgs::ObjectPose>& body_poses,
     Eigen::Vector2f* leg_observed_value,
     Eigen::Vector2f* body_observed_value )
 {
@@ -307,7 +307,7 @@ int multiple_sensor_person_tracking::SobitEduPersonTrackerId::findTwoObservation
 
 int multiple_sensor_person_tracking::SobitEduPersonTrackerId::findThreeObservationValue(
     const std::vector<geometry_msgs::Pose>& leg_poses,
-    const std::vector<sobits_msgs_msg::ObjectPose>& body_poses,
+    const std::vector<sobits_msgs::ObjectPose>& body_poses,
     int target_id,
     Eigen::Vector2f* leg_observed_value,
     Eigen::Vector2f* body_observed_value )
@@ -408,7 +408,7 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitEduPersonTrack
     return pt_transformed;
 }
 
-void multiple_sensor_person_tracking::SobitEduPersonTrackerId::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobits_msgs_msg::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
+void multiple_sensor_person_tracking::SobitEduPersonTrackerId::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
     std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
@@ -604,7 +604,7 @@ void multiple_sensor_person_tracking::SobitEduPersonTrackerId::onInit() {
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
     // message_filters :
     sub_dr_spaam_ .reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
-    sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs_msg::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
+    sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
     sub_id_ .reset ( new message_filters::Subscriber<person_id_follow_nodelet::SOBITTarget> ( nh_, pnh_.param<std::string>( "id_topic_name", "/person_id_follow_nodelet/target" ), 1 ) );
 
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_, *sub_id_ ) );

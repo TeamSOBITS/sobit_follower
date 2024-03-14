@@ -28,9 +28,6 @@ git clone https://github.com/TeamSOBITS/scan2d_handler.git
 echo -e "\e[34m\n Git Clone following_control_methods \e[m"
 git clone https://github.com/TeamSOBITS/following_control_methods.git
 
-# If you want to use sensor_data rosbag (file size is large)
-# echo -e "\e[34m\n Git Clone virtual_multiple_sensor_publisher \e[m"
-# git clone https://github.com/TeamSOBITS/virtual_multiple_sensor_publisher.git
 
 echo -e "\e[34m\n Install: Sobit Common (STARTING) \e[m"
 sudo apt-get update
