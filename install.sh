@@ -42,7 +42,7 @@ sudo apt-get install -y \
     ros-${ROS_DISTRO}-ros-control \
     ros-${ROS_DISTRO}-ros-controllers
 
-sudo cp ~/catkin_ws/src/sobit_common/turtlebot2/turtlebot_simulator/turtlebot_gazebo/libgazebo_ros_kobuki.so /opt/ros/${ROS_DISTRO}/lib
+sudo cp ~/catkin_ws/src/sobits_msgs/turtlebot2/turtlebot_simulator/turtlebot_gazebo/libgazebo_ros_kobuki.so /opt/ros/${ROS_DISTRO}/lib
 
 sudo apt-get install -y \
     ros-${ROS_DISTRO}-pcl-* \
