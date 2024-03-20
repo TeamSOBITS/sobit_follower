@@ -58,11 +58,38 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 ```
 ※SOBIT EDU，RGB-Dセンサ，2D LiDARの起動をすること
 
+### [sobit_edu_follower_me_id.launch](launch/sobit_edu/sobit_edu_follower_me_id.launch)
+- SOBIT EDUを用いた追従対象者の識別を行う人追従走行
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch`
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+```
+※SOBIT EDU，RGB-Dセンサ，2D LiDARの起動をすること
+
 ### [sobit_pro_follower_me.launch](launch/sobit_pro/sobit_pro_follower_me.launch)
 - SOBIT PROを用いた人追従走行
 - path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
 ```python
 $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+```
+※SOBIT PRO，RGB-Dセンサ，2D LiDARの起動をすること
+
+
+### [sobit_pro_follower_me_id.launch](launch/sobit_pro/sobit_pro_follower_me_id.launch)
+- SOBIT PROを用いた追従対象者の識別を行う人追従走行
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch`
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
 # rqt_reconfigure : rqt_reconfigureを起動するか(bool)

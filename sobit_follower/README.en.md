@@ -58,6 +58,20 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 ```
 ※To activate SOBIT EDU, RGB-D sensor, and 2D LiDAR
 
+### [sobit_edu_follower_me_id.launch](launch/sobit_edu/sobit_edu_follower_me_id.launch)
+- People-following driving with SOBIT EDU to identify the target of following
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch`
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+```
+※To activate SOBIT EDU, RGB-D sensor, and 2D LiDAR
+
+
 ### [sobit_pro_follower_me.launch](launch/sobit_pro/sobit_pro_follower_me.launch)
 - Person-following driving using SOBIT PRO
 - path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
@@ -71,6 +85,18 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 ```
 ※To activate SOBIT PRO, RGB-D sensor, and 2D LiDAR
 
+### [sobit_pro_follower_me_id.launch](launch/sobit_pro/sobit_pro_follower_me_id.launch)
+- People-following driving with SOBIT PRO to identify the target of following
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+```
+※To activate SOBIT PRO, RGB-D sensor, and 2D LiDAR
 
 ## Configuration
 ### tracker.launch.xml
