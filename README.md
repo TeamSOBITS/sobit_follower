@@ -117,12 +117,37 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 # use_smoother : 速度の平滑化を行うか(bool)
 ```
 
+### [sobit_edu_follower_me_id.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch)
+SOBIT_EDUで対象者同定手法[person_identification_nodelet](https://github.com/TeamSOBITS/person_identification_nodelet)を組み合わせて追従対象者を識別することを可能とした人追従走行
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch`
+- 詳細は[こちら](sobit_follower)
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+```
+
 ### [sobit_pro_follower_me.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch)
 - SOBIT PROを用いたMultiple Sensor Person TrackingとPerson Following Controlによる人追従走行
 - path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
 - 詳細は[こちら](sobit_follower)
 ```python
 $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+```
+### [sobit_pro_follower_me_id.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch)
+SOBIT_PROで対象者同定手法[person_identification_nodelet](https://github.com/TeamSOBITS/person_identification_nodelet)を組み合わせて追従対象者を識別することを可能とした人追従走行
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch`
+- 詳細は[こちら](sobit_follower)
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
 # rqt_reconfigure : rqt_reconfigureを起動するか(bool)
@@ -139,6 +164,10 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
     - 2D LiDARベースの人物検出器
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
     - 詳細は[こちら](sobit_follower#dr_spaam_roslaunchxml)
+- [person_id.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
+    - RGB-Dセンサを用いた対象者同定手法
+    - path：`sobit_follower/launch/include/person_id.launch.xml`
+    - 詳細は[こちら](sobit_follower#peson_idlaunchxml)
 - [sobit_edu_tracker.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
     - SOBIT EDUによる2D-LiDARセンサとパンチルト回転機構上のRGB-Dセンサを組み合わせた人物追跡
     - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml`

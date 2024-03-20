@@ -116,6 +116,20 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 # use_rotate : activate SensorRotator (bool)
 # use_smoother : whether to perform velocity smoothing (bool)
 ```
+### [sobit_edu_follower_me_id.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch)
+- SOBIT_EDU enables the combination of the target identification method [person_identification_nodelet](https://github.com/TeamSOBITS/person_identification_nodelet) with SOBIT_EDU to identify the target of the pursuit. Person-following driving made possible by combining the target identification method 
+
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch`
+- [For more information](sobit_follower)
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+```
+
 
 ### [sobit_pro_follower_me.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch)
 - Person-following control by Multiple Sensor Person Tracking and Person Following Control using SOBIT PRO
@@ -123,6 +137,17 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 - [For more information](sobit_follower)
 ```python
 $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+```
+### [sobit_pro_follower_me_id.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch)
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch`
+- [For more information](sobit_follower)
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # Arguments
 # rviz : whether to start Rviz (bool)
 # rqt_reconfigure : whether to start rqt_reconfigure (bool)
@@ -139,6 +164,10 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
     - 2D LiDAR-based person detector
     - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
     - [For more information](sobit_follower#dr_spaam_roslaunchxml)
+- [person_id.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
+    - Target identification method using RGB-D sensors
+    - path：`sobit_follower/launch/include/person_id.launch.xml`
+    - [For more information](sobit_follower#peson_idlaunchxml)
 - [sobit_edu_tracker.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
     - 2D-LiDAR sensor with SOBIT EDU combined with RGB-D sensor on pan-tilt rotation mechanism for person tracking
     - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml`
