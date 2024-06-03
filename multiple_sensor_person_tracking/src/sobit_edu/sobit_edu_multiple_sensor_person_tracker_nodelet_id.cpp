@@ -56,6 +56,7 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_marker_;
             ros::Publisher pub_obstacles_;
             ros::Publisher pub_target_odom_;
+            ros::Subscriber sub_scan_;
 
             std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray>> sub_dr_spaam_;
             std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
@@ -76,6 +77,7 @@ namespace multiple_sensor_person_tracking {
             visualization_msgs::MarkerArrayPtr marker_array_;
             visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
+            sensor_msgs::LaserScanConstPtr scan_msg_;
 
             tf2_ros::Buffer tfBuffer_;
             boost::shared_ptr<tf2_ros::TransformListener> tf_sub_;
@@ -127,6 +129,9 @@ namespace multiple_sensor_person_tracking {
                 const std::string& org_frame,
                 const std::string& target_frame,
                 const geometry_msgs::Point& point );
+            
+            void scan_callback (
+                const sensor_msgs::LaserScanConstPtr &scan_msg );
 
             void callbackPoseArray (
                 const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg,
@@ -408,6 +413,11 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitEduPersonTrack
     return pt_transformed;
 }
 
+void multiple_sensor_person_tracking::SobitEduPersonTracker::scan_callback (const sensor_msgs::LaserScanConstPtr &scan_msg)
+{
+    scan_msg_ = scan_msg;
+}
+
 void multiple_sensor_person_tracking::SobitEduPersonTrackerId::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
     std::cout << "\n====================================" << std::endl;
     // variable initialization
@@ -427,7 +437,7 @@ void multiple_sensor_person_tracking::SobitEduPersonTrackerId::callbackPoseArray
 
     // Sensor data to TF2 conversion
     try {
-        projector_.transformLaserScanToPointCloud( target_frame, dr_spaam_msg->scan, cloud_scan_msg, tfBuffer_ );
+        projector_.transformLaserScanToPointCloud( target_frame, *scan_msg_, cloud_scan_msg, tfBuffer_ );
         pcl::fromROSMsg<PointT>( cloud_scan_msg, *cloud_scan_);
         cloud_scan_->header.frame_id = target_frame;
     } catch ( const tf2::TransformException& ex ) {
@@ -600,8 +610,10 @@ void multiple_sensor_person_tracking::SobitEduPersonTrackerId::onInit() {
     marker_array_.reset(new visualization_msgs::MarkerArray);
     no_exists_marker_array_.reset(new visualization_msgs::MarkerArray);
     following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );
+    scan_msg_.reset( new sensor_msgs::LaserScan );
 
-    target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
+    sub_scan_ = nh_.subscribe(pnh_.param<std::string>( "scan_topic_name", "/scan"), 1, &SobitEduPersonTracker::scan_callback, this);
+
     // message_filters :
     sub_dr_spaam_ .reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );

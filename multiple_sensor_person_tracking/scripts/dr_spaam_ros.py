@@ -72,7 +72,6 @@ class DrSpaamROS:
         # convert to ros msg and publish
         dets_msg = detections_to_pose_array(dets_xy, dets_cls)
         dets_msg.header = msg.header
-        dets_msg.scan = msg
         self._dets_pub.publish(dets_msg)
         
 def detections_to_pose_array(dets_xy, dets_cls):
