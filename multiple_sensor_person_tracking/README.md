@@ -83,6 +83,7 @@
 #### Parameters(person_tracker)
 |パラメータ名|型|意味|
 |---|---|---|
+|/scan_topic_name|string|Scanのトピック名|
 |/dr_spaam_topic_name|string|DR-SPAAMのトピック名|
 |/ssd_topic_name|string|SSDのトピック名|
 |/target_frame|string|基準フレーム名|

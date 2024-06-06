@@ -83,6 +83,7 @@
 #### Parameters(person_tracker)
 |Parameter Name|Type|Meaning|
 |---|---|---|
+|/scan_topic_name|string|Scan Topic Name|
 |/dr_spaam_topic_name|string|DR-SPAAM Topic Name|
 |/ssd_topic_name|string|SSD Topic Name|
 |/target_frame|string|Base Frame Name |

@@ -125,6 +125,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 #### Parameters(person_tracker)
 |Parameter|Type|Meaning|
 |---|---|---|
+|/scan_topic_name|string|Scan Topic Name|
 |/dr_spaam_topic_name|string|DR-SPAAM Topic Name|
 |/ssd_topic_name|string|SSD Topic Name|
 |/target_frame|string|Reference Frame Name|
