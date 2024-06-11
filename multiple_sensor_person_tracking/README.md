@@ -70,7 +70,7 @@
 #### Subscriptions
 |トピック名|型|意味|
 |---|---|---|
-|/dr_spaam_detections|multiple_sensor_person_tracking/LegPoseArray|検出結果|
+|/dr_spaam_detections|geometry_msgs/PoseArray|検出結果|
 |/ssd_object_detect/object_pose|sobits_msgs/ObjectPoseArray|検出結果(３次元位置)|
 
 #### Publications

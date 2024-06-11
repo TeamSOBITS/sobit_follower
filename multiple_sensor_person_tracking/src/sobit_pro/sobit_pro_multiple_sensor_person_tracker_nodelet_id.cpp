@@ -17,7 +17,6 @@
 #include "sobits_msgs/StringArray.h"
 #include "sobits_msgs/BoundingBoxes.h"
 #include "sobits_msgs/ObjectPoseArray.h"
-#include "multiple_sensor_person_tracking/LegPoseArray.h"
 #include "multiple_sensor_person_tracking/FollowingPosition.h"
 
 #include <tf2_ros/transform_listener.h>
@@ -41,7 +40,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::LegPoseArray, sobits_msgs::ObjectPoseArray, person_id_follow_nodelet::SOBITTarget> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::PoseArray, sobits_msgs::ObjectPoseArray, person_id_follow_nodelet::SOBITTarget> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     enum Status {
@@ -58,7 +57,7 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_target_odom_;
             ros::Subscriber sub_scan_;
 
-            std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray>> sub_dr_spaam_;
+            std::unique_ptr<message_filters::Subscriber<geometry_msgs::PoseArray>> sub_dr_spaam_;
             std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
             std::unique_ptr<message_filters::Subscriber<person_id_follow_nodelet::SOBITTarget>> sub_id_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
@@ -134,7 +133,7 @@ namespace multiple_sensor_person_tracking {
                 const sensor_msgs::LaserScanConstPtr &scan_msg );
 
             void callbackPoseArray (
-                const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg,
+                const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg,
                 const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg,
                 const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg);
 
@@ -419,7 +418,7 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::scan_callback (cons
 }
 
 bool start_id = false;
-void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
+void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray ( const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
     std::cout << "\n====================================" << std::endl;
     // if (start_id) {
     //     NODELET_ERROR("Result :          NO_EXISTS (start_id)" );
@@ -641,9 +640,8 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::onInit() {
 
     sub_scan_ = nh_.subscribe(pnh_.param<std::string>( "scan_topic_name", "/scan"), 1, &SobitProPersonTracker::scan_callback, this);
 
-    target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
     // message_filters :
-    sub_dr_spaam_ .reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
+    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::PoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
     sub_id_ .reset ( new message_filters::Subscriber<person_id_follow_nodelet::SOBITTarget> ( nh_, pnh_.param<std::string>( "id_topic_name", "/person_id_follow_nodelet/target" ), 1 ) );
 

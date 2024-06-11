@@ -16,7 +16,6 @@
 #include "sobits_msgs/StringArray.h"
 #include "sobits_msgs/BoundingBoxes.h"
 #include "sobits_msgs/ObjectPoseArray.h"
-#include "multiple_sensor_person_tracking/LegPoseArray.h"
 #include "multiple_sensor_person_tracking/FollowingPosition.h"
 
 #include <tf2_ros/transform_listener.h>
@@ -39,7 +38,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::LegPoseArray, sobits_msgs::ObjectPoseArray> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::PoseArray, sobits_msgs::ObjectPoseArray> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     enum Status {
@@ -56,7 +55,7 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_target_odom_;
             ros::Subscriber sub_scan_;
 
-            std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray>> sub_dr_spaam_;
+            std::unique_ptr<message_filters::Subscriber<geometry_msgs::PoseArray>> sub_dr_spaam_;
             std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
@@ -120,9 +119,8 @@ namespace multiple_sensor_person_tracking {
                 const sensor_msgs::LaserScanConstPtr &scan_msg );
 
             void callbackPoseArray (
-                const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg,
+                const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg,
                 const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg );
-
         public:
             virtual void onInit();
     };
@@ -327,15 +325,8 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::scan_callback (cons
     scan_msg_ = scan_msg;
 }
 
-bool start = true;
-void multiple_sensor_person_tracking::SobitProPersonTracker::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg ) {
+void multiple_sensor_person_tracking::SobitProPersonTracker::callbackPoseArray ( const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
-    // if (start) {
-    //     NODELET_ERROR("Result :          NO_EXISTS (START)" );
-    //     sleep(3);
-    //     start = false;
-    //     return;
-    // }
     // variable initialization
     std::string target_frame = target_frame_;
     sensor_msgs::PointCloud2 cloud_scan_msg;
@@ -386,24 +377,11 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::callbackPoseArray (
             attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
             attention_leg_time_ = ros::Time::now().toSec();
         } else attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ : leg_poses.size()-1;
-        if (start) {
-            NODELET_ERROR("Result :          NO_EXISTS (START1)" );
-            following_position_->rotation_position.x = 0.0;
-            following_position_->rotation_position.y = 0.0;
-            following_position_->pose.position.x = 0.0;
-            following_position_->pose.position.y = 0.0;
-            following_position_->status = Status::NO_EXISTS;
-            sleep(3);
-            start = true;
-            // return;
-        }
-        else {
-            following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
-            following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
-            following_position_->pose.position.x = 0.0;
-            following_position_->pose.position.y = 0.0;
-            following_position_->status = Status::NO_EXISTS;
-        }
+        following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
+        following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
+        following_position_->pose.position.x = 0.0;
+        following_position_->pose.position.y = 0.0;
+        following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
         NODELET_ERROR("Result :          NO_EXISTS (SSD) attention_leg_idx = %d",attention_leg_idx_ );
         return;
@@ -429,23 +407,10 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::callbackPoseArray (
 
     // Tracking by Kalman Filter
     if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
-        if (start) {
-            NODELET_ERROR("Result :          NO_EXISTS (START)" );
-            following_position_->rotation_position.x = 0.0;
-            following_position_->rotation_position.y = 0.0;
-            following_position_->pose.position.x = 0.0;
-            following_position_->pose.position.y = 0.0;
-            following_position_->status = Status::NO_EXISTS;
-            sleep(3);
-            start = false;
-            // return;
-        }
-        else {
-            kf_->init( body_observed_value );
-            estimated_value[0] = body_observed_value[0];
-            estimated_value[1] = body_observed_value[1];
-            exists_target_ = true;
-        }
+        kf_->init( body_observed_value );
+        estimated_value[0] = body_observed_value[0];
+        estimated_value[1] = body_observed_value[1];
+        exists_target_ = true;
     } else if ( !exists_target_ && result != EXISTS_LEG_AND_BODY ) {
         NODELET_ERROR("Result :          NO_EXISTS" );
         exists_target_ = false;
@@ -529,7 +494,7 @@ void multiple_sensor_person_tracking::SobitProPersonTracker::onInit() {
     sub_scan_ = nh_.subscribe(pnh_.param<std::string>( "scan_topic_name", "/scan"), 1, &SobitProPersonTracker::scan_callback, this);
 
     // message_filters :
-    sub_dr_spaam_ .reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::LegPoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
+    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::PoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
 
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
