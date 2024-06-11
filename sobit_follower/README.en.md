@@ -112,7 +112,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 #### Subscriptions
 |Topic|Type|Meaning|
 |---|---|---|
-|/dr_spaam_detections|multiple_sensor_person_tracking/LegPoseArray|Detection results|
+|/dr_spaam_detections|geometry_msgs/PoseArray|Detection results|
 |/ssd_object_detect/object_pose|sobits_msgs/ObjectPoseArray|Detection results(3D Position)|
 
 #### Publications
@@ -227,7 +227,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 #### Publications
 |Topic|Type|Meaning|
 |---|---|---|
-|/dr_spaam_detections|multiple_sensor_person_tracking/LegPoseArray|Detection result|
+|/dr_spaam_detections|geometry_msgs/PoseArray|Detection result|
 
 ※For demonstration purposes, it will be "geometry_msgs/PoseArray
 
