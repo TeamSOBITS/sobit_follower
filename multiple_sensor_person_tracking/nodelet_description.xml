@@ -35,4 +35,16 @@
         <description>
         </description>
     </class>
+    <class name="multiple_sensor_person_tracking/HSRbPersonTracker"
+        type="multiple_sensor_person_tracking::HSRbPersonTracker"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
+    <class name="multiple_sensor_person_tracking/HSRbPersonAimSensorRotator"
+        type="multiple_sensor_person_tracking::HSRbPersonAimSensorRotator"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
 </library>

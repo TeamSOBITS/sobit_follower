@@ -11,4 +11,10 @@
         <description>
         </description>
     </class>
+    <class name="person_following_control/HSRbPersonFollowing"
+        type="person_following_control::HSRbPersonFollowing"
+        base_class_type="nodelet::Nodelet">
+        <description>
+        </description>
+    </class>
 </library>

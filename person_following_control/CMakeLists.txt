@@ -84,6 +84,7 @@ target_link_libraries(person_following_control_virtual_environment  ${catkin_LIB
 
 add_library(${PROJECT_NAME} src/sobit_edu_following_control_nodelet.cpp
                             src/sobit_pro_following_control_nodelet.cpp
+                            src/hsrb_following_control_nodelet.cpp
                             src/virtual_spring_model.cpp
                             src/dynamic_window_approach.cpp
                             src/pid_controller.cpp

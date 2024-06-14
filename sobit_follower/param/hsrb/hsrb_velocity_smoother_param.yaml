@@ -1,0 +1,20 @@
+# Configuration example
+# Speed limit is about 10% above the physical limit
+# Acceleration limit is low enough to avoid sway
+
+# Mandatory parameters
+speed_lim_v: 0.8
+speed_lim_w: 5.4
+
+accel_lim_v: 0.3 # maximum is actually 2.0, but we push it down to be smooth
+accel_lim_w: 2.0
+
+# Optional parameters
+frequency: 20.0       # Frequency of the output velocity. Regardless of the frequency of the input data, the velocity smoother maintains this frequency and releases the data
+decel_factor: 10.0    # Deceleration/acceleration ratio (can be increased for large moments of inertia)
+
+# Robot velocity feedback type:
+#  0 - none
+#  1 - odometry
+#  2 - end robot commands
+robot_feedback: 2
