@@ -90,6 +90,8 @@ namespace multiple_sensor_person_tracking {
             double attention_leg_time_;
             unsigned int attention_leg_idx_;
 
+            bool start;
+
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
@@ -317,7 +319,7 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::HSRbPersonTracker::
     return pt_transformed;
 }
 
-bool start = true;
+// bool start = true;
 void multiple_sensor_person_tracking::HSRbPersonTracker::callbackPoseArray ( const multiple_sensor_person_tracking::LegPoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
     // if (start) {
@@ -543,6 +545,8 @@ void multiple_sensor_person_tracking::HSRbPersonTracker::onInit() {
     double leaf_size = pnh_.param<double>("leaf_size", 0.1 );
     voxel_.setLeafSize( leaf_size, leaf_size, 0.0 );
     target_cloud_radius_ = pnh_.param<double>("target_cloud_radius", 0.4 );
+
+    start = true;
 
     server_ = new dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>(pnh_);
     f_ = boost::bind(&multiple_sensor_person_tracking::HSRbPersonTracker::callbackDynamicReconfigure, this, _1, _2);

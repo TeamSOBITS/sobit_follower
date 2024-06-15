@@ -10,7 +10,7 @@
 
 #include <geometry_msgs/PointStamped.h>
 #include <visualization_msgs/Marker.h>
-#include "hsrb_library/hsrb_joint_controller.h"
+// #include "hsrb_library/hsrb_joint_controller.h"
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -40,7 +40,7 @@ namespace multiple_sensor_person_tracking {
 			dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>* server_;
             dynamic_reconfigure::Server<multiple_sensor_person_tracking::SensorRotatorParameterConfig>::CallbackType f_;
 
-			std::unique_ptr<hsrb::HSRBJointController> hsrb_ctr;
+			// std::unique_ptr<hsrb::HSRBJointController> hsrb_ctr;
 
 			geometry_msgs::PointPtr tracking_position_;
 			double pre_tilt_;
