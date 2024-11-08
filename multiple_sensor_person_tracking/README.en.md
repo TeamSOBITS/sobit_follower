@@ -70,7 +70,7 @@
 #### Subscriptions
 |Topic Name|Type|Meaning|
 |---|---|---|
-|/dr_spaam_detections|multiple_sensor_person_tracking/LegPoseArray|Detection results|
+|/dr_spaam_detections|geometry_msgs/PoseArray|Detection results|
 |/ssd_object_detect/object_pose|sobits_msgs/ObjectPoseArray|Detection result(3D position)|
 
 #### Publications
@@ -83,6 +83,7 @@
 #### Parameters(person_tracker)
 |Parameter Name|Type|Meaning|
 |---|---|---|
+|/scan_topic_name|string|Scan Topic Name|
 |/dr_spaam_topic_name|string|DR-SPAAM Topic Name|
 |/ssd_topic_name|string|SSD Topic Name|
 |/target_frame|string|Base Frame Name |

@@ -1,7 +1,10 @@
-detector_model : DR-SPAAM
-conf_thresh : 0.9
-stride : 1
-panoramic_scan : false
+weight_file : "ckpt_jrdb_ann_ft_dr_spaam_e20.pth" # name of the weight file
+detector_model : "DR-SPAAM"                       # Set model name: DROW3 or DR-SPAAM
+use_gpu : True                                    # Set to True to use GPU
+conf_thresh : 0.9                                 # Set confidence threshold
+stride : 1                                        # Downsample scans for faster inference
+panoramic_scan : false                            # Set to True if the scan covers 360 degree
+detect_mode: True                                 # Set to True to enable detection
 publisher:
     detections:
         topic: /dr_spaam_detections
