@@ -13,8 +13,8 @@ cd ~/catkin_ws/src/
 echo -e "\e[34m\n Git Clone ssd_nodelet \e[m"
 git clone https://github.com/TeamSOBITS/ssd_nodelet.git
 
-echo -e "\e[34m\n Git Clone sobit_common\e[m"
-git clone https://github.com/TeamSOBITS/sobit_common.git
+echo -e "\e[34m\n Git Clone sobits_common\e[m"
+git clone https://github.com/TeamSOBITS/sobits_common.git
 
 echo -e "\e[34m\n Git Clone SOBIT EDU \e[m"
 git clone https://github.com/TeamSOBITS/sobit_edu.git
