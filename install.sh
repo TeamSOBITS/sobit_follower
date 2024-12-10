@@ -35,9 +35,7 @@ ros_packages=(
     "sobits_msgs" \
     "ssd_nodelet" \
     "sobit_edu" \
-    "sobit_pro" \
-    "scan2d_handler" \
-    "following_control_methods"
+    "sobit_pro"
 )
 
 # Clone all packages
