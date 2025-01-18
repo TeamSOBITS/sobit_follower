@@ -87,6 +87,7 @@
 |/dr_spaam_topic_name|string|DR-SPAAMのトピック名|
 |/ssd_topic_name|string|SSDのトピック名|
 |/target_frame|string|基準フレーム名|
+|/merge_nontravelable_region|bool|セグメンテーションによる小さな障害物回避機能を有効するか|
 |/target_range|double|追跡対象を決定するときの最大範囲[m]|
 |/leg_tracking_range|double|前フレームの推定値から人検出結果を観測値とする範囲(脚)[m]|
 |/body_tracking_range|double|前フレームの推定値から人検出結果を観測値とする範囲(体)[m]|

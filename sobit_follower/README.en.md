@@ -129,6 +129,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 |/dr_spaam_topic_name|string|DR-SPAAM Topic Name|
 |/ssd_topic_name|string|SSD Topic Name|
 |/target_frame|string|Reference Frame Name|
+|/merge_nontravelable_region|bool|Enables or disables the functionality for avoiding small obstacles by segmentation|
 |/target_range|double|Maximum range when determining the tracking target[m]|
 |/leg_tracking_range|double|Range from the previous frame's estimate to the observed value of the person detection result(leg)[m]|
 |/body_tracking_range|double|Range from the previous frame's estimate to the observed value of the person detection result(body)[m]|
