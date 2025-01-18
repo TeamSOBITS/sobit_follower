@@ -9,12 +9,11 @@ else
     rosbag_file=$1
 fi
 
-cd ~/catkin_ws/src
+cd ~/catkin_ws/src/sobit_follower/sobit_follower/rosbag
 rosbag record   /sobit_follower/following_position  \
                 /sobit_follower/target_postion_odom  \
-                /odom /cmd_vel_mux/input/teleop  \
-                /sobit_follower/velocity_smoother/raw_cmd_vel \
-                /person_id_follow_nodelet/target \
-                /person_id_follow_nodelet/person_id_img \
-                /ssd_object_detect/detect_result \
+                /odom \
+                /mobile_base/commands/velocity \
+                /plate_top_camera/color/image_raw \
+                /sam2_nontravelable_region_mask \
                 -o $rosbag_file
