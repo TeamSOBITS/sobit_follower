@@ -144,7 +144,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
             path.point.x = linear * cos(theta) * sampling_time + pre_path.point.x;
             path.point.y = linear * sin(theta) * sampling_time + pre_path.point.y;
             path.theta = angular * sampling_time + pre_path.theta;
-            path.theta = angular * sampling_time + pre_path.theta;
+            // path.theta = angular * sampling_time + pre_path.theta;
             if ( kdtree.nearestKSearch ( path.point, 1, k_indices, k_distances ) > 0 ) {
                 distance = std::sqrt(k_distances[0]);
                 if ( distance < dist_nearest_obstacle ) dist_nearest_obstacle = distance;
