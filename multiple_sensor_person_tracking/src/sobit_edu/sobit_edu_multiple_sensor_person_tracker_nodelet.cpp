@@ -54,6 +54,8 @@ namespace multiple_sensor_person_tracking {
             ros::Publisher pub_obstacles_;
             ros::Publisher pub_target_odom_;
             ros::Subscriber sub_scan_;
+            ros::Subscriber sub_nontravelable_region_;
+            PointCloud::Ptr cloud_nontravelable_region_;
 
             std::unique_ptr<message_filters::Subscriber<geometry_msgs::PoseArray>> sub_dr_spaam_;
             std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
@@ -90,7 +92,7 @@ namespace multiple_sensor_person_tracking {
             double target_change_tolerance_;
             double attention_leg_time_;
             unsigned int attention_leg_idx_;
-
+            bool merge_nontravelable_region_;
 
             visualization_msgs::Marker makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
             visualization_msgs::Marker makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses );
@@ -105,7 +107,7 @@ namespace multiple_sensor_person_tracking {
                 Eigen::Vector2f* leg_observed_value,
                 Eigen::Vector2f* body_observed_value );
 
-            void searchObstacles(
+            bool searchObstacles(
                 const geometry_msgs::Point& search_pt,
                 const PointCloud::Ptr input_cloud,
                 sensor_msgs::PointCloud2* obstacles );
@@ -117,6 +119,9 @@ namespace multiple_sensor_person_tracking {
 
             void scan_callback (
                 const sensor_msgs::LaserScanConstPtr &scan_msg );
+
+            void nontravelableRegionCallback(
+                const sensor_msgs::PointCloud2ConstPtr& nontravelable_region_msg );
 
             void callbackPoseArray (
                 const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg,
@@ -277,16 +282,38 @@ int multiple_sensor_person_tracking::SobitEduPersonTracker::findTwoObservationVa
     return result;
 }
 
-void multiple_sensor_person_tracking::SobitEduPersonTracker::searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles ) {
+bool multiple_sensor_person_tracking::SobitEduPersonTracker::searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles ) {
+    
+    // Merge input_cloud with the non-travelable region cloud
+    bool can_pub_obstacles = false;
+    PointCloud::Ptr merged_cloud(new PointCloud(*input_cloud));
+
+    if (merge_nontravelable_region_) {
+        if (cloud_nontravelable_region_ && !cloud_nontravelable_region_->empty())
+        {
+            ROS_INFO("[searchObstacles] Merging input cloud with non-travelable region cloud");
+            // Merge the two clouds:
+            *merged_cloud += *cloud_nontravelable_region_;
+            can_pub_obstacles = true;
+        } else {
+            ROS_INFO("[searchObstacles] No non-travelable region cloud available. Using input cloud only.");
+            return can_pub_obstacles; // comment this line if you want to use only input_cloud
+        }
+    } else {
+        can_pub_obstacles = true;
+        ROS_INFO("[searchObstacles] Merge disabled. Using input cloud only.");
+    }
+
+    // Radius search: remove points near 'search_pt'
     PointCloud::Ptr cloud_obstacles ( new PointCloud() );
     pcl::PointIndices::Ptr target_indices ( new pcl::PointIndices );
     PointT p_q;
     p_q.x = search_pt.x;
     p_q.y = search_pt.y;
-    p_q.z = input_cloud ->points [0].z;
+    p_q.z = merged_cloud ->points [0].z;
     std::vector<int> k_indices;
     std::vector<float> k_sqr_distances;
-    flann_.setInputCloud ( input_cloud );
+    flann_.setInputCloud ( merged_cloud );
     int num_match = flann_.radiusSearch (p_q, target_cloud_radius_, k_indices, k_sqr_distances, 0);
 
     if ( num_match == 0 ) {
@@ -298,8 +325,11 @@ void multiple_sensor_person_tracking::SobitEduPersonTracker::searchObstacles( co
         extract_.setNegative( true );
         extract_.filter( *cloud_obstacles );
     }
-    pcl::toROSMsg(*cloud_obstacles, *obstacles );
-    return;
+    pcl::toROSMsg( *cloud_obstacles, *obstacles );
+    obstacles->header.frame_id = merged_cloud->header.frame_id;
+    obstacles->header.stamp = ros::Time::now();
+
+    return can_pub_obstacles;
 }
 
 geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitEduPersonTracker::transformPoint (
@@ -323,6 +353,30 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitEduPersonTrack
 void multiple_sensor_person_tracking::SobitEduPersonTracker::scan_callback (const sensor_msgs::LaserScanConstPtr &scan_msg)
 {
     scan_msg_ = scan_msg;
+}
+
+void multiple_sensor_person_tracking::SobitEduPersonTracker::nontravelableRegionCallback(const sensor_msgs::PointCloud2ConstPtr& nontravelable_region_msg)
+{
+    PointCloud temp_cloud;
+    try {
+        pcl::fromROSMsg(*nontravelable_region_msg, temp_cloud);
+    } catch (std::runtime_error &e) {
+        ROS_ERROR("nontravelableRegionCallback() conversion failed: %s", e.what());
+        return;
+    }
+
+    // Transform to the same frame as /obstacles
+    PointCloud transformed_cloud;
+    try {
+        pcl_ros::transformPointCloud("base_footprint", temp_cloud, transformed_cloud, tfBuffer_);
+    }
+    catch (tf2::TransformException &ex) {
+        ROS_WARN("Could not transform non-travelable region cloud: %s", ex.what());
+        return;
+    }
+
+    *cloud_nontravelable_region_ = transformed_cloud;
+    cloud_nontravelable_region_->header.frame_id = "base_footprint"; 
 }
 
 void multiple_sensor_person_tracking::SobitEduPersonTracker::callbackPoseArray ( const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg ) {
@@ -451,19 +505,23 @@ void multiple_sensor_person_tracking::SobitEduPersonTracker::callbackPoseArray (
     following_position_->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
     following_position_->status = result;
 
-    // following_position_ : obstacles :
+    // search obstacles :
+    sensor_msgs::PointCloud2 obstacles;
     outrem_.setInputCloud( cloud_scan_ );
     outrem_.filter ( *cloud_scan_ );
     voxel_.setInputCloud( cloud_scan_ );
     voxel_.filter ( *cloud_scan_ );
-    searchObstacles( following_position_->pose.position, cloud_scan_, &following_position_->obstacles );
+    bool can_pub_obstacles = searchObstacles( following_position_->pose.position, cloud_scan_, &obstacles );
 
     // following_position_ : header :
-    following_position_->header.stamp = ros::Time::now();
-    pub_following_position_.publish( following_position_ );
-    pub_target_odom_.publish( transformPoint( target_frame_, "odom", following_position_->pose.position ) );
+    if ( can_pub_obstacles ){
+        pub_obstacles_.publish( obstacles );
+        following_position_->header.stamp = ros::Time::now();
+        pub_following_position_.publish( following_position_ );
+        pub_target_odom_.publish( transformPoint( target_frame_, "odom", following_position_->pose.position ) );
+    } 
+
     if ( display_marker_ ) {
-        pub_obstacles_.publish( following_position_->obstacles );
         marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
         marker_array_->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
         marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
@@ -490,8 +548,10 @@ void multiple_sensor_person_tracking::SobitEduPersonTracker::onInit() {
     marker_array_.reset(new visualization_msgs::MarkerArray);
     following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );
     scan_msg_.reset( new sensor_msgs::LaserScan );
+    cloud_nontravelable_region_.reset( new PointCloud() );
 
     sub_scan_ = nh_.subscribe(pnh_.param<std::string>( "scan_topic_name", "/scan"), 1, &SobitEduPersonTracker::scan_callback, this);
+    sub_nontravelable_region_ = nh_.subscribe("/pointcloud_nontravelable_region", 1, &SobitEduPersonTracker::nontravelableRegionCallback, this);
 
     // message_filters :
     sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::PoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
@@ -506,6 +566,7 @@ void multiple_sensor_person_tracking::SobitEduPersonTracker::onInit() {
     pub_target_odom_ = nh_.advertise<geometry_msgs::PointStamped>("target_postion_odom", 1);
 
     target_frame_ = pnh_.param<std::string>( "target_frame", "base_footprint" );
+    merge_nontravelable_region_ = pnh_.param<bool>("merge_nontravelable_region", true);
 
     kf_.reset( new multiple_observation_kalman_filter::KalmanFilter( 0.033, 1000, 1.0 ) );
 

@@ -87,6 +87,7 @@
 |/dr_spaam_topic_name|string|DR-SPAAM Topic Name|
 |/ssd_topic_name|string|SSD Topic Name|
 |/target_frame|string|Base Frame Name |
+|/merge_nontravelable_region|bool|Enables or disables the functionality for avoiding small obstacles by segmentation|
 |/target_range|double|Maximum range when determining the tracking target[m]|
 |/leg_tracking_range|double|Range of human detection results from the previous frame's estimate to the observed value (leg)[m]|
 |/body_tracking_range|double|Range of human detection results from the previous frame's estimate to the observed value (body)[m]|

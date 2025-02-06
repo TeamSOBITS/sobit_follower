@@ -34,6 +34,7 @@ namespace person_following_control {
             ros::NodeHandle nh_;
             ros::NodeHandle pnh_;
             ros::Publisher pub_vel_;
+            ros::Subscriber sub_obstacles_;
             std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition>> sub_following_position_;
             std::unique_ptr<message_filters::Subscriber<nav_msgs::Odometry>> sub_odom_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
@@ -47,6 +48,7 @@ namespace person_following_control {
 
             geometry_msgs::TwistPtr velocity_;
             PointCloud::Ptr cloud_obstacles_;
+            sensor_msgs::PointCloud2ConstPtr obstacles_msg_;
 
             int following_method_;
             double following_distance_;
@@ -77,6 +79,9 @@ namespace person_following_control {
                 const multiple_sensor_person_tracking::FollowingPositionConstPtr &following_position_msg,
                 const nav_msgs::OdometryConstPtr &odom_msg,
                 geometry_msgs::TwistPtr output_path
+            );
+            void obstacles_callback(
+                const sensor_msgs::PointCloud2ConstPtr &obstacles_msg 
             );
 
         public:
@@ -147,7 +152,7 @@ void person_following_control::SobitProPersonFollowing::virtualSpringModelDynami
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
     double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
 
-    pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles_ );
+    pcl::fromROSMsg<PointT>( *obstacles_msg_, *cloud_obstacles_ );
 
     vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, output_path );
     NODELET_INFO("\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
@@ -212,7 +217,8 @@ void person_following_control::SobitProPersonFollowing::dynamicWindowApproach (
 {
     double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
     double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
-    pcl::fromROSMsg<PointT>( following_position_msg->obstacles, *cloud_obstacles_ );
+
+    pcl::fromROSMsg<PointT>( *obstacles_msg_, *cloud_obstacles_ );
 
     if ( target_distance < following_distance_  ) use_pid_ = true;
     if ( use_pid_ ) {
@@ -248,6 +254,11 @@ void person_following_control::SobitProPersonFollowing::rotatePID (
     return;
 }
 
+void person_following_control::SobitProPersonFollowing::obstacles_callback (const sensor_msgs::PointCloud2ConstPtr &obstacles_msg)
+{
+    obstacles_msg_ = obstacles_msg;
+}
+
 void person_following_control::SobitProPersonFollowing::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
@@ -256,8 +267,11 @@ void person_following_control::SobitProPersonFollowing::onInit() {
     pid_.reset( new person_following_control::PIDController );
     velocity_.reset( new geometry_msgs::Twist );
     cloud_obstacles_.reset( new PointCloud() );
+    obstacles_msg_.reset( new sensor_msgs::PointCloud2() );
     
     pub_vel_ = nh_.advertise< geometry_msgs::Twist >( "cmd_vel", 1 );
+    sub_obstacles_ = nh_.subscribe(pnh_.param<std::string>( "obstacles_topic_name", "/obstacles"), 1, &SobitProPersonFollowing::obstacles_callback, this);
+
     // // message_filters :
     sub_following_position_.reset ( new message_filters::Subscriber<multiple_sensor_person_tracking::FollowingPosition> ( nh_, pnh_.param<std::string>( "following_position_topic_name", "/following_position" ), 1 ) );
     sub_odom_.reset ( new message_filters::Subscriber<nav_msgs::Odometry> ( nh_, pnh_.param<std::string>( "odom_topic_name", "/odom" ), 1 ) );
