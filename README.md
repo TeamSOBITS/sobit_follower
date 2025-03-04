@@ -19,6 +19,7 @@
     </li>
     <li>
       <a href="#セットアップ">セットアップ</a>
+      <a href="#対象者識別用の追加セットアップ">対象者識別用の追加セットアップ</a>
     </li>
     <li>
     　<a href="#パッケージ構成">パッケージ構成</a>
@@ -70,8 +71,8 @@ $ catkin_make
 ## 対象者識別用の追加セットアップ
 ```python
 $ cd sobit_follower
-# follow meに必要なパッケージのインストールを行う
-$ bash install.sh
+# 対象者識別に必要な追加パッケージのインストールを行う
+$ bash install_target_identification.sh
 # インストールしたパッケージのセットアップを行った後、catkin_make
 $ cd ~/catkin_ws
 $ catkin_make
@@ -138,7 +139,7 @@ $ catkin_make
 
 - 対象者識別実験からKoide_ModelよりGRR_SLTの方が対象者識別精度が高いことが示されている
 - 一方でKoide_Modelの方はGRR_SLTより処理量が軽いという利点があるため使用する状況に応じて2つの対象者識別手法を上手く使い分けることをおすすめする
-- 以下に示す実行方法の部分で実装するにあたっての設定方法を記載
+- 上に示す対象者識別用の追加セットアップを行うことで使用可能
 
 ## 実行方法
 ### [sobit_edu_follower_me.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch)
@@ -154,17 +155,46 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 # use_smoother : 速度の平滑化を行うか(bool)
 ```
 
-### [sobit_edu_follower_me_id.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch)
-SOBIT_EDUで対象者同定手法[person_identification_nodelet](https://github.com/TeamSOBITS/person_identification_nodelet)を組み合わせて追従対象者を識別することを可能とした人追従走行
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch`
-- 詳細は[こちら](sobit_follower)
+### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
+- SOBIT_EDUでOSNetとリッジ回帰モデルからなる(GRR_SLT)対象者識別手法を組み合わせて追従対象者を識別することを可能とした人追従走行
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
+- ここでは人物検出としてSSDの代わりにYOLOv10を用いている
 ```python
-$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
 # rqt_reconfigure : rqt_reconfigureを起動するか(bool)
 # use_rotate : SensorRotatorを起動するか(bool)
 # use_smoother : 速度の平滑化を行うか(bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- YOLOで検出するクラスを'person'のみに限定する引数 -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
+# <include file="$(find mono_following)\launch\mono_following.launch"/>
+#   mono_following.launch内では以下の引数が変更可能
+#       <param name="initial_training_num_samples" value="50"/>  <!-- 初期学習回数を設定する引数 -->
+#       <param name="min_target_confidence" value="-1"/>  <!-- 特に意味がない -->
+#       <param name="id_switch_detection_thresh" value="0.65"/>  <!-- 対象者を追従中，対象者と判定される閾値 -->
+#       <param name="reid_pos_confidence_thresh" value="0.65"/>  <!-- 対象者を見失い中，再び対象者と判定する際の閾値 -->
+#       <param name="reid_neg_confidence_thresh" value="0.3"/>  <!-- 特に意味がない -->
+#       <param name="reid_positive_count" value="5"/>  <!-- 対象者を見失い中，reid_pos_confidence_threshの閾値をクリアした回数(この回数を超えると対象者の追従フェーズに移行) -->
+```
+
+### [sobit_edu_follower_me_KoideModel.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
+- SOBIT_EDUで対象者識別手法(KoideModel)を組み合わせて追従対象者を識別することを可能とした人追従走行
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
+- ここでは人物検出としてSSDの代わりにYOLOv10を用いている
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- YOLOで検出するクラスを'person'のみに限定する引数 -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
 ```
 
 ### [sobit_pro_follower_me.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch)
@@ -179,17 +209,46 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 # use_rotate : SensorRotatorを起動するか(bool)
 # use_smoother : 速度の平滑化を行うか(bool)
 ```
-### [sobit_pro_follower_me_id.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch)
-SOBIT_PROで対象者同定手法[person_identification_nodelet](https://github.com/TeamSOBITS/person_identification_nodelet)を組み合わせて追従対象者を識別することを可能とした人追従走行
-- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch`
-- 詳細は[こちら](sobit_follower)
+### [sobit_pro_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_GRRSLT.launch)
+- SOBIT_PROでOSNetとリッジ回帰モデルからなる(GRR_SLT)対象者識別手法を組み合わせて追従対象者を識別することを可能とした人追従走行
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_GRRSLT.launch`
+- ここでは人物検出としてSSDの代わりにYOLOv10を用いている
 ```python
-$ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobit_follower sobit_pro_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # 引数
 # rviz : Rvizを起動するか(bool)
 # rqt_reconfigure : rqt_reconfigureを起動するか(bool)
 # use_rotate : SensorRotatorを起動するか(bool)
 # use_smoother : 速度の平滑化を行うか(bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- YOLOで検出するクラスを'person'のみに限定する引数 -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
+# <include file="$(find mono_following)\launch\mono_following.launch"/>
+#   mono_following.launch内では以下の引数が変更可能
+#       <param name="initial_training_num_samples" value="50"/>  <!-- 初期学習回数を設定する引数 -->
+#       <param name="min_target_confidence" value="-1"/>  <!-- 特に意味がない -->
+#       <param name="id_switch_detection_thresh" value="0.65"/>  <!-- 対象者を追従中，対象者と判定される閾値 -->
+#       <param name="reid_pos_confidence_thresh" value="0.65"/>  <!-- 対象者を見失い中，再び対象者と判定する際の閾値 -->
+#       <param name="reid_neg_confidence_thresh" value="0.3"/>  <!-- 特に意味がない -->
+#       <param name="reid_positive_count" value="5"/>  <!-- 対象者を見失い中，reid_pos_confidence_threshの閾値をクリアした回数(この回数を超えると対象者の追従フェーズに移行) -->
+```
+
+## [sobit_pro_follower_me_KoideModel.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_KoideModel.launch)
+- SOBIT_PROで対象者識別手法(KoideModel)を組み合わせて追従対象者を識別することを可能とした人追従走行
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_KoideModel.launch`
+- ここでは人物検出としてSSDの代わりにYOLOv10を用いている
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# 引数
+# rviz : Rvizを起動するか(bool)
+# rqt_reconfigure : rqt_reconfigureを起動するか(bool)
+# use_rotate : SensorRotatorを起動するか(bool)
+# use_smoother : 速度の平滑化を行うか(bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- YOLOで検出するクラスを'person'のみに限定する引数 -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
 ```
 
 #### Launch構成

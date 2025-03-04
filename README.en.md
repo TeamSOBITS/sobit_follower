@@ -19,6 +19,7 @@
     </li>
     <li>
       <a href="#setup">Setup</a>
+      <a href="#Additional setup for target identification">Additional setup for target identification</a>
     </li>
     <li>
     　<a href="#package-configuration">Package Configuration</a>
@@ -28,6 +29,7 @@
         <li><a href="#03-multiple-sensor-person-tracking">03. Multiple Sensor Person Tracking</a></li>
         <li><a href="#04-person-following-control">04. Person Following Control</a></li>
         <li><a href="#05-sobit-follower">05. SOBIT Follower</a></li>
+        <li><a href="#06-target-identification-method">06. Target Identification Method</a></li>
       </ul>
     </li>
     <li>
@@ -61,6 +63,16 @@ $ git clone https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
 # Install the necessary packages for follow me
 $ bash install.sh
+# Setup the installed package, then catkin_make
+$ cd ~/catkin_ws
+$ catkin_make
+```
+
+## Additional setup for target identification
+```python
+$ cd sobit_follower
+# Installing additional packages required for target identification
+$ bash install_target_identification.sh
 # Setup the installed package, then catkin_make
 $ cd ~/catkin_ws
 $ catkin_make
@@ -103,6 +115,31 @@ $ catkin_make
 - Shell scripts are also available to acquire rosbags for experiments and plot the acquired data
 - [For more information](sobit_follower)
 
+### 06. Target Identification Method
+- Person-following run with additional target identification methods
+- By adding one of the following two methods to the person-following robot system, the robot can follow the target while identifying the target person
+
+Target Identification Method
+1. Combination of convolutional channel function and online boosting(Koide_Model)
+    - Consists of human feature extraction by pixel value summation of random rectangles based on 10 feature maps and a target classifier by online boosting
+    - Additional packages are [monocular_person_following](https://github.com/TeamSOBITS/monocular_person_following) and [ccf_person_identification](https://github.com/TeamSOBITS/ccf_person_identification), and [open_face_recognition](https://github.com/TeamSOBITS/open_face_recognition) needs to be added depending on these two packages
+    - Paper:
+    - - Kenji Koide, Jun Miura, and Emanuele Menegatti， “Monocular person tracking and identification with on-line deep feature selection for person following robots”，Robotics and Autonomous Systems，124: 103348，2020 [[link]](https://staff.aist.go.jp/k.koide/assets/pdf/ias15_ext.pdf).
+
+2. Combination of OSNet and Ridge Regression Model (GRR_SLT)
+    - Consists of human feature extraction using OSNet and target classifier using ridge regression model
+    - The package that needs to be added is [MPF_GRR_SLT](https://github.com/TeamSOBITS/MPF_GRR_SLT)
+        - The original package of MPF_GRR_SLT does not use OSNet as a human feature extraction method. However, OSNet is used instead as a human feature extraction method when applying the target person identification function to sobit_follwer
+    - OSNet github: [[link]](https://github.com/KaiyangZhou/deep-person-reid)
+    - OSNet paper:
+    - Kaiyang Zhou，Yongxin Yang，Andrea Cavallaro and Tao Xiang，“Omni-scale feature learning for person re-identification”，Proceedings of the IEEE/CVF international conference on computer vision，pp.3702-3712，2019  [[link]](https://openaccess.thecvf.com/content_ICCV_2019/papers/Zhou_Omni-Scale_Feature_Learning_for_Person_Re-Identification_ICCV_2019_paper.pdf).
+    - MPF_GRR_SLT(the underlying package for this target identification method(the original target classifier with ridge regression model is still used)) Paper:
+    - Hanjing Ye，Jieting Zhao，Yaling Pan，Weinan Chen and Hong Zhang，“Following Closely: A Robust Monocular Person Following System for Mobile Robot”，arXiv preprint arXiv:2204.10540，2022 [[link]](https://arxiv.org/pdf/2204.10540).
+
+- Target identification experiments show that GRR_SLT is more accurate than Koide_Model
+- On the other hand, Koide_Model has the advantage of less processing than GRR_SLT, so it is recommended to use two different target identification methods depending on the situation
+- The additional setup for target identification shown above can be used
+
 ## Launch and Usage
 ### [sobit_edu_follower_me.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch)
 - Person-following control by Multiple Sensor Person Tracking and Person Following Control using SOBIT EDU
@@ -116,18 +153,47 @@ $ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfig
 # use_rotate : activate SensorRotator (bool)
 # use_smoother : whether to perform velocity smoothing (bool)
 ```
-### [sobit_edu_follower_me_id.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch)
-- SOBIT_EDU enables the combination of the target identification method [person_identification_nodelet](https://github.com/TeamSOBITS/person_identification_nodelet) with SOBIT_EDU to identify the target of the pursuit. Person-following driving made possible by combining the target identification method 
 
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_id.launch`
-- [For more information](sobit_follower)
+### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
+- Person-following run that enables SOBIT_EDU to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
+- YOLOv10 is used here instead of SSD for person detection
 ```python
-$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # Arguments
 # rviz : whether to start Rviz (bool)
 # rqt_reconfigure : whether to start rqt_reconfigure (bool)
 # use_rotate : activate SensorRotator (bool)
 # use_smoother : whether to perform velocity smoothing (bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
+# <include file="$(find mono_following)\launch\mono_following.launch"/>
+#   The following arguments can be changed in mono_following.launch
+#       <param name="initial_training_num_samples" value="50"/>  <!-- Arguments for setting the initial training count -->
+#       <param name="min_target_confidence" value="-1"/>  <!-- Not particularly meaningful -->
+#       <param name="id_switch_detection_thresh" value="0.65"/>  <!-- Threshold value at which a target is determined to be a target while following a target -->
+#       <param name="reid_pos_confidence_thresh" value="0.65"/>  <!-- Threshold when the target is judged to be a target again while the target is lost -->
+#       <param name="reid_neg_confidence_thresh" value="0.3"/>  <!-- Not particularly meaningful -->
+#       <param name="reid_positive_count" value="5"/>  <!-- The number of times that the threshold of reid_pos_confidence_thresh is exceeded while the target is lost (if this number is exceeded, the target is moved to the follow-up phase) -->
+```
+
+### [sobit_edu_follower_me_KoideModel.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
+- Person-following run that enables SOBIT_EDU to identify the target person to be followed by combining the target person identification method(KoideModel)
+- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
+- YOLOv10 is used here instead of SSD for person detection
+```python
+$ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
 ```
 
 
@@ -143,16 +209,47 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 # use_rotate : activate SensorRotator (bool)
 # use_smoother : whether to perform velocity smoothing (bool)
 ```
-### [sobit_pro_follower_me_id.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch)
-- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_id.launch`
-- [For more information](sobit_follower)
+
+### [sobit_pro_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_GRRSLT.launch)
+- Person-following run that enables SOBIT_PRO to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_GRRSLT.launch`
+- YOLOv10 is used here instead of SSD for person detection
 ```python
-$ roslaunch sobit_follower sobit_edu_follower_me_id.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobit_follower sobit_pro_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 # Arguments
 # rviz : whether to start Rviz (bool)
 # rqt_reconfigure : whether to start rqt_reconfigure (bool)
 # use_rotate : activate SensorRotator (bool)
 # use_smoother : whether to perform velocity smoothing (bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
+# <include file="$(find mono_following)\launch\mono_following.launch"/>
+#   The following arguments can be changed in mono_following.launch
+#       <param name="initial_training_num_samples" value="50"/>  <!-- Arguments for setting the initial training count -->
+#       <param name="min_target_confidence" value="-1"/>  <!-- Not particularly meaningful -->
+#       <param name="id_switch_detection_thresh" value="0.65"/>  <!-- Threshold value at which a target is determined to be a target while following a target -->
+#       <param name="reid_pos_confidence_thresh" value="0.65"/>  <!-- Threshold when the target is judged to be a target again while the target is lost -->
+#       <param name="reid_neg_confidence_thresh" value="0.3"/>  <!-- Not particularly meaningful -->
+#       <param name="reid_positive_count" value="5"/>  <!-- The number of times that the threshold of reid_pos_confidence_thresh is exceeded while the target is lost (if this number is exceeded, the target is moved to the follow-up phase) -->
+```
+
+## [sobit_pro_follower_me_KoideModel.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_KoideModel.launch)
+- Person-following run that enables SOBIT_PRO to identify the target person to be followed by combining the target person identification method(KoideModel)
+- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_KoideModel.launch`
+- YOLOv10 is used here instead of SSD for person detection
+```python
+$ roslaunch sobit_follower sobit_pro_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+# Arguments
+# rviz : whether to start Rviz (bool)
+# rqt_reconfigure : whether to start rqt_reconfigure (bool)
+# use_rotate : activate SensorRotator (bool)
+# use_smoother : whether to perform velocity smoothing (bool)
+# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
+#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+# </include>
 ```
 
 #### Launch Configuration
