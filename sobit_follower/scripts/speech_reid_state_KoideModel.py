@@ -30,15 +30,15 @@ def now():
     return rospy.get_time()
 
 def initial_training_switch(time):
-    if (time >= 51):
-        return 6
-    if (time >= 41):
-        return 5
-    if (time >= 31):
-        return 4
-    elif (time >= 21):
-        return 3
-    elif (time >= 11):
+    # if (time >= 51):
+    #     return 6
+    # if (time >= 41):
+    #     return 5
+    # if (time >= 31):
+    #     return 4
+    # elif (time >= 21):
+    #     return 3
+    if (time >= 11):
         return 2
     else:
         return 1
@@ -113,7 +113,7 @@ def main():
             if (speech_flag_global == "re-identification"):
                 if(reid_count > 3):
                     continue
-                speech_word = "再同定中"
+                speech_word = "再識別中"
                 speech(speech_word)
                 tracking_count = 0
                 reid_count += 1
@@ -121,19 +121,19 @@ def main():
         elif((no_exists_flag_global != 0) and (speech_flag_global == "tracking")):
             if(tracking_count > 0):
                 continue
-            speech_word = "ついじゅう成功、同定成功"
+            speech_word = "ついじゅう成功、識別成功"
             speech(speech_word)
             tracking_count = 1
             reid_count = 0
             rospy.sleep(1)
-        elif((no_exists_flag_global != 0) and (speech_flag_global == "re-identification")):
-            if(reid_count > 3):
-                continue
-            speech_word = "ついじゅう成功、同定中"
-            speech(speech_word)
-            tracking_count = 0
-            reid_count += 1
-            rospy.sleep(1)
+        # elif((no_exists_flag_global != 0) and (speech_flag_global == "re-identification")):
+        #     if(reid_count > 3):
+        #         continue
+        #     speech_word = "ついじゅう成功、識別中"
+        #     speech(speech_word)
+        #     tracking_count = 0
+        #     reid_count += 1
+        #     rospy.sleep(1)
         else:
             continue
         

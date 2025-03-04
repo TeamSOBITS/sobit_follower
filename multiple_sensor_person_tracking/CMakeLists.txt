@@ -62,10 +62,12 @@ include_directories(
 
 add_library(${PROJECT_NAME} 
                             src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet.cpp
-                            # src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet_id.cpp
-                            src/sobit_edu/sobit_edu_person_aim_sensor_rotator_nodelet.cpp
                             src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet.cpp
-                            # src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet_id.cpp
+                            src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet_GRR_SLT.cpp
+                            src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet_KoideModel.cpp
+                            src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet_GRR_SLT.cpp
+                            src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet_KoideModel.cpp
+                            src/sobit_edu/sobit_edu_person_aim_sensor_rotator_nodelet.cpp
                             src/sobit_pro/sobit_pro_person_aim_sensor_rotator_nodelet.cpp
                             src/hsrb/hsrb_multiple_sensor_person_tracker_nodelet.cpp
                             src/hsrb/hsrb_person_aim_sensor_rotator_nodelet.cpp

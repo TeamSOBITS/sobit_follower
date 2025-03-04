@@ -1,5 +1,5 @@
 <launch>
-    <arg name="rviz"                    default="true"/>
+    <arg name="rviz"                    default="false"/>
     <arg name="display_marker"          default="true"/>
     <arg name="rviz_cfg"                default="$(find sobit_follower)/config/rviz/sobit_follower.rviz"/>
     <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_cfg)"/>
@@ -22,9 +22,15 @@
     <arg name="speech_mode"        default="true" />
 
     <include file="$(find sobit_follower)\launch\include\dr_spaam_ros.launch.xml"/>
-    <include file="$(find sobit_follower)\launch\include\ssd_pose_ros.launch.xml"/>
+    <!-- <include file="$(find sobit_follower)\launch\include\ssd_pose_ros.launch.xml"/> -->
+    <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
+        <arg name="detect_classes" value="['person']"/>  <!-- specify 'person' as the class to detect -->
+        <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
+    </include>
+
     <!-- person_id_nodelet -->
-    <include file="$(find sobit_follower)\launch\include\person_id.launch.xml"/>
+    <!-- <include file="$(find sobit_follower)\launch\include\person_id.launch.xml"/> -->
+    <include file="$(find mono_following)\launch\mono_following.launch"/>
 
     <!-- 呼び止めるプログラム -->
     <group if="$(arg speech_mode)">
@@ -35,7 +41,9 @@
         <!-- <node pkg="sobit_follower" type="speech_no_exists.py" name="speech1" output="screen"> -->
         <!-- </node> -->
         <!-- reid_state -->
-        <node pkg="sobit_follower" type="speech_reid_state.py" name="speech2" output="screen">
+        <!-- <node pkg="sobit_follower" type="speech_reid_state.py" name="speech2" output="screen">
+        </node> -->
+        <node pkg="sobit_follower" type="speech_reid_state_GRRSLT.py" name="speech2" output="screen">
         </node>
     </group>
 
@@ -45,13 +53,13 @@
             <param name="num_worker_threads" value="$(arg manager_threads)" />
         </node>
 
-        <include file="$(find sobit_follower)/launch/include/sobit_pro/sobit_pro_tracker_id.launch.xml">
+        <include file="$(find sobit_follower)/launch/include/sobit_edu/sobit_edu_tracker_GRRSLT.launch.xml">
             <arg name="manager_name"        value="$(arg manager_name)" />
             <arg name="use_rotate"          value="$(arg use_rotate)"/>
             <arg name="display_marker"      value="$(arg display_marker)"/>
         </include>
 
-        <include file="$(find sobit_follower)/launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml" >
+        <include file="$(find sobit_follower)/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml" >
             <arg name="manager_name"        value="$(arg manager_name)" />
             <arg name="display_marker"      value="$(arg display_marker)"/>
             <arg name="following_method"    value="$(arg following_method)"/>

@@ -47,7 +47,7 @@ namespace multiple_sensor_person_tracking {
         NO_EXISTS = 0, EXISTS_LEG, EXISTS_BODY, EXISTS_LEG_AND_BODY
     };
 
-    class SobitProPersonTrackerId : public nodelet::Nodelet {
+    class SobitEduPersonTrackerKoideModel : public nodelet::Nodelet {
         private:
             ros::NodeHandle nh_;
             ros::NodeHandle pnh_;
@@ -58,7 +58,8 @@ namespace multiple_sensor_person_tracking {
             ros::Subscriber sub_scan_;
 
             std::unique_ptr<message_filters::Subscriber<geometry_msgs::PoseArray>> sub_dr_spaam_;
-            std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
+            // std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_ssd_;
+            std::unique_ptr<message_filters::Subscriber<sobits_msgs::ObjectPoseArray>> sub_yolo_;
             std::unique_ptr<message_filters::Subscriber<person_id_follow_nodelet::SOBITTarget>> sub_id_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
@@ -74,7 +75,7 @@ namespace multiple_sensor_person_tracking {
             pcl::VoxelGrid<PointT> voxel_;
             PointCloud::Ptr cloud_scan_;
             visualization_msgs::MarkerArrayPtr marker_array_;
-            // visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
+            visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
             sensor_msgs::LaserScanConstPtr scan_msg_;
 
@@ -106,15 +107,15 @@ namespace multiple_sensor_person_tracking {
 
             void callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level );
 
-            int findTwoObservationValue(
-                const std::vector<geometry_msgs::Pose>& leg_poses,
-                const std::vector<sobits_msgs::ObjectPose>& body_poses,
-                Eigen::Vector2f* leg_observed_value,
-                Eigen::Vector2f* body_observed_value );
+            // int findTwoObservationValue(
+            //     const std::vector<geometry_msgs::Pose>& leg_poses,
+            //     const std::vector<sobits_msgs::ObjectPose>& body_poses,
+            //     Eigen::Vector2f* leg_observed_value,
+            //     Eigen::Vector2f* body_observed_value );
             
             int findThreeObservationValue(
                 const std::vector<geometry_msgs::Pose>& leg_poses,
-                const std::vector<sobits_msgs::ObjectPose>& body_poses,
+                const geometry_msgs::Point& target_position,
                 int target_id,
                 Eigen::Vector2f* leg_observed_value,
                 Eigen::Vector2f* body_observed_value );
@@ -132,9 +133,13 @@ namespace multiple_sensor_person_tracking {
             void scan_callback (
                 const sensor_msgs::LaserScanConstPtr &scan_msg );
 
+            // void callbackPoseArray (
+            //     const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg,
+            //     const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, 
+            //     const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg);
             void callbackPoseArray (
                 const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg,
-                const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg,
+                const sobits_msgs::ObjectPoseArrayConstPtr &yolo_msg, 
                 const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg);
 
         public:
@@ -142,7 +147,7 @@ namespace multiple_sensor_person_tracking {
     };
 }
 
-visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTrackerId::makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses ) {
+visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::makeLegPoseMarker( const std::vector<geometry_msgs::Pose>& leg_poses ) {
     visualization_msgs::Marker leg_marker;
     leg_marker.header.frame_id = target_frame_;
     leg_marker.header.stamp = ros::Time::now();
@@ -158,7 +163,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTracke
     return leg_marker;
 }
 
-visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTrackerId::makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses ) {
+visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::makeLegAreaMarker( const std::vector<geometry_msgs::Pose>& leg_poses ) {
     visualization_msgs::Marker leg_marker;
     std::vector<double> offset_x, offset_y;
     double tolerance = 2.0*M_PI / 20.0;
@@ -193,7 +198,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTracke
     return leg_marker;
 }
 
-visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTrackerId::makeBodyPoseMarker( const std::vector<sobits_msgs::ObjectPose>& body_poses ) {
+visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::makeBodyPoseMarker( const std::vector<sobits_msgs::ObjectPose>& body_poses ) {
     visualization_msgs::Marker body_marker;
     body_marker.header.frame_id = target_frame_;
     body_marker.header.stamp = ros::Time::now();
@@ -209,7 +214,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTracke
     return body_marker;
 }
 
-visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTrackerId::makeTargetPoseMarker( const Eigen::Vector4f& target_pose ) {
+visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::makeTargetPoseMarker( const Eigen::Vector4f& target_pose ) {
     visualization_msgs::Marker target_marker;
     target_marker.header.frame_id = target_frame_;
     target_marker.header.stamp = ros::Time::now();
@@ -231,7 +236,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTracke
     return target_marker;
 }
 
-visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTrackerId::makeNoExistsTargetPoseMarker( const geometry_msgs::Pose& no_target_pose ) {
+visualization_msgs::Marker multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::makeNoExistsTargetPoseMarker( const geometry_msgs::Pose& no_target_pose ) {
     visualization_msgs::Marker no_target_marker;
     no_target_marker.header.frame_id = target_frame_;
     no_target_marker.header.stamp = ros::Time::now();
@@ -247,7 +252,7 @@ visualization_msgs::Marker multiple_sensor_person_tracking::SobitProPersonTracke
     return no_target_marker;
 }
 
-void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level) {
+void multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::callbackDynamicReconfigure( multiple_sensor_person_tracking::TrackerParameterConfig& config, uint32_t level) {
     kf_->changeParameter( config.process_noise, config.system_noise );
     leg_tracking_range_ = config.leg_tracking_range;
     body_tracking_range_ = config.body_tracking_range;
@@ -264,54 +269,54 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackDynamicRe
 
 }
 
-int multiple_sensor_person_tracking::SobitProPersonTrackerId::findTwoObservationValue(
-    const std::vector<geometry_msgs::Pose>& leg_poses,
-    const std::vector<sobits_msgs::ObjectPose>& body_poses,
-    Eigen::Vector2f* leg_observed_value,
-    Eigen::Vector2f* body_observed_value )
-{
-    geometry_msgs::Point search_pt, leg_pt, body_pt;
-    double min_distance = ( exists_target_ ) ? leg_tracking_range_ : target_range_;
-    bool exists_leg_pt = false, exists_body_pt = false;
-    int result;
-    if ( !exists_target_ ) {
-        // Determine targets to track (search for the person closest to the robot)
-        search_pt.x = 0.0; search_pt.y = 0.0;
-    } else {
-        // Searching for the observed value of the tracking target (search for the person closest to the previous tracking position)
-        search_pt = previous_target_;
-    }
-    for ( const auto& pose : leg_poses ) {
-        double distance = std::hypotf( pose.position.x - search_pt.x, pose.position.y - search_pt.y );
-        if ( min_distance > distance ) {
-            min_distance = distance;
-            leg_pt = pose.position;
-            exists_leg_pt = true;
-        }
-    }
-    min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
-    for ( const auto& pose : body_poses ) {
-        double distance = std::hypotf( pose.pose.position.x - search_pt.x, pose.pose.position.y - search_pt.y );
-        if ( min_distance > distance ) {
-            min_distance = distance;
-            body_pt = pose.pose.position;
-            exists_body_pt = true;
-        }
-    }
-    Eigen::Vector2f leg_observed( leg_pt.x, leg_pt.y );
-    Eigen::Vector2f body_observed( body_pt.x, body_pt.y );
-    if ( !exists_leg_pt && !exists_body_pt ) result = Status::NO_EXISTS;
-    else if ( exists_leg_pt && !exists_body_pt ) result = Status::EXISTS_LEG;
-    else if ( !exists_leg_pt && exists_body_pt ) result = Status::EXISTS_BODY;
-    else result = Status::EXISTS_LEG_AND_BODY;
-    *leg_observed_value = leg_observed;
-    *body_observed_value = body_observed;
-    return result;
-}
+// int multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::findTwoObservationValue(
+//     const std::vector<geometry_msgs::Pose>& leg_poses,
+//     const std::vector<sobits_msgs::ObjectPose>& body_poses,
+//     Eigen::Vector2f* leg_observed_value,
+//     Eigen::Vector2f* body_observed_value )
+// {
+//     geometry_msgs::Point search_pt, leg_pt, body_pt;
+//     double min_distance = ( exists_target_ ) ? leg_tracking_range_ : target_range_;
+//     bool exists_leg_pt = false, exists_body_pt = false;
+//     int result;
+//     if ( !exists_target_ ) {
+//         // Determine targets to track (search for the person closest to the robot)
+//         search_pt.x = 0.0; search_pt.y = 0.0;
+//     } else {
+//         // Searching for the observed value of the tracking target (search for the person closest to the previous tracking position)
+//         search_pt = previous_target_;
+//     }
+//     for ( const auto& pose : leg_poses ) {
+//         double distance = std::hypotf( pose.position.x - search_pt.x, pose.position.y - search_pt.y );
+//         if ( min_distance > distance ) {
+//             min_distance = distance;
+//             leg_pt = pose.position;
+//             exists_leg_pt = true;
+//         }
+//     }
+//     min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
+//     for ( const auto& pose : body_poses ) {
+//         double distance = std::hypotf( pose.pose.position.x - search_pt.x, pose.pose.position.y - search_pt.y );
+//         if ( min_distance > distance ) {
+//             min_distance = distance;
+//             body_pt = pose.pose.position;
+//             exists_body_pt = true;
+//         }
+//     }
+//     Eigen::Vector2f leg_observed( leg_pt.x, leg_pt.y );
+//     Eigen::Vector2f body_observed( body_pt.x, body_pt.y );
+//     if ( !exists_leg_pt && !exists_body_pt ) result = Status::NO_EXISTS;
+//     else if ( exists_leg_pt && !exists_body_pt ) result = Status::EXISTS_LEG;
+//     else if ( !exists_leg_pt && exists_body_pt ) result = Status::EXISTS_BODY;
+//     else result = Status::EXISTS_LEG_AND_BODY;
+//     *leg_observed_value = leg_observed;
+//     *body_observed_value = body_observed;
+//     return result;
+// }
 
-int multiple_sensor_person_tracking::SobitProPersonTrackerId::findThreeObservationValue(
+int multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::findThreeObservationValue(
     const std::vector<geometry_msgs::Pose>& leg_poses,
-    const std::vector<sobits_msgs::ObjectPose>& body_poses,
+    const geometry_msgs::Point& target_position,
     int target_id,
     Eigen::Vector2f* leg_observed_value,
     Eigen::Vector2f* body_observed_value )
@@ -329,21 +334,28 @@ int multiple_sensor_person_tracking::SobitProPersonTrackerId::findThreeObservati
         // Searching for the observed value of the tracking target (search for the person closest to the previous tracking position)
         search_pt = previous_target_;
     }
-    if (target_id != -1){
-        // person idの3次元点群のxが-1.0の場合、exists_body_ptはfalse(SSDの3次元座標取得失敗)
-        if (body_poses[target_id].pose.position.x == -100.0){
+    if (target_id != -1) {
+        if (target_position.x == 0.0 && target_position.y == 0.0) {
             exists_body_pt = false;
         }
-        else{
-            body_pt = body_poses[target_id].pose.position;
+        else {
+            body_pt = target_position;
             exists_body_pt = true;
             exists_leg_count = 0;
         }
     }
 
     for ( const auto& pose : leg_poses ) {
-        double distance = std::hypotf( pose.position.x - search_pt.x, pose.position.y - search_pt.y );
-        if ( min_distance > distance ) {
+        double distance;
+        if (exists_body_pt) {
+            // body_pt に値がある場合は body_pt を基準に距離を計算
+            distance = std::hypotf(pose.position.x - body_pt.x, pose.position.y - body_pt.y);
+        } else {
+            // body_pt に値がない場合は search_pt を基準に距離を計算
+            distance = std::hypotf(pose.position.x - search_pt.x, pose.position.y - search_pt.y);
+        }
+
+        if (min_distance > distance) {
             min_distance = distance;
             leg_pt = pose.position;
             exists_leg_pt = true;
@@ -369,7 +381,7 @@ int multiple_sensor_person_tracking::SobitProPersonTrackerId::findThreeObservati
     return result;
 }
 
-void multiple_sensor_person_tracking::SobitProPersonTrackerId::searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles ) {
+void multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::searchObstacles( const geometry_msgs::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::PointCloud2* obstacles ) {
     PointCloud::Ptr cloud_obstacles ( new PointCloud() );
     pcl::PointIndices::Ptr target_indices ( new pcl::PointIndices );
     PointT p_q;
@@ -394,7 +406,7 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::searchObstacles( 
     return;
 }
 
-geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitProPersonTrackerId::transformPoint (
+geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::transformPoint (
     const std::string& org_frame,
     const std::string& target_frame,
     const geometry_msgs::Point& point)
@@ -412,20 +424,14 @@ geometry_msgs::PointStamped multiple_sensor_person_tracking::SobitProPersonTrack
     return pt_transformed;
 }
 
-void multiple_sensor_person_tracking::SobitProPersonTracker::scan_callback (const sensor_msgs::LaserScanConstPtr &scan_msg)
+void multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::scan_callback (const sensor_msgs::LaserScanConstPtr &scan_msg)
 {
     scan_msg_ = scan_msg;
 }
 
-bool start_id = false;
-void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray ( const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
+// void multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::callbackPoseArray ( const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &ssd_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg ) {
+void multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::callbackPoseArray ( const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg, const sobits_msgs::ObjectPoseArrayConstPtr &yolo_msg, const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg  ) {
     std::cout << "\n====================================" << std::endl;
-    // if (start_id) {
-    //     NODELET_ERROR("Result :          NO_EXISTS (start_id)" );
-    //     sleep(3);
-    //     start_id = false;
-    //     return;
-    // }
     // variable initialization
     std::string target_frame = target_frame_;
     sensor_msgs::PointCloud2 cloud_scan_msg;
@@ -455,7 +461,8 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
         return;
     }
 
-    if ( !exists_target_ && ssd_msg->object_poses.size() == 0) {
+    // if ( !exists_target_ && ssd_msg->object_poses.size() == 0) {
+    if ( !exists_target_ && yolo_msg->object_poses.size() == 0) {
         if ( dr_spaam_msg->poses.size() == 0 ) {
             NODELET_ERROR("Result :          NO_EXISTS (DR-SPAAM)" );
             exists_target_ = false;
@@ -464,10 +471,10 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
             following_position_->rotation_position = following_position_->pose.position;
             following_position_->status = Status::NO_EXISTS;
             pub_following_position_.publish( following_position_ );
-            // if ( display_marker_ ) {
-            //     no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
-            //     pub_marker_.publish ( no_exists_marker_array_ );
-            // }
+            if ( display_marker_ ) {
+                no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+                pub_marker_.publish ( no_exists_marker_array_ );
+            }
             return;
         }
         if( attention_leg_time_ == -1.0 ) attention_leg_time_ = ros::Time::now().toSec();
@@ -486,25 +493,16 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
             attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
             attention_leg_time_ = ros::Time::now().toSec();
         } else attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ : leg_poses.size()-1;
-        if (start_id) {
-            NODELET_ERROR("Result :          NO_EXISTS (start_id1)" );
-            following_position_->rotation_position.x = 0.0;
-            following_position_->rotation_position.y = 0.0;
-            following_position_->pose.position.x = 0.0;
-            following_position_->pose.position.y = 0.0;
-            following_position_->status = Status::NO_EXISTS;
-            sleep(3);
-            start_id = true;
-            // return;
-        }
-        else {
-            following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
-            following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
-            following_position_->pose.position.x = 0.0;
-            following_position_->pose.position.y = 0.0;
-            following_position_->status = Status::NO_EXISTS;
-        }
+        following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
+        following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
+        following_position_->pose.position.x = 0.0;
+        following_position_->pose.position.y = 0.0;
+        following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
+        if ( display_marker_ ) {
+            no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+            pub_marker_.publish ( no_exists_marker_array_ );
+        }
         NODELET_ERROR("Result :          NO_EXISTS (SSD) attention_leg_idx = %d",attention_leg_idx_ );
         return;
     } else {
@@ -516,7 +514,8 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
     // * findTwoObservationValue   ： ターゲットを見失った際（exists_target_=False）のとき、ロボットから一番近い人をターゲットとする
     // * findThreeObservationValue ： ターゲットを見失った際（exists_target_=False）のとき、同定結果からターゲットを特定（EXISTS_LEG_AND_BODY or EXISTS_BODYは対応）
     // int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
-    int result = findThreeObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, id_msg->target_id, &leg_observed_value, &body_observed_value );
+    // int result = findThreeObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, id_msg->target_id, &leg_observed_value, &body_observed_value );
+    int result = findThreeObservationValue( dr_spaam_msg->poses, id_msg->position, id_msg->target_id, &leg_observed_value, &body_observed_value );
     if ( result == Status::NO_EXISTS ) {
         if ( no_exists_time_ == -1.0 ) no_exists_time_ = ros::Time::now().toSec();
         else if ( ros::Time::now().toSec() - no_exists_time_ >= target_change_tolerance_ ){
@@ -527,44 +526,31 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
             following_position_->pose.position.y = 0.0;
             following_position_->status = Status::NO_EXISTS;
             pub_following_position_.publish( following_position_ );
-            // if ( display_marker_ ) {
-            //     no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
-            //     pub_marker_.publish ( no_exists_marker_array_ );
-            // }
+            if ( display_marker_ ) {
+                no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+                pub_marker_.publish ( no_exists_marker_array_ );
+            }
             return;
         }
     } else no_exists_time_ = -1.0;
 
     // Tracking by Kalman Filter
     if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
-        if (start_id) {
-            NODELET_ERROR("Result :          NO_EXISTS (start_id)" );
-            following_position_->rotation_position.x = 0.0;
-            following_position_->rotation_position.y = 0.0;
-            following_position_->pose.position.x = 0.0;
-            following_position_->pose.position.y = 0.0;
-            following_position_->status = Status::NO_EXISTS;
-            sleep(10);
-            start_id = false;
-            // return;
-        }
-        else {
-            kf_->init( body_observed_value );
-            estimated_value[0] = body_observed_value[0];
-            estimated_value[1] = body_observed_value[1];
-            exists_target_ = true;
-        }
-    } else if ( ( !exists_target_ && result == Status::EXISTS_LEG ) ||  ( !exists_target_ && result == Status::NO_EXISTS )) {
+        kf_->init( body_observed_value );
+        estimated_value[0] = body_observed_value[0];
+        estimated_value[1] = body_observed_value[1];
+        exists_target_ = true;
+    } else if ( ( !exists_target_ && result == Status::EXISTS_LEG ) ||  ( !exists_target_ && result == Status::NO_EXISTS ) ){
         NODELET_ERROR("Result :          NO_EXISTS" );
         exists_target_ = false;
         following_position_->pose.position.x = 0.0;
         following_position_->pose.position.y = 0.0;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_.publish( following_position_ );
-        // if ( display_marker_ ) {
-        //     no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
-        //     pub_marker_.publish ( no_exists_marker_array_ );
-        // }
+        if ( display_marker_ ) {
+            no_exists_marker_array_->markers.push_back( makeNoExistsTargetPoseMarker(following_position_->pose) );
+            pub_marker_.publish ( no_exists_marker_array_ );
+        }
         return;
     }else {
         if( result == Status::EXISTS_LEG ) {
@@ -593,7 +579,7 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
     quat_tf.setRPY(0, 0, std::atan2(estimated_value[3], estimated_value[2]));
     geometry_msgs::Quaternion quat_msg;
     tf2::convert(quat_tf, quat_msg);
-    
+
     following_position_->pose.orientation = quat_msg;
     following_position_->velocity = std::hypotf(estimated_value[2], estimated_value[3]);
     following_position_->status = result;
@@ -613,7 +599,8 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
         pub_obstacles_.publish( following_position_->obstacles );
         marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
         marker_array_->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
-        marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
+        marker_array_->markers.push_back( makeBodyPoseMarker(yolo_msg->object_poses) );
+        // marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
         marker_array_->markers.push_back( makeTargetPoseMarker(estimated_value) );
         pub_marker_.publish ( marker_array_ );
     }
@@ -628,25 +615,28 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackPoseArray
     return;
 }
 
-void multiple_sensor_person_tracking::SobitProPersonTrackerId::onInit() {
+void multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::onInit() {
     nh_ = getNodeHandle();
     pnh_ = getPrivateNodeHandle();
 
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
     cloud_scan_.reset(new PointCloud());
     marker_array_.reset(new visualization_msgs::MarkerArray);
+    no_exists_marker_array_.reset(new visualization_msgs::MarkerArray);
     following_position_.reset( new multiple_sensor_person_tracking::FollowingPosition );
     scan_msg_.reset( new sensor_msgs::LaserScan );
 
-    sub_scan_ = nh_.subscribe(pnh_.param<std::string>( "scan_topic_name", "/scan"), 1, &SobitProPersonTracker::scan_callback, this);
+    sub_scan_ = nh_.subscribe(pnh_.param<std::string>( "scan_topic_name", "/scan"), 1, &SobitEduPersonTrackerKoideModel::scan_callback, this);
 
     // message_filters :
     sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::PoseArray> ( nh_, pnh_.param<std::string>( "dr_spaam_topic_name", "/dr_spaam_detections" ), 1 ) );
-    sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
+    // sub_ssd_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "ssd_topic_name", "/ssd_object_detect/object_pose" ), 1 ) );
+    sub_yolo_ .reset ( new message_filters::Subscriber<sobits_msgs::ObjectPoseArray> ( nh_, pnh_.param<std::string>( "yolo_topic_name", "/yolov10_bbox_to_tf/object_poses" ), 1 ) );
     sub_id_ .reset ( new message_filters::Subscriber<person_id_follow_nodelet::SOBITTarget> ( nh_, pnh_.param<std::string>( "id_topic_name", "/person_id_follow_nodelet/target" ), 1 ) );
 
-    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_, *sub_id_ ) );
-    sync_ ->registerCallback ( boost::bind( &SobitProPersonTrackerId::callbackPoseArray, this, _1, _2, _3 ) );
+    // sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_, *sub_id_ ) );
+    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_yolo_, *sub_id_ ) );
+    sync_ ->registerCallback ( boost::bind( &SobitEduPersonTrackerKoideModel::callbackPoseArray, this, _1, _2, _3 ) );
 
     pub_following_position_ = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
     pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "tracker_marker", 1 );
@@ -660,8 +650,8 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::onInit() {
     previous_time_ = 0.0;
     exists_target_ = false;
     stop_state = false;
-    leg_tracking_range_ = pnh_.param<double>("leg_tracking_range", 0.5);
-    body_tracking_range_ = pnh_.param<double>("body_tracking_range", 0.5);
+    leg_tracking_range_ = pnh_.param<double>("leg_tracking_range", 3.0);
+    body_tracking_range_ = pnh_.param<double>("body_tracking_range", 1.0);
 
     outrem_.setRadiusSearch( pnh_.param<double>("outlier_radius", 0.1) );
     outrem_.setMinNeighborsInRadius ( pnh_.param<int>("outlier_min_pts", 2) );
@@ -671,11 +661,11 @@ void multiple_sensor_person_tracking::SobitProPersonTrackerId::onInit() {
     target_cloud_radius_ = pnh_.param<double>("target_cloud_radius", 0.4 );
 
     server_ = new dynamic_reconfigure::Server<multiple_sensor_person_tracking::TrackerParameterConfig>(pnh_);
-    f_ = boost::bind(&multiple_sensor_person_tracking::SobitProPersonTrackerId::callbackDynamicReconfigure, this, _1, _2);
+    f_ = boost::bind(&multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel::callbackDynamicReconfigure, this, _1, _2);
     server_->setCallback(f_);
     no_exists_time_ = -1.0;
     attention_leg_time_ = -1.0;
     attention_leg_idx_ = 0;
 }
 
-PLUGINLIB_EXPORT_CLASS( multiple_sensor_person_tracking::SobitProPersonTrackerId, nodelet::Nodelet );
+PLUGINLIB_EXPORT_CLASS( multiple_sensor_person_tracking::SobitEduPersonTrackerKoideModel, nodelet::Nodelet );

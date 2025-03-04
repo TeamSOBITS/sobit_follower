@@ -28,6 +28,7 @@
         <li><a href="#03-multiple-sensor-person-tracking">03. Multiple Sensor Person Tracking</a></li>
         <li><a href="#04-person-following-control">04. Person Following Control</a></li>
         <li><a href="#05-sobit-follower">05. SOBIT Follower</a></li>
+        <li><a href="#06-target-identification-method">06. Target Identification Method</a></li>
       </ul>
     </li>
     <li>
@@ -58,6 +59,16 @@
 ```python
 $ cd ~/catkin_ws/src/
 $ git clone https://github.com/TeamSOBITS/sobit_follower
+$ cd sobit_follower
+# follow meに必要なパッケージのインストールを行う
+$ bash install.sh
+# インストールしたパッケージのセットアップを行った後、catkin_make
+$ cd ~/catkin_ws
+$ catkin_make
+```
+
+## 対象者識別用の追加セットアップ
+```python
 $ cd sobit_follower
 # follow meに必要なパッケージのインストールを行う
 $ bash install.sh
@@ -102,6 +113,32 @@ $ catkin_make
 - ユーザはこのパッケージのLaunchを起動することで人追従走行を動作させることが可能
 - 実験用のrosbag取得や取得したデータのplotも可能なシェルスクリプトも完備
 - 詳細は[こちら](sobit_follower)
+
+### 06. Target Identification Method
+- 対象者識別手法を加えた人追従走行
+- 以下に示す2つの対象者識別手法のどちらかを人追従走行ロボットシステムに追加することでロボットは対象者を識別しながら人追従走行が可能
+
+対象者識別手法
+1. 畳み込みチャネル機能とオンラインブースティングの組み合わせ(Koide_Model)
+    - 10個の特徴マップに基づくランダムな矩形の画素値和による人物特徴抽出とオンラインブースティングによる対象者分類器から構成される
+    - 追加が必要なパッケージは[monocular_person_following](https://github.com/TeamSOBITS/monocular_person_following)と[ccf_person_identification](https://github.com/TeamSOBITS/ccf_person_identification)であり，
+    この2つのパッケージに依存して[open_face_recognition](https://github.com/TeamSOBITS/open_face_recognition)も追加する必要がある
+    - 論文：
+    - Kenji Koide, Jun Miura, and Emanuele Menegatti， “Monocular person tracking and identification with on-line deep feature selection for person following robots”，Robotics and Autonomous Systems，124: 103348，2020 [[link]](https://staff.aist.go.jp/k.koide/assets/pdf/ias15_ext.pdf).
+
+2. OSNetとリッジ回帰モデルの組み合わせ(GRR_SLT)
+    - OSNetによる人物特徴抽出とリッジ回帰モデルによる対象者分類器から構成される
+    - 追加が必要なパッケージは[MPF_GRR_SLT](https://github.com/TeamSOBITS/MPF_GRR_SLT)である
+        - MPF_GRR_SLTの元のパッケージでは人物特徴抽出手法にOSNetは用いられていないが，sobit_follwerに対象者識別機能を適用するにあたって人物特徴抽出手法としてOSNetを代わりに使用
+    - OSNetのgithub： [[link]](https://github.com/KaiyangZhou/deep-person-reid)
+    - OSNetの論文：
+    - Kaiyang Zhou，Yongxin Yang，Andrea Cavallaro and Tao Xiang，“Omni-scale feature learning for person re-identification”，Proceedings of the IEEE/CVF international conference on computer vision，pp.3702-3712，2019  [[link]](https://openaccess.thecvf.com/content_ICCV_2019/papers/Zhou_Omni-Scale_Feature_Learning_for_Person_Re-Identification_ICCV_2019_paper.pdf).
+    - MPF_GRR_SLT(この対象者識別手法の基盤となるパッケージ(リッジ回帰モデルによる対象者分類器はオリジナルのまま使用))の論文：
+    - Hanjing Ye，Jieting Zhao，Yaling Pan，Weinan Chen and Hong Zhang，“Following Closely: A Robust Monocular Person Following System for Mobile Robot”，arXiv preprint arXiv:2204.10540，2022 [[link]](https://arxiv.org/pdf/2204.10540).
+
+- 対象者識別実験からKoide_ModelよりGRR_SLTの方が対象者識別精度が高いことが示されている
+- 一方でKoide_Modelの方はGRR_SLTより処理量が軽いという利点があるため使用する状況に応じて2つの対象者識別手法を上手く使い分けることをおすすめする
+- 以下に示す実行方法の部分で実装するにあたっての設定方法を記載
 
 ## 実行方法
 ### [sobit_edu_follower_me.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch)
