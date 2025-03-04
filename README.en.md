@@ -20,7 +20,7 @@
     <li>
       <ul>
         <li><a href="#setup">Setup</a></li>
-        <li><a href="#Additional setup for target identification">Additional setup for target identification</a></li>
+        <li><a href="#Additional-setup-for-target-identification">Additional setup for target identification</a></li>
       </ul>
     </li>
     <li>
