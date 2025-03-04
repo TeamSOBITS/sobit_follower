@@ -18,8 +18,10 @@
       <a href="#summary">Summary</a>
     </li>
     <li>
-      <a href="#setup">Setup</a>
-      <a href="#Additional setup for target identification">Additional setup for target identification</a>
+      <ul>
+        <li><a href="#setup">Setup</a></li>
+        <li><a href="#Additional setup for target identification">Additional setup for target identification</a></li>
+      </ul>
     </li>
     <li>
     　<a href="#package-configuration">Package Configuration</a>
