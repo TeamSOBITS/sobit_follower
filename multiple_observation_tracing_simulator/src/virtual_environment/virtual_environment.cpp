@@ -1,110 +1,110 @@
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include <tf2_ros/transform_broadcaster.h>
-#include <tf2/LinearMath/Transform.h>
-#include <tf2/convert.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <geometry_msgs/PointStamped.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <bits/stdc++.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <geometry_msgs/Twist.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 namespace multiple_observation_tracing_simulator{
-    class VirtualEnvironment {
+    class VirtualEnvironment : public rclcpp::Node {
         private :
-            ros::NodeHandle nh_;
-            ros::NodeHandle pnh_;
-            ros::Publisher pub_marker_;
+            rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_marker_;
+            rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_teleop_;
+            std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
-            ros::Subscriber sub_teleop_;
-            geometry_msgs::Point tgt_pt_;
+            geometry_msgs::msg::Point tgt_pt_;
             double tgt_theta_;
 
-            void callbackTarget ( const geometry_msgs::TwistConstPtr &msg );
-            void displaySensorMarker ( );
+            void callbackTarget ( const geometry_msgs::msg::Twist::SharedPtr msg );
 
         public :
             VirtualEnvironment ( );
-            void pubData (  );
+            void publishData (  );
     };
-}
 
-void multiple_observation_tracing_simulator::VirtualEnvironment::callbackTarget ( const geometry_msgs::TwistConstPtr &msg ) {
-    tgt_theta_ += 0.05 * msg->angular.z ;
-    if ( tgt_theta_ > M_PI )    tgt_theta_ =tgt_theta_ - 2 * M_PI;
-    if ( tgt_theta_ < - M_PI )  tgt_theta_ =tgt_theta_ + 2 * M_PI;
+    VirtualEnvironment::VirtualEnvironment ( ) : Node( "virtual_environment" ), tgt_theta_( 0.0 ) {
+        tgt_pt_.x = 0.0;
+        tgt_pt_.y = 0.0;
 
-    if ( msg->linear.y == 0.0 ) {
-        tgt_pt_.x += 0.05 * msg->linear.x * std::cos( tgt_theta_ );
-        tgt_pt_.y += 0.05 * msg->linear.x * std::sin( tgt_theta_ );
-    } else {
-        double ang = std::atan2( msg->linear.y, msg->linear.x );
-        double dist = std::hypotf( msg->linear.x, msg->linear.y );
-        tgt_pt_.x += 0.05 * dist * std::cos( tgt_theta_ + ang );
-        tgt_pt_.y += 0.05 * dist * std::sin( tgt_theta_ + ang );
+        pub_marker_ = this->create_publisher< visualization_msgs::msg::MarkerArray >( "/target_marker", 1 );
+        sub_teleop_ = this->create_subscription< geometry_msgs::msg::Twist >("/target/teleop", 10, std::bind(&VirtualEnvironment::callbackTarget, this, std::placeholders::_1));
+        
+        tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     }
 
-    return;
-}
+    void VirtualEnvironment::callbackTarget ( const geometry_msgs::msg::Twist::SharedPtr msg ) {
+        tgt_theta_ += 0.05 * msg->angular.z ;
+        if ( tgt_theta_ > M_PI )    tgt_theta_ =tgt_theta_ - 2 * M_PI;
+        if ( tgt_theta_ < - M_PI )  tgt_theta_ =tgt_theta_ + 2 * M_PI;
 
-multiple_observation_tracing_simulator::VirtualEnvironment::VirtualEnvironment ( ) : nh_(), pnh_("~") {
-    tgt_pt_.x = 0.0;
-    tgt_pt_.y = 0.0;
-    tgt_theta_ = 0.0;
-    pub_marker_ = nh_.advertise< visualization_msgs::MarkerArray >( "/target_marker", 1 );
-    sub_teleop_ = nh_.subscribe( "/target/teleop", 10, &VirtualEnvironment::callbackTarget, this );
-}
+        if ( msg->linear.y == 0.0 ) {
+            tgt_pt_.x += 0.05 * msg->linear.x * std::cos( tgt_theta_ );
+            tgt_pt_.y += 0.05 * msg->linear.x * std::sin( tgt_theta_ );
+        } else {
+            double ang = std::atan2( msg->linear.y, msg->linear.x );
+            double dist = std::hypotf( msg->linear.x, msg->linear.y );
+            tgt_pt_.x += 0.05 * dist * std::cos( tgt_theta_ + ang );
+            tgt_pt_.y += 0.05 * dist * std::sin( tgt_theta_ + ang );
+        }
 
-void multiple_observation_tracing_simulator::VirtualEnvironment::pubData (  ) {
-    static tf2_ros::TransformBroadcaster br;
-    visualization_msgs::Marker trajectory;
-    trajectory.header.frame_id ="map";
-    trajectory.header.stamp = ros::Time::now();
-    trajectory.ns = "trajectory";
-    trajectory.id =  1;
-    trajectory.type = visualization_msgs::Marker::LINE_STRIP;
-    trajectory.action = visualization_msgs::Marker::ADD;
-    trajectory.scale.x = 0.2;
-    trajectory.color.r = 1.0; trajectory.color.g = 0.0; trajectory.color.b = 0.0; trajectory.color.a = 1.0;
-    trajectory.pose.orientation.w = 1.0;
-    //marker.lifetime = ros::Duration(0.3);
+        return;
+    }
 
-    ros::Rate rate(30);
-
-    while(ros::ok()){
-        visualization_msgs::MarkerArray marker_array;
-        tf2::Transform transform;
-        transform.setOrigin( tf2::Vector3(tgt_pt_.x, tgt_pt_.y, 0.0) );
-        tf2::Quaternion q;
-        q.setRPY(0, 0, tgt_theta_);
-        transform.setRotation(q);
-        geometry_msgs::TransformStamped transform_stamped;
-        transform_stamped.header.stamp = ros::Time::now();
-        transform_stamped.header.frame_id = "map";
-        transform_stamped.child_frame_id = "target";
-        tf2::convert(transform, transform_stamped.transform);
-        br.sendTransform(transform_stamped);
+    void VirtualEnvironment::publishData (  ) {
         
-        geometry_msgs::PointStamped position, observed_value, observed_value_add;
-        position.point.x = tgt_pt_.x;
-        position.point.y = tgt_pt_.y;
-        position.point.z = -0.3;
+        visualization_msgs::msg::Marker trajectory;
+        trajectory.header.frame_id = "map";
+        trajectory.header.stamp = this->now();
+        trajectory.ns = "trajectory";
+        trajectory.id = 1;
+        trajectory.type = visualization_msgs::msg::Marker::LINE_STRIP;
+        trajectory.action = visualization_msgs::msg::Marker::ADD;
+        trajectory.scale.x = 0.2;
+        trajectory.color.r = 1.0; trajectory.color.g = 0.0; trajectory.color.b = 0.0; trajectory.color.a = 1.0;
+        trajectory.pose.orientation.w = 1.0;
 
-        trajectory.points.push_back( position.point );
-        if ( trajectory.points.size() > 200 ) trajectory.points.erase(trajectory.points.begin());
-        trajectory.header.stamp = ros::Time::now();
+        rclcpp::Rate rate(30);
 
-        marker_array.markers.push_back( trajectory );
-        pub_marker_.publish ( marker_array );
-
-        ros::spinOnce();
-        rate.sleep();
+        while (rclcpp::ok()) {
+            // Broadcast target transform
+            geometry_msgs::msg::TransformStamped transform_stamped;
+            transform_stamped.header.stamp = this->now();
+            transform_stamped.header.frame_id = "map";
+            transform_stamped.child_frame_id = "target";
+            transform_stamped.transform.translation.x = tgt_pt_.x;
+            transform_stamped.transform.translation.y = tgt_pt_.y;
+            transform_stamped.transform.translation.z = 0.0;
+            tf2::Quaternion q;
+            q.setRPY(0, 0, tgt_theta_);
+            transform_stamped.transform.rotation = tf2::toMsg(q);
+            tf_broadcaster_->sendTransform(transform_stamped);
+    
+            // Update trajectory marker
+            geometry_msgs::msg::Point point;
+            point.x = tgt_pt_.x;
+            point.y = tgt_pt_.y;
+            point.z = -0.3;
+            trajectory.points.push_back(point);
+            
+            trajectory.header.stamp = this->now();
+            trajectory.id = 1;
+            if (trajectory.points.size() > 200) trajectory.points.erase(trajectory.points.begin());
+    
+            visualization_msgs::msg::MarkerArray marker_array;
+            marker_array.markers.push_back(trajectory);
+            pub_marker_->publish(marker_array);
+    
+            rclcpp::spin_some(this->get_node_base_interface());
+            rate.sleep();
+        }
     }
 }
 
 int main(int argc, char *argv[]) {
-    ros::init(argc, argv, "virtual_environment");
-    multiple_observation_tracing_simulator::VirtualEnvironment ve;
-    ve.pubData();
-    ros::spin();
+    rclcpp::init(argc, argv);
+    auto virtual_environment_node = std::make_shared<multiple_observation_tracing_simulator::VirtualEnvironment>();
+    virtual_environment_node->publishData();
+    rclcpp::shutdown();
+    return 0;
 }

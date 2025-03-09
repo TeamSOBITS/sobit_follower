@@ -1,9 +1,6 @@
-#include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
-#include <iostream>
-#include <dynamic_reconfigure/server.h>
-#include <bits/stdc++.h>
-#include "multiple_observation_tracing_simulator/TargetControllerParameterConfig.h"
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <random>
 
 #define FREE 0
 #define LINE 1
@@ -11,78 +8,77 @@
 #define RANDOM 3
 
 namespace multiple_observation_tracing_simulator {
-    class TargetController {
-        private:
-            ros::NodeHandle nh_;
-            ros::NodeHandle pnh_;
-            ros::Publisher pub_teleop_;
-            ros::Timer timer_;
+    class TargetController : public rclcpp::Node {
+    private:
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_teleop_;
+        rclcpp::TimerBase::SharedPtr timer_;
 
-            unsigned int moving_mode_;
-            double linear_speed_;
-            double circle_theta_deg_;
+        unsigned int moving_mode_;
+        double linear_speed_;
+        double circle_theta_deg_;
 
-            std::random_device rnd_;
-            std::unique_ptr<std::mt19937> mt_;
-            std::unique_ptr<std::uniform_real_distribution<double>> rand_theta_deg_;
+        std::random_device rnd_;
+        std::mt19937 mt_;
+        std::unique_ptr<std::uniform_real_distribution<double>> rand_theta_deg_;
 
-            double pre_time_;
-            double rand_ang_;
+        double pre_time_;
+        double rand_ang_;
 
-            dynamic_reconfigure::Server<multiple_observation_tracing_simulator::TargetControllerParameterConfig>* server_;
-            dynamic_reconfigure::Server<multiple_observation_tracing_simulator::TargetControllerParameterConfig>::CallbackType f_;
+        void callbackTimer();
 
-            void callbackDynamicReconfigure(multiple_observation_tracing_simulator::TargetControllerParameterConfig& config, uint32_t level);
-            void callbackTimer( const ros::TimerEvent& e );
-
-        public:
-            TargetController( );
+    public:
+        TargetController();
     };
-}
 
-void multiple_observation_tracing_simulator::TargetController::callbackDynamicReconfigure(multiple_observation_tracing_simulator::TargetControllerParameterConfig& config, uint32_t level) {
-    moving_mode_ = config.moving_mode;
-    linear_speed_ = config.linear_speed;
-    circle_theta_deg_ = config.circle_theta_deg;
-    rand_theta_deg_.reset( new std::uniform_real_distribution<double>( -config.random_theta_deg, config.random_theta_deg ) );
-}
+    TargetController::TargetController() : Node("target_controller"), mt_(rnd_()) {
+        pub_teleop_ = create_publisher<geometry_msgs::msg::Twist>( "/target/teleop", 1 );
+        timer_ = create_wall_timer( std::chrono::milliseconds(33), std::bind(&TargetController::callbackTimer, this) );
 
-void multiple_observation_tracing_simulator::TargetController::callbackTimer( const ros::TimerEvent& e ) {
-    geometry_msgs::TwistPtr vel ( new geometry_msgs::Twist );
-    if( moving_mode_ == FREE ) return;
-    else if( moving_mode_ == LINE ) {
-        vel->linear.x = linear_speed_;
-    } else if( moving_mode_ == CIRCLE ) {
-        vel->linear.x = linear_speed_;
-        vel->angular.z = circle_theta_deg_ * M_PI / 180.0;
-    } else if ( moving_mode_ == RANDOM ) {
-        double curt_time = ros::Time::now().toSec();
-        vel->linear.x = linear_speed_;
-        if ( curt_time - pre_time_ > 1.0 ) {
-            pre_time_ = curt_time;
-            rand_ang_ = (*rand_theta_deg_)(*mt_) * M_PI / 180.0;
-        } else vel->angular.z = rand_ang_;
+        declare_parameter( "moving_mode", FREE );
+        declare_parameter( "linear_speed", 0.0 );
+        declare_parameter( "circle_theta_deg", 0.0 );
+        declare_parameter( "random_theta_deg", 10.0 );
+
+        moving_mode_ = get_parameter( "moving_mode" ).as_int();
+        linear_speed_ = get_parameter( "linear_speed" ).as_double();
+        circle_theta_deg_ = get_parameter( "circle_theta_deg" ).as_double();
+        rand_theta_deg_ = std::make_unique<std::uniform_real_distribution<double>>( -get_parameter("random_theta_deg").as_double(), get_parameter("random_theta_deg").as_double() );
+
+        pre_time_ = now().seconds();
     }
-    pub_teleop_.publish( vel );
-    return;
+
+    void TargetController::callbackTimer() {
+        auto vel = geometry_msgs::msg::Twist();
+        double curt_time = now().seconds();
+
+        switch ( moving_mode_ ) {
+            case LINE:
+                vel.linear.x = linear_speed_;
+                break;
+            case CIRCLE:
+                vel.linear.x = linear_speed_;
+                vel.angular.z = circle_theta_deg_ * M_PI / 180.0;
+                break;
+            case RANDOM:
+                vel.linear.x = linear_speed_;
+                if ( curt_time - pre_time_ > 1.0 ) {
+                    pre_time_ = curt_time;
+                    rand_ang_ = (*rand_theta_deg_)(mt_) * M_PI / 180.0;
+                }
+                vel.angular.z = rand_ang_;
+                break;
+            case FREE:
+            default:
+                return;
+        }
+
+        pub_teleop_->publish( vel );
+    }
 }
 
-multiple_observation_tracing_simulator::TargetController::TargetController( ) : nh_(), pnh_("~") {
-    pub_teleop_ = nh_.advertise<geometry_msgs::Twist>("/target/teleop", 1);
-    timer_ = nh_.createTimer( ros::Duration(0.033), &multiple_observation_tracing_simulator::TargetController::callbackTimer, this );
-
-    server_ = new dynamic_reconfigure::Server<multiple_observation_tracing_simulator::TargetControllerParameterConfig>(pnh_);
-    f_ = boost::bind(&multiple_observation_tracing_simulator::TargetController::callbackDynamicReconfigure, this, _1, _2);
-    server_->setCallback(f_);
-
-    mt_.reset( new std::mt19937(rnd_()) );
-    pre_time_ = ros::Time::now().toSec();
-    rand_ang_ = 0.0;
-}
-
-int main(int argc, char *argv[])  {
-    ros::init(argc, argv, "topic_publisher_template");
-    multiple_observation_tracing_simulator::TargetController target_controller;
-    ros::spin();
+int main(int argc, char *argv[]) {
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<multiple_observation_tracing_simulator::TargetController>());
+    rclcpp::shutdown();
     return 0;
 }

@@ -1,19 +1,16 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(sobit_follower)
 
-find_package(catkin REQUIRED COMPONENTS
-  multiple_sensor_person_tracking
-  person_following_control
-)
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+# find_package(multiple_sensor_person_tracking REQUIRED)
+# find_package(person_following_control REQUIRED)
 
-catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES sobit_follower
-#  CATKIN_DEPENDS multiple_sensor_person_tracking person_following_control
-#  DEPENDS system_lib
-)
-
+# Include directories
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
+  # include
+  # ${multiple_sensor_person_tracking_INCLUDE_DIRS}
+  # ${person_following_control_INCLUDE_DIRS}
 )
+
+ament_package()

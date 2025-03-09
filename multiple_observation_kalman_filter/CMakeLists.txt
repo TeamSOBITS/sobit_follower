@@ -1,37 +1,38 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(multiple_observation_kalman_filter)
 
-add_compile_options(-std=c++14 -O2 -g -Wall)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+add_compile_options(-O2 -g -Wall)
 
-find_package(catkin REQUIRED COMPONENTS
-    roscpp
-)
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
 
-catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS roscpp
-    #  DEPENDS other non-ROS libs
-)
-
+# Include directories
 include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
+  include
+  ${rclcpp_INCLUDE_DIRS}
+  /usr/include/eigen3
 )
-include_directories("/usr/include/eigen3")
 
-add_library(${PROJECT_NAME}
-    src/multiple_observation_kalman_filter.cpp
-)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+# Add library
+add_library(${PROJECT_NAME} src/multiple_observation_kalman_filter.cpp)
+ament_target_dependencies(${PROJECT_NAME} rclcpp)
 
+# Install targets
 install(
-    TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+  TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
+
+# Install header files
 install(
-    DIRECTORY include/${PROJECT_NAME}/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
 )
+
+ament_package()
