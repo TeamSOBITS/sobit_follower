@@ -15,6 +15,7 @@ ros_packages=(
     "bbox_to_tf" \
     "monocular_person_following" \
     "ccf_person_identification" \
+    "open_face_recognition" \
     "MPF_GRR_SLT"
 )
 
