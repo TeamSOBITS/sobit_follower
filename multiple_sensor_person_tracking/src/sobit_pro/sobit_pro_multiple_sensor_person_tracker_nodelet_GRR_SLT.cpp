@@ -77,7 +77,7 @@ namespace multiple_sensor_person_tracking {
             pcl::VoxelGrid<PointT> voxel_;
             PointCloud::Ptr cloud_scan_;
             visualization_msgs::MarkerArrayPtr marker_array_;
-            // visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
+            visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
             sensor_msgs::LaserScanConstPtr scan_msg_;
 
@@ -142,7 +142,7 @@ namespace multiple_sensor_person_tracking {
             void callbackPoseArray (
                 const geometry_msgs::PoseArrayConstPtr &dr_spaam_msg,
                 const sobits_msgs::ObjectPoseArrayConstPtr &yolo_msg, 
-                const person_id_follow_nodelet::SOBITTargetConstPtr &id_msg);
+                const mono_following::TargetConstPtr &id_msg);
 
         public:
             virtual void onInit();

@@ -75,7 +75,7 @@ namespace multiple_sensor_person_tracking {
             pcl::VoxelGrid<PointT> voxel_;
             PointCloud::Ptr cloud_scan_;
             visualization_msgs::MarkerArrayPtr marker_array_;
-            // visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
+            visualization_msgs::MarkerArrayPtr no_exists_marker_array_;
             multiple_sensor_person_tracking::FollowingPositionPtr following_position_;
             sensor_msgs::LaserScanConstPtr scan_msg_;
 

@@ -7,7 +7,7 @@
     <arg name="use_rotate"              default="true"/>
 
     <arg name="manager_name"            default="sobit_follower_nodelet_manager" />
-    <arg name="manager_threads"         default="8" />
+    <arg name="manager_threads"         default="4" />
 
     <arg name="following_method"        default="0" />
     <!--
