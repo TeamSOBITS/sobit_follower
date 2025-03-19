@@ -1,35 +1,38 @@
 <?xml version="1.0"?>
-<package format="2">
-    <name>multiple_sensor_person_tracking</name>
-    <version>0.0.0</version>
-    <description>The multiple_sensor_person_tracking package</description>
+<package format="3">
+  <name>multiple_sensor_person_tracking</name>
+  <version>0.0.0</version>
+  <description>Multiple Sensor Person Tracking for ROS2 Humble</description>
 
-    <maintainer email="sobits@todo.todo">sobits</maintainer>
+  <maintainer email="sobits@todo.todo">sobits</maintainer>
+  <license>Apache-2.0</license>
 
-    <license>TODO</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-    <buildtool_depend>catkin</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>pcl_ros</depend>
+  <depend>pcl_conversions</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>laser_geometry</depend>
+  <depend>pluginlib</depend>
+  <depend>OpenCV</depend>
+  <depend>sobit_edu_library</depend>
+  <depend>sobit_pro_library</depend>
+  <depend>hsrb_library</depend>
+  <depend>multiple_observation_kalman_filter</depend>
 
-    <depend>roscpp</depend>
-    <depend>pcl_ros</depend>
-    <depend>pcl_conversions</depend>
-    <depend>laser_geometry</depend>
+  <build_depend>rosidl_default_generators</build_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
 
-    <depend>dr_spaam_ros</depend>
-    <depend>sobit_edu_library</depend>
-    <depend>sobit_pro_library</depend>
-    <depend>ssd_nodelet</depend>
-    <depend>multiple_observation_kalman_filter</depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
-    <depend>pluginlib</depend>
-    <depend>nodelet</depend>
-
-    <build_depend>message_generation</build_depend>
-    <exec_depend>message_runtime</exec_depend>
-
-    <!-- The export tag contains other, unspecified, tags -->
-    <export>
-        <!-- Other tools can request additional information be placed here -->
-        <nodelet plugin="${prefix}/nodelet_description.xml"/>
-    </export>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

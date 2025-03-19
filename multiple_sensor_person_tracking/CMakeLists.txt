@@ -1,76 +1,100 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.10)
 project(multiple_sensor_person_tracking)
 
-add_compile_options(-std=c++14 -O2 -g -Wall)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_BUILD_TYPE Release)
 
+# パッケージの依存関係を追加
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(sobits_interfaces REQUIRED)
+find_package(pcl_ros REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(laser_geometry REQUIRED)
+find_package(pluginlib REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(cv_bridge REQUIRED)
+# find_package(sobit_edu_library REQUIRED) 
+# find_package(sobit_pro_library REQUIRED)
+# find_package(hsrb_library REQUIRED)
+find_package(multiple_observation_kalman_filter REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
+# メッセージ・サービスを生成
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/FollowingPosition.msg"
+  "srv/LegDetectionService.srv"
+  DEPENDENCIES sensor_msgs geometry_msgs std_msgs
+)
+
+# インクルードディレクトリ
+include_directories(include ${sobit_edu_library_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+
+# ライブラリ作成
+add_library(${PROJECT_NAME}_component SHARED
+  src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_component.cpp 
+  src/sobit_edu/sobit_edu_person_aim_sensor_rotator_component.cpp
+  src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_component.cpp
+  src/sobit_pro/sobit_pro_person_aim_sensor_rotator_component.cpp
+  src/hsrb/hsrb_multiple_sensor_person_tracker_component.cpp
+  src/hsrb/hsrb_person_aim_sensor_rotator_component.cpp
+)
+
+ament_target_dependencies(${PROJECT_NAME}_component
+  rclcpp
+  rclcpp_components
+  sensor_msgs
+  geometry_msgs
+  std_msgs
+  nav_msgs
+  visualization_msgs
+  sobits_interfaces
   pcl_ros
   pcl_conversions
   tf2
   tf2_ros
   laser_geometry
-  dr_spaam_ros
-  sobit_edu_library
-  sobit_pro_library
-  ssd_nodelet
   pluginlib
-  nodelet
-  dynamic_reconfigure
+  # sobit_edu_library
+  # sobit_pro_library
+  # hsrb_library
   multiple_observation_kalman_filter
+  OpenCV
+  cv_bridge
 )
 
-## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  FollowingPosition.msg
+target_link_libraries(${PROJECT_NAME}_component ${OpenCV_LIBRARIES})
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(${PROJECT_NAME}_component "${cpp_typesupport_target}")
+
+# インストール設定
+install(TARGETS ${PROJECT_NAME}_component
+  DESTINATION lib
 )
 
-# Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  LegDetectionService.srv
+install(DIRECTORY include/
+  DESTINATION include
 )
 
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  sensor_msgs geometry_msgs
+install(DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
 )
 
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-generate_dynamic_reconfigure_options(
-  config/dynamic_reconfigure/TrackerParameter.cfg
-  config/dynamic_reconfigure/SensorRotatorParameter.cfg
+# ROS2パッケージとしてexport
+ament_export_include_directories(include)
+ament_export_dependencies(
+  rclcpp sensor_msgs geometry_msgs std_msgs pcl_ros tf2_ros laser_geometry
+  # sobit_edu_library # sobit_pro_library # hsrb_library
+  pluginlib multiple_observation_kalman_filter
 )
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS dr_spaam_ros sobit_edu_library sobit_pro_library ssd_nodelet
-  DEPENDS OpenCV
-#  DEPENDS system_lib
-)
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
-)
-
-add_library(${PROJECT_NAME} 
-                            src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet.cpp
-                            src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet.cpp
-                            src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet_GRR_SLT.cpp
-                            src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_nodelet_KoideModel.cpp
-                            src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet_GRR_SLT.cpp
-                            src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_nodelet_KoideModel.cpp
-                            src/sobit_edu/sobit_edu_person_aim_sensor_rotator_nodelet.cpp
-                            src/sobit_pro/sobit_pro_person_aim_sensor_rotator_nodelet.cpp
-                            src/hsrb/hsrb_multiple_sensor_person_tracker_nodelet.cpp
-                            src/hsrb/hsrb_person_aim_sensor_rotator_nodelet.cpp
-                            )
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+ament_package()
