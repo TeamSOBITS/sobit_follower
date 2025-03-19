@@ -35,4 +35,7 @@ install(
   DESTINATION include/${PROJECT_NAME}
 )
 
+ament_export_include_directories(include)
+ament_export_dependencies(rclcpp Eigen3)
+
 ament_package()
