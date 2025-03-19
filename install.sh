@@ -26,12 +26,11 @@ if [ $? -ne 0 ]; then
 fi
 echo "Successfully downloaded ${FILE_NAME}"
 
-# Return to the catkin_ws/src directory
-cd ~/catkin_ws/src
+# Return to the colcon_ws/src directory
+cd ~/colcon_ws/src
 
 # Dowload required packages for SOBIT Follower
 ros_packages=(
-    "sobits_common" \
     "sobits_msgs" \
     "ssd_nodelet" \
     "sobit_edu" \
@@ -41,7 +40,7 @@ ros_packages=(
 # Clone all packages
 for ((i = 0; i < ${#ros_packages[@]}; i++)) {
     echo "Clonning: ${ros_packages[i]}"
-    git clone https://github.com/TeamSOBITS/${ros_packages[i]}.git
+    git clone -b humble-devel https://github.com/TeamSOBITS/${ros_packages[i]}.git
 
     # Check if install.sh exists in each package
     if [ -f ${ros_packages[i]}/install.sh ]; then
