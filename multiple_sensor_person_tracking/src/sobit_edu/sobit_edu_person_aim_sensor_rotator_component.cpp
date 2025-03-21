@@ -9,7 +9,7 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 
-// #include "sobit_edu_library/sobit_edu_joint_controller.hpp"
+#include "sobit_edu_library/sobit_edu_joint_controller.hpp"
 #include "multiple_sensor_person_tracking/msg/following_position.hpp"
 #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
 
@@ -24,7 +24,7 @@ namespace multiple_sensor_person_tracking {
 			tf2_ros::Buffer tfBuffer_;
             std::shared_ptr<tf2_ros::TransformListener> tf_sub_;
 
-			// std::unique_ptr<sobit_edu::SobitEduJointController> sobit_edu_ctr_;
+			std::unique_ptr<sobit_edu::SobitEduJointController> sobit_edu_ctr_;
 
 			std::shared_ptr<geometry_msgs::msg::Point> tracking_position_;
 			double pre_tilt_;
@@ -99,7 +99,7 @@ void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::callbackDa
 
 	RCLCPP_INFO(this->get_logger(), "\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
 
-	// if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, false );
+	if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, false );
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;
@@ -140,15 +140,15 @@ void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::onInit() {
 
     pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "rotator_marker", 1 );
 
-	// sobit_edu_ctr_.reset( new sobit_edu::SobitEduJointController );
+	sobit_edu_ctr_ = std::make_unique<sobit_edu::SobitEduJointController>();
     tracking_position_ = std::make_shared<geometry_msgs::msg::Point>();
 
     sub_following_position_ = this->create_subscription<FollowingPosition>(
         following_position_topic_name, 1, std::bind(&SobitEduPersonAimSensorRotator::callbackData, this, std::placeholders::_1));
 
 	if ( !use_rotate_ ) return;
-	// sobit_edu_ctr_->moveToPose( "initial_pose" );
-	// sobit_edu_ctr_->moveHeadPanTilt ( 0.0, 0.2, 0.3, false );
+	sobit_edu_ctr_->moveToPose( "initial_pose" );
+	sobit_edu_ctr_->moveHeadPanTilt ( 0.0, 0.2, 0.3, false );
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator)

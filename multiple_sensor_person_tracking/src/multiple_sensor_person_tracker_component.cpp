@@ -44,7 +44,7 @@ namespace multiple_sensor_person_tracking {
         NO_EXISTS = 0, EXISTS_LEG, EXISTS_BODY, EXISTS_LEG_AND_BODY
     };
 
-    class HSRbPersonTracker : public rclcpp::Node {
+    class PersonTracker : public rclcpp::Node {
         private:
             rclcpp::Publisher<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr pub_following_position_;
             rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_marker_;
@@ -119,8 +119,8 @@ namespace multiple_sensor_person_tracking {
                 const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg,
                 const sobits_interfaces::msg::ObjectPoseArray::ConstSharedPtr ssd_msg );
         public:
-            explicit HSRbPersonTracker(const rclcpp::NodeOptions & options)
-            : Node("sobit_hsrb_person_tracker", options),
+            explicit PersonTracker(const rclcpp::NodeOptions & options)
+            : Node("person_tracker", options),
             tfBuffer_(this->get_clock()),
             tf_sub_(std::make_shared<tf2_ros::TransformListener>(tfBuffer_))
             {
@@ -131,7 +131,7 @@ namespace multiple_sensor_person_tracking {
     };
 }
 
-visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTracker::makeLegPoseMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses ) {
+visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::makeLegPoseMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses ) {
     visualization_msgs::msg::Marker leg_marker;
     leg_marker.header.frame_id = target_frame_;
     leg_marker.header.stamp = this->get_clock()->now();
@@ -147,7 +147,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTrack
     return leg_marker;
 }
 
-visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTracker::makeLegAreaMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses ) {
+visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::makeLegAreaMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses ) {
     visualization_msgs::msg::Marker leg_marker;
     std::vector<double> offset_x, offset_y;
     double tolerance = 2.0*M_PI / 20.0;
@@ -182,7 +182,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTrack
     return leg_marker;
 }
 
-visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTracker::makeBodyPoseMarker( const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses ) {
+visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::makeBodyPoseMarker( const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses ) {
     visualization_msgs::msg::Marker body_marker;
     body_marker.header.frame_id = target_frame_;
     body_marker.header.stamp = this->get_clock()->now();
@@ -198,7 +198,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTrack
     return body_marker;
 }
 
-visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTracker::makeTargetPoseMarker( const Eigen::Vector4f& target_pose ) {
+visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::makeTargetPoseMarker( const Eigen::Vector4f& target_pose ) {
     visualization_msgs::msg::Marker target_marker;
     target_marker.header.frame_id = target_frame_;
     target_marker.header.stamp = this->get_clock()->now();
@@ -220,7 +220,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::HSRbPersonTrack
     return target_marker;
 }
 
-int multiple_sensor_person_tracking::HSRbPersonTracker::findTwoObservationValue(
+int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     const std::vector<geometry_msgs::msg::Pose>& leg_poses,
     const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses,
     Eigen::Vector2f* leg_observed_value,
@@ -265,7 +265,7 @@ int multiple_sensor_person_tracking::HSRbPersonTracker::findTwoObservationValue(
     return result;
 }
 
-bool multiple_sensor_person_tracking::HSRbPersonTracker::searchObstacles( const geometry_msgs::msg::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::msg::PointCloud2* obstacles ) {
+bool multiple_sensor_person_tracking::PersonTracker::searchObstacles( const geometry_msgs::msg::Point& search_pt,  const PointCloud::Ptr input_cloud, sensor_msgs::msg::PointCloud2* obstacles ) {
     
     // Merge input_cloud with the non-travelable region cloud
     bool can_pub_obstacles = false;
@@ -315,8 +315,7 @@ bool multiple_sensor_person_tracking::HSRbPersonTracker::searchObstacles( const 
     return can_pub_obstacles;
 }
 
-
-geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::HSRbPersonTracker::transformPoint (
+geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::PersonTracker::transformPoint (
     const std::string& org_frame,
     const std::string& target_frame,
     const geometry_msgs::msg::Point& point)
@@ -334,12 +333,12 @@ geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::HSRbPersonTrac
     return pt_transformed;
 }
 
-void multiple_sensor_person_tracking::HSRbPersonTracker::scan_callback (const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg)
+void multiple_sensor_person_tracking::PersonTracker::scan_callback (const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg)
 {
     scan_msg_ = scan_msg;
 }
 
-void multiple_sensor_person_tracking::HSRbPersonTracker::nontravelableRegionCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& nontravelable_region_msg)
+void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& nontravelable_region_msg)
 {
     PointCloud temp_cloud;
     try {
@@ -372,7 +371,7 @@ void multiple_sensor_person_tracking::HSRbPersonTracker::nontravelableRegionCall
     }
 }
 
-void multiple_sensor_person_tracking::HSRbPersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const sobits_interfaces::msg::ObjectPoseArray::ConstSharedPtr ssd_msg ) {
+void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const sobits_interfaces::msg::ObjectPoseArray::ConstSharedPtr ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
@@ -532,7 +531,7 @@ void multiple_sensor_person_tracking::HSRbPersonTracker::callbackPoseArray ( con
     return;
 }
 
-void multiple_sensor_person_tracking::HSRbPersonTracker::onInit() {
+void multiple_sensor_person_tracking::PersonTracker::onInit() {
 
     // Declare parameters
     this->declare_parameter<std::string>("scan_topic_name", "/scan");
@@ -568,17 +567,17 @@ void multiple_sensor_person_tracking::HSRbPersonTracker::onInit() {
 
     // Create subscribers
     sub_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
-        scan_topic_name, 1, std::bind(&HSRbPersonTracker::scan_callback, this, std::placeholders::_1));
+        scan_topic_name, 1, std::bind(&PersonTracker::scan_callback, this, std::placeholders::_1));
 
     sub_nontravelable_region_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-        pointcloud_nontravelable_region_topic_name, 1, std::bind(&HSRbPersonTracker::nontravelableRegionCallback, this, std::placeholders::_1));
+        pointcloud_nontravelable_region_topic_name, 1, std::bind(&PersonTracker::nontravelableRegionCallback, this, std::placeholders::_1));
 
     // message_filters subscribers
     sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::msg::PoseArray> ( this, dr_spaam_topic_name ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<sobits_interfaces::msg::ObjectPoseArray> ( this, ssd_topic_name ) );
 
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
-    sync_ ->registerCallback ( &HSRbPersonTracker::callbackPoseArray, this );
+    sync_ ->registerCallback ( &PersonTracker::callbackPoseArray, this );
 
     // Create publishers
     pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "following_position", 1 );
@@ -606,4 +605,4 @@ void multiple_sensor_person_tracking::HSRbPersonTracker::onInit() {
     attention_leg_idx_ = 0;
 }
 
-RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::HSRbPersonTracker)
+RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::PersonTracker)
