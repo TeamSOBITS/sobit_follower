@@ -19,7 +19,7 @@ find_package(message_filters REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(multiple_observation_kalman_filter REQUIRED)
 
-# generate_dynamic_reconfigure_options( TODO
+# generate_dynamic_reconfigure_options( TODO:set as params
 #   config/dynamic_reconfigure/TrackerParameter.cfg
 #   config/dynamic_reconfigure/ObservationParameter.cfg
 #   config/dynamic_reconfigure/TargetControllerParameter.cfg
