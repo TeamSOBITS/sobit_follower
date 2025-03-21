@@ -4,7 +4,6 @@ project(multiple_sensor_person_tracking)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Release)
 
-# パッケージの依存関係を追加
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -22,27 +21,23 @@ find_package(laser_geometry REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(cv_bridge REQUIRED)
-# find_package(sobit_edu_library REQUIRED) 
-# find_package(sobit_pro_library REQUIRED)
-# find_package(hsrb_library REQUIRED)
+find_package(sobit_edu_library REQUIRED) 
+find_package(sobit_pro_library REQUIRED)
+find_package(hsrb_library REQUIRED)
 find_package(multiple_observation_kalman_filter REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-# メッセージ・サービスを生成
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/FollowingPosition.msg"
   "srv/LegDetectionService.srv"
   DEPENDENCIES sensor_msgs geometry_msgs std_msgs
 )
 
-# インクルードディレクトリ
 include_directories(include ${sobit_edu_library_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
-# ライブラリ作成
 add_library(${PROJECT_NAME}_component SHARED
-  src/sobit_edu/sobit_edu_multiple_sensor_person_tracker_component.cpp 
+  src/sobit_multiple_sensor_person_tracker_component.cpp 
   src/sobit_edu/sobit_edu_person_aim_sensor_rotator_component.cpp
-  src/sobit_pro/sobit_pro_multiple_sensor_person_tracker_component.cpp
   src/sobit_pro/sobit_pro_person_aim_sensor_rotator_component.cpp
   src/hsrb/hsrb_multiple_sensor_person_tracker_component.cpp
   src/hsrb/hsrb_person_aim_sensor_rotator_component.cpp
@@ -63,9 +58,9 @@ ament_target_dependencies(${PROJECT_NAME}_component
   tf2_ros
   laser_geometry
   pluginlib
-  # sobit_edu_library
-  # sobit_pro_library
-  # hsrb_library
+  sobit_edu_library
+  sobit_pro_library
+  hsrb_library
   multiple_observation_kalman_filter
   OpenCV
   cv_bridge
@@ -76,7 +71,7 @@ target_link_libraries(${PROJECT_NAME}_component ${OpenCV_LIBRARIES})
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(${PROJECT_NAME}_component "${cpp_typesupport_target}")
 
-# インストール設定
+
 install(TARGETS ${PROJECT_NAME}_component
   DESTINATION lib
 )
@@ -87,14 +82,6 @@ install(DIRECTORY include/
 
 install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
-)
-
-# ROS2パッケージとしてexport
-ament_export_include_directories(include)
-ament_export_dependencies(
-  rclcpp sensor_msgs geometry_msgs std_msgs pcl_ros tf2_ros laser_geometry
-  # sobit_edu_library # sobit_pro_library # hsrb_library
-  pluginlib multiple_observation_kalman_filter
 )
 
 ament_package()
