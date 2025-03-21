@@ -2,13 +2,13 @@
 using namespace person_following_control;
 
 void DynamicWindowApproach::displayOptimalPathMarker ( const EvaluatedPath& optimal_path ) {
-    visualization_msgs::Marker marker;
+    visualization_msgs::msg::Marker marker;
     marker.header.frame_id = dwap_->target_frame;
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = node_->get_clock()->now();
     marker.ns = "optimal_path";
     marker.id = 1;
-    marker.type = visualization_msgs::Marker::LINE_STRIP;
-    marker.action = visualization_msgs::Marker::ADD;
+    marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+    marker.action = visualization_msgs::msg::Marker::ADD;
     marker.scale.x = 0.08;
     marker.color.a = 1.0;
     marker.color.r = 0.0;
@@ -18,12 +18,12 @@ void DynamicWindowApproach::displayOptimalPathMarker ( const EvaluatedPath& opti
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
-    marker.lifetime = ros::Duration(0.1);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.1);
 
     int predict_step = dwap_->predict_step;
     double theta = 0.0;
     double sampling_time = dwap_->sampling_time;
-    geometry_msgs::Point pt, pre_pt;
+    geometry_msgs::msg::Point pt, pre_pt;
     pt.z = 0.1;
     for ( int step = 0; step < predict_step; ++step) {
         pre_pt = pt;
@@ -34,22 +34,24 @@ void DynamicWindowApproach::displayOptimalPathMarker ( const EvaluatedPath& opti
         // if ( std::hypotf( pt.x, pt.y ) > 1.5 ) break;
         marker.points.push_back( pt );
     }
-    pub_path_marker_.publish ( marker );
+    visualization_msgs::msg::MarkerArray marker_array;
+    marker_array.markers.push_back(marker);
+    pub_path_marker_->publish(marker_array);
 }
 
 void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedPath >& path_list ) {
     int marker_num = 0;
-    visualization_msgs::MarkerArray marker_all;
+    visualization_msgs::msg::MarkerArray marker_array;
     std::string target_frame = dwap_->target_frame;
     int predict_step = dwap_->predict_step;
     double sampling_time = dwap_->sampling_time;
 
     for( auto path : path_list ) {
-        visualization_msgs::Marker marker;
+        visualization_msgs::msg::Marker marker;
         marker.header.frame_id = target_frame;
-        marker.header.stamp = ros::Time::now();
-        marker.action = visualization_msgs::Marker::ADD;
-        marker.type = visualization_msgs::Marker::LINE_STRIP;
+        marker.header.stamp = node_->get_clock()->now();
+        marker.action = visualization_msgs::msg::Marker::ADD;
+        marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
         marker.ns = "all_path";
         marker.id = marker_num;
         marker.scale.x = 0.03;
@@ -58,7 +60,7 @@ void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedP
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 1.0;
-        marker.lifetime = ros::Duration(0.1);
+        marker.lifetime = rclcpp::Duration::from_seconds(0.1);
         if ( path.is_collision ) {
             marker.color.r = 1.0;
             marker.color.g = 0.0;
@@ -69,7 +71,7 @@ void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedP
             marker.color.b = 1.0;
         }
         double theta = 0.0;
-        geometry_msgs::Point pt, pre_pt;
+        geometry_msgs::msg::Point pt, pre_pt;
         pt.z = 0.1;
         for ( int step = 0; step < predict_step; ++step) {
             pre_pt = pt;
@@ -80,15 +82,16 @@ void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedP
             marker.points.push_back( pt );
         }
         marker_num++;
-        marker_all.markers.push_back( marker );
+        marker_array.markers.push_back( marker );
     }
-    pub_path_marker_all_.publish( marker_all );
+    pub_path_marker_all_->publish( marker_array );
 }
 
-DynamicWindowApproach::DynamicWindowApproach ( ) : nh_(), pnh_("~") {
-    pub_path_marker_ = nh_.advertise< visualization_msgs::Marker >( "/dwa_path_marker", 1 );
-    pub_path_marker_all_ = nh_.advertise< visualization_msgs::MarkerArray >( "/dwa_path_marker_all", 1 );
-    dwap_.reset ( new DWAParameters );
+DynamicWindowApproach::DynamicWindowApproach ( std::shared_ptr<rclcpp::Node> node ) : node_( node ) {
+    pub_path_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/dwa_path_marker", 1);
+    pub_path_marker_all_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/dwa_path_marker_all", 1);
+    dwap_ = std::make_shared<DWAParameters>();
+
     // DWA Parameters :
 	setTargetFrame( "base_footprint" );
 	setStepValue( 30, 0.1 );
@@ -99,9 +102,9 @@ DynamicWindowApproach::DynamicWindowApproach ( ) : nh_(), pnh_("~") {
 }
 
 bool DynamicWindowApproach::generatePath2TargetDWA (
-    const geometry_msgs::Point& target,
+    const geometry_msgs::msg::Point& target,
     const PointCloud::Ptr obstacles,
-    geometry_msgs::TwistPtr output_path )
+    std::shared_ptr<geometry_msgs::msg::Twist> output_path )
 {
     // Predict paths and create a path list
     std::vector< EvaluatedPath > path_list;
@@ -160,7 +163,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
             if ( dist_nearest_obstacle <= obstacle_cost_radius ) is_collision = true;
         }
         eval.is_collision = is_collision;
-        if ( theta > M_PI || theta < -M_PI ) ROS_ERROR("theta = %f", theta);
+        if ( theta > M_PI || theta < -M_PI ) RCLCPP_ERROR(node_->get_logger(), "theta = %f", theta);
         if ( !is_collision ) {
             // [ heading(v,ω) ] Evaluate the angle of difference between predicted point and Target point :
             eval.heading = M_PI - std::fabs( std::atan2(target.y - path.point.y, target.x - path.point.x) - path.theta );
@@ -205,7 +208,7 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
         output_path->linear.x = optimal_path.linear;
         output_path->angular.z = optimal_path.angular;
     } else {
-        ROS_ERROR("No Optimal Path");
+        RCLCPP_ERROR(node_->get_logger(), "No Optimal Path");
     }
 
     if ( display_optimal_path_ ) displayOptimalPathMarker ( optimal_path );
@@ -214,10 +217,10 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
 }
 
 bool DynamicWindowApproach::generatePath2TargetVSMDWA (
-    const geometry_msgs::Point& target,
+    const geometry_msgs::msg::Point& target,
     const PointCloud::Ptr obstacles,
-    const geometry_msgs::TwistPtr base_path,
-    geometry_msgs::TwistPtr output_path ) {
+    std::shared_ptr<geometry_msgs::msg::Twist> base_path,
+    std::shared_ptr<geometry_msgs::msg::Twist> output_path ) {
 
     // Predict paths and create a path list
     std::vector< EvaluatedPath > path_list;
@@ -336,7 +339,7 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
         output_path->linear.x = optimal_path.linear;
         output_path->angular.z = optimal_path.angular;
     } else {
-        ROS_ERROR("No Optimal Path");
+        RCLCPP_ERROR(node_->get_logger(), "No Optimal Path");
     }
 
     if ( display_optimal_path_ ) displayOptimalPathMarker ( optimal_path );
@@ -346,10 +349,10 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
 }
 
 bool DynamicWindowApproach::generatePath2Target (
-    const geometry_msgs::Point& target,
+    const geometry_msgs::msg::Point& target,
     const PointCloud::Ptr obstacles,
-    const geometry_msgs::TwistPtr base_path,
-    geometry_msgs::TwistPtr output_path ) {
+    std::shared_ptr<geometry_msgs::msg::Twist> base_path,
+    std::shared_ptr<geometry_msgs::msg::Twist> output_path ) {
     pcl::KdTreeFLANN<PointT> kdtree;
     std::vector<int> k_indices;
     std::vector<float> k_distances;

@@ -6,8 +6,8 @@ namespace person_following_control {
         setGain( 2.8, 0.1, 0.0 );
         setMaxAngular( 90.0 * M_PI / 180.0 );
     }
-    bool PIDController::generatePIRotate ( const double pre_time, const double curt_vel_ang, const double target_angle, geometry_msgs::TwistPtr output_vel ) {
-        double now_time = ros::Time::now().toSec();
+    bool PIDController::generatePIRotate ( const double pre_time, const double curt_vel_ang, const double target_angle, std::shared_ptr<geometry_msgs::msg::Twist> output_vel ) {
+        double now_time = node_->get_clock()->now().seconds();
         double time_diff = now_time - pre_time;
         double angle_abs = std::abs( target_angle );
         double proportional = 0.0, integral = 0.0, differential = 0.0, ctl_qty = 0.0;

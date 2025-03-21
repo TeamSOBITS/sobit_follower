@@ -1,9 +1,5 @@
 #include "qt_touch.h"
 #include "qt_twist_panel.h"
-#include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <pluginlib/class_list_macros.h>
 #include <QPainter>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -17,7 +13,7 @@
 #include <QButtonGroup>
 
 namespace person_following_control {
-    TwistPanel::TwistPanel(QWidget* parent) : rviz::Panel(parent) {
+    TwistPanel::TwistPanel(QWidget* parent) : rviz_common::Panel(parent), node_(std::make_shared<rclcpp::Node>("twist_panel")) {
     QVBoxLayout* layout = new QVBoxLayout;
 
     QHBoxLayout* layout_1st = new QHBoxLayout;
@@ -71,72 +67,56 @@ namespace person_following_control {
     touch_->setEnabled(false);
     touch_->update();
     }
+
     TwistPanel::~TwistPanel() {
-        if (twist_publisher_) twist_publisher_.shutdown();
     }
 
     void TwistPanel::tick() {
-        if (ros::ok()) {
-            if (enable_check_->isChecked()) {
-                if (twist_publisher_) {
-                    float vel_max1 = max1_edit_->text().toFloat();
-                    float vel_max2 = max2_edit_->text().toFloat();
-                    float vel_max3 = max3_edit_->text().toFloat();
-
-                    geometry_msgs::TwistStamped msg;
-                    msg.header.frame_id = pub_frame_;
-                    msg.header.stamp = ros::Time::now();
-                    if (radio1_->isChecked()) {
-                        msg.twist.linear.x = -1 * vel_max1 * (touch_->y_value);
-                        msg.twist.linear.y = -1 * vel_max2 * (touch_->x_value);
-                    } else if (radio2_->isChecked()) {
-                        msg.twist.linear.x = -1 * vel_max1 * (touch_->y_value);
-                        msg.twist.angular.z = -1 * vel_max3 * (touch_->x_value);
-                    } 
-                    if (pub_stamped_) twist_publisher_.publish(msg);
-                    else twist_publisher_.publish(msg.twist);
-                } else {
-                    std::string topic_name = topic_edit_->text().toStdString();
-                    if (topic_name != "") {
-                        if (stamped_check_->isChecked()) {
-                            std::string frame_name = frame_edit_->text().toStdString();
-                            if (frame_name != "") {
-                                twist_publisher_ = nh_.advertise<geometry_msgs::TwistStamped>(topic_name, 10);
-                                pub_stamped_ = true;
-                                pub_frame_ = frame_name;
-                                // gray to process
-                                topic_edit_->setEnabled(false);
-                                stamped_check_->setEnabled(false);
-                                frame_edit_->setEnabled(false);
-                                touch_->setEnabled(true);
-                            }
-                        } else {
-                            twist_publisher_ = nh_.advertise<geometry_msgs::Twist>(topic_name, 10);
-                            pub_stamped_ = false;
-                            // gray to process
-                            topic_edit_->setEnabled(false);
-                            stamped_check_->setEnabled(false);
-                            frame_edit_->setEnabled(false);
-                            touch_->setEnabled(true);
-                        }
+        if (!rclcpp::ok()) return;
+    
+        if (enable_check_->isChecked()) {
+            std::string topic_name = topic_edit_->text().toStdString();
+            if (!topic_name.empty()) {
+                if (!twist_publisher_ && !twist_publisher_stamped_) {
+                    if (stamped_check_->isChecked()) {
+                        twist_publisher_stamped_ = node_->create_publisher<geometry_msgs::msg::TwistStamped>(topic_name, 10);
+                        pub_stamped_ = true;
+                    } else {
+                        twist_publisher_ = node_->create_publisher<geometry_msgs::msg::Twist>(topic_name, 10);
+                        pub_stamped_ = false;
                     }
                 }
-            } else {  // Not checked
-                if (twist_publisher_) {
-                    twist_publisher_.shutdown();
-                    // gray to not process
-                    topic_edit_->setEnabled(true);
-                    stamped_check_->setEnabled(true);
-                    frame_edit_->setEnabled(true);
-                    touch_->setEnabled(false);
+            }
+    
+            if (pub_stamped_ && twist_publisher_stamped_) {
+                geometry_msgs::msg::TwistStamped msg;
+                msg.header.frame_id = pub_frame_;
+                msg.header.stamp = node_->get_clock()->now();
+                if (radio1_->isChecked()) {
+                    msg.twist.linear.x = -1 * max1_edit_->text().toFloat() * (touch_->y_value);
+                    msg.twist.linear.y = -1 * max2_edit_->text().toFloat() * (touch_->x_value);
+                } else if (radio2_->isChecked()) {
+                    msg.twist.linear.x = -1 * max1_edit_->text().toFloat() * (touch_->y_value);
+                    msg.twist.angular.z = -1 * max3_edit_->text().toFloat() * (touch_->x_value);
                 }
+                twist_publisher_stamped_->publish(msg);
+            } else if (!pub_stamped_ && twist_publisher_) {
+                geometry_msgs::msg::Twist msg;
+                if (radio1_->isChecked()) {
+                    msg.linear.x = -1 * max1_edit_->text().toFloat() * (touch_->y_value);
+                    msg.linear.y = -1 * max2_edit_->text().toFloat() * (touch_->x_value);
+                } else if (radio2_->isChecked()) {
+                    msg.linear.x = -1 * max1_edit_->text().toFloat() * (touch_->y_value);
+                    msg.angular.z = -1 * max3_edit_->text().toFloat() * (touch_->x_value);
+                }
+                twist_publisher_->publish(msg);
             }
         }
     }
 
-    void TwistPanel::save(rviz::Config config) const
+    void TwistPanel::save(rviz_common::Config config) const
     {
-        rviz::Panel::save(config);
+        rviz_common::Panel::save(config);
         config.mapSetValue("Topic", topic_edit_->text());
         config.mapSetValue("Stamped", stamped_check_->isChecked());
         config.mapSetValue("Frame", frame_edit_->text());
@@ -147,9 +127,9 @@ namespace person_following_control {
         config.mapSetValue("max3", max3_edit_->text());
     }
 
-    void TwistPanel::load(const rviz::Config& config)
+    void TwistPanel::load(const rviz_common::Config& config)
     {
-        rviz::Panel::load(config);
+        rviz_common::Panel::load(config);
 
         QString tmp_text;
         bool tmp_bool;
@@ -163,4 +143,5 @@ namespace person_following_control {
         if (config.mapGetString("max3", &tmp_text)) max3_edit_->setText(tmp_text);
     }
 }  // namespace person_following_control
-PLUGINLIB_EXPORT_CLASS(person_following_control::TwistPanel, rviz::Panel)
+
+PLUGINLIB_EXPORT_CLASS(person_following_control::TwistPanel, rviz_common::Panel)

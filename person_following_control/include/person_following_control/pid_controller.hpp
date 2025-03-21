@@ -1,12 +1,17 @@
 #ifndef PID_CONTROLLER_HPP
 #define PID_CONTROLLER_HPP
 
-#include <geometry_msgs/Twist.h>
-#include <nav_msgs/Odometry.h>
+#define _USE_MATH_DEFINES
+
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <cmath>
 
 namespace person_following_control {
     class PIDController {
 		private :
+            std::shared_ptr<rclcpp::Node> node_;
             double p_gain_;
             double i_gain_;
             double d_gain_;
@@ -16,7 +21,7 @@ namespace person_following_control {
 			PIDController ( );
             void setGain( const double p_gain, const double i_gain, const double d_gain );
             void setMaxAngular( const double max_angular_rad );
-			bool generatePIRotate ( const double pre_time , const double curt_vel_ang, const double target_angle, geometry_msgs::TwistPtr output_vel );
+			bool generatePIRotate ( const double pre_time , const double curt_vel_ang, const double target_angle, std::shared_ptr<geometry_msgs::msg::Twist> output_vel );
     };
 
     inline void PIDController::setGain( const double p_gain, const double i_gain, const double d_gain ) {
@@ -30,4 +35,4 @@ namespace person_following_control {
         return;
     }
 }
-#endif
+#endif // PID_CONTROLLER_HPP

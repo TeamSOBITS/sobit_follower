@@ -1,16 +1,18 @@
 #ifndef DYNAMIC_WINDOW_APPROACH
 #define DYNAMIC_WINDOW_APPROACH
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <cmath>
 #include <cstring>
-#include <geometry_msgs/Twist.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <pcl_ros/point_cloud.h>
-#include <pcl_ros/transforms.h>
+#include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/transforms.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <pcl_ros/transforms.hpp>
 #include <pcl/point_types.h>
 #include <pcl/kdtree/kdtree_flann.h>
-#include <geometry_msgs/Point.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
@@ -77,10 +79,9 @@ class DWAParameters {
 namespace person_following_control {
     class DynamicWindowApproach {
 		protected :
-			ros::NodeHandle nh_;
-			ros::NodeHandle pnh_;
-			ros::Publisher pub_path_marker_;
-			ros::Publisher pub_path_marker_all_;
+			std::shared_ptr<rclcpp::Node> node_;
+			rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_;
+            rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
 
 			bool display_optimal_path_;
 			bool display_all_path_;
@@ -90,7 +91,7 @@ namespace person_following_control {
 			void displayOptimalPathMarker ( const EvaluatedPath& optimal_path );
 			void displayAllPathMarker ( const std::vector< EvaluatedPath >& path_list );
 		public :
-			DynamicWindowApproach();
+			DynamicWindowApproach( std::shared_ptr<rclcpp::Node> node );
 
 			void setTargetFrame ( const std::string& target_frame );
 
@@ -114,21 +115,21 @@ namespace person_following_control {
 			void setDisplayFlag ( const bool display_optimal_path, const bool display_all_path );
 
 			bool generatePath2TargetDWA (
-				const geometry_msgs::Point& target,
+				const geometry_msgs::msg::Point& target,
                 const PointCloud::Ptr obstacles,
-				geometry_msgs::TwistPtr output_path );
+				std::shared_ptr<geometry_msgs::msg::Twist> output_path );
 
 			bool generatePath2TargetVSMDWA (
-				const geometry_msgs::Point& target,
+				const geometry_msgs::msg::Point& target,
                 const PointCloud::Ptr obstacles,
-				const geometry_msgs::TwistPtr base_path,
-				geometry_msgs::TwistPtr output_path );
+				std::shared_ptr<geometry_msgs::msg::Twist> base_path,
+				std::shared_ptr<geometry_msgs::msg::Twist> output_path );
 
 			bool generatePath2Target (
-				const geometry_msgs::Point& target,
+				const geometry_msgs::msg::Point& target,
                 const PointCloud::Ptr obstacles,
-				const geometry_msgs::TwistPtr base_path,
-				geometry_msgs::TwistPtr output_path );
+				std::shared_ptr<geometry_msgs::msg::Twist> base_path,
+				std::shared_ptr<geometry_msgs::msg::Twist> output_path );
 	};
 }
 
@@ -184,4 +185,4 @@ inline void person_following_control::DynamicWindowApproach::setDisplayFlag ( co
 	display_all_path_ = display_all_path;
 }
 
-#endif
+#endif // DYNAMIC_WINDOW_APPROACH_HPP

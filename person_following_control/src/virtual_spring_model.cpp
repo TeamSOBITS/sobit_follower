@@ -3,24 +3,24 @@
 using namespace person_following_control;
 
 void VirtualSpringModel::displayVirtualSpringPathMarker ( float vel, float ang_vel ) {
-    visualization_msgs::Marker marker;
+    visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "base_footprint";
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = node_->get_clock()->now();
     marker.ns = "virtual_spring_path";
     marker.id = 1;
-    marker.type = visualization_msgs::Marker::LINE_STRIP;
-    marker.action = visualization_msgs::Marker::ADD;
+    marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+    marker.action = visualization_msgs::msg::Marker::ADD;
     marker.scale.x = 0.08;
     marker.color.a = 1.0;
     marker.color.r = 1.0;
     marker.color.g = 1.0;
     marker.color.b = 0.0;
-    marker.lifetime = ros::Duration(0.1);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.1);
 
     int predict_step = 20;
     float theta = 0.0;
     float sampling_time = 0.1;
-    geometry_msgs::Point pt, pre_pt;
+    geometry_msgs::msg::Point pt, pre_pt;
     pt.z = 0.1;
     for ( int step = 0; step < predict_step; ++step) {
         pre_pt = pt;
@@ -35,26 +35,30 @@ void VirtualSpringModel::displayVirtualSpringPathMarker ( float vel, float ang_v
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
-    marker.lifetime = ros::Duration(0.1);
-    pub_mrk_path_.publish ( marker );
+    marker.lifetime = rclcpp::Duration::from_seconds(0.1);
+    
+    // Ensure correct publish type
+    visualization_msgs::msg::MarkerArray marker_array;
+    marker_array.markers.push_back(marker);
+    pub_mrk_path_->publish(marker_array);
 }
 
-visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const float r, const float g, const float b ) {
-    visualization_msgs::Marker marker;
+visualization_msgs::msg::Marker VirtualSpringModel::displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const float r, const float g, const float b ) {
+    visualization_msgs::msg::Marker marker;
     marker.header.frame_id = ( name != "robot_transformed" ) ? "base_footprint" : "target";
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = node_->get_clock()->now();
     marker.ns = name;
     marker.id = 0;
-    marker.type = visualization_msgs::Marker::ARROW;
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration(0.3);
+    marker.type = visualization_msgs::msg::Marker::ARROW;
+    marker.action = visualization_msgs::msg::Marker::ADD;
+    marker.lifetime = rclcpp::Duration::from_seconds(0.3);
 
     marker.pose.position.x = pt[0];
     marker.pose.position.y = pt[1];
     marker.pose.position.z = 0.3;
     tf2::Quaternion quat_tf;
     quat_tf.setRPY(0, 0, pt[2]);
-    geometry_msgs::Quaternion quat_msg;
+    geometry_msgs::msg::Quaternion quat_msg;
     tf2::convert(quat_tf, quat_msg);
     marker.pose.orientation = quat_msg;
 
@@ -69,9 +73,9 @@ visualization_msgs::Marker VirtualSpringModel::displayTargetMarker ( const Eigen
     return marker;
 }
 
-VirtualSpringModel::VirtualSpringModel ( ) : nh_(), pnh_("~") {
-    pub_mrk_tgt_ = nh_.advertise< visualization_msgs::MarkerArray >( "/vsm_target_marker", 1 );
-    pub_mrk_path_ = nh_.advertise< visualization_msgs::Marker >( "/vsm_path_marker", 1 );
+VirtualSpringModel::VirtualSpringModel ( std::shared_ptr<rclcpp::Node> node ) : node_( node ) {
+    pub_mrk_tgt_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/vsm_target_marker", 1);
+    pub_mrk_path_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/vsm_path_marker", 1);
 
     setFollowParamater( 0.0, 0.7 );
     setSpringParamater( 3.0 , 0.001 );
@@ -81,7 +85,7 @@ VirtualSpringModel::VirtualSpringModel ( ) : nh_(), pnh_("~") {
 	setDisplayFlag( false, false );
 }
 
-void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, geometry_msgs::TwistPtr &output_vel ) {
+void VirtualSpringModel::compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, std::shared_ptr< geometry_msgs::msg::Twist > output_vel ) {
     float yaw = std::atan2( pose_msg.position.y, pose_msg.position.x );
 
     // Find the position of the robot when the mobile robot follows a person (coordinate transformation)
@@ -121,17 +125,17 @@ void VirtualSpringModel::compute ( const geometry_msgs::Pose &pose_msg, const fl
                     -viscous_friction_angular_ * curt_vel_angular ) * radius_robot_;            // Term 3 : Viscous frictional force by the product of κ3 and the rotational speed of the mobile robot
     angular = angular / moment_inertia_;
 
-    geometry_msgs::Twist vel;
-    vel.linear.x = linear;
-    vel.angular.z = angular;
-    *output_vel = vel;
+    auto vel = std::make_shared<geometry_msgs::msg::Twist>();
+    vel->linear.x = linear;
+    vel->angular.z = angular;
+    *output_vel = *vel;
     if ( display_vsm_path_ ) displayVirtualSpringPathMarker ( linear, angular );
     if ( display_target_ ) {
-        visualization_msgs::MarkerArrayPtr marker_array(new visualization_msgs::MarkerArray);
+        auto marker_array = std::make_shared<visualization_msgs::msg::MarkerArray>();
         marker_array->markers.push_back( displayTargetMarker(robot, "robot", 1.0, 0.0, 0.0) );
         marker_array->markers.push_back( displayTargetMarker(human, "human", 0.0, 1.0, 0.0) );
         // marker_array->markers.push_back( displayTargetMarker(robot_transformed, "robot_transformed", 0.0, 0.0, 1.0) );
-        pub_mrk_tgt_.publish(marker_array);
+        pub_mrk_tgt_->publish(*marker_array);
     }
     return;
 }
