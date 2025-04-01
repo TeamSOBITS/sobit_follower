@@ -22,9 +22,9 @@
   <depend>laser_geometry</depend>
   <depend>pluginlib</depend>
   <depend>OpenCV</depend>
-  <depend>sobit_edu_library</depend>
-  <depend>sobit_pro_library</depend>
-  <depend>hsrb_library</depend>
+  <!-- <depend>sobit_edu_library</depend> -->
+  <!-- <depend>sobit_pro_library</depend> -->
+  <!-- <depend>hsrb_library</depend> -->
   <depend>multiple_observation_kalman_filter</depend>
 
   <build_depend>rosidl_default_generators</build_depend>

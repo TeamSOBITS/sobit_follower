@@ -45,7 +45,7 @@ ament_target_dependencies(robot_pose_broadcaster rclcpp geometry_msgs tf2 tf2_ro
 
 # Add Library
 add_library(${PROJECT_NAME} SHARED
-            src/sobit_following_control_component.cpp
+            src/following_control_component.cpp
             # src/hsrb_following_control_nodelet.cpp
             src/virtual_spring_model.cpp
             src/dynamic_window_approach.cpp
