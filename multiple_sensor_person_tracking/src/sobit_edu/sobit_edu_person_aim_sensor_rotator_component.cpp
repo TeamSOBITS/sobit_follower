@@ -9,7 +9,7 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 
-#include "sobit_edu_library/sobit_edu_joint_controller.hpp"
+#include "sobit_edu_library/sobit_edu_joint_action_server.hpp"
 #include "multiple_sensor_person_tracking/msg/following_position.hpp"
 #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
 
@@ -99,7 +99,25 @@ void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::callbackDa
 
 	RCLCPP_INFO(this->get_logger(), "\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
 
-	if ( use_rotate_ ) sobit_edu_ctr_->moveHeadPanTilt ( pan_angle, tilt_angle, sec, false );
+    if ( use_rotate_ ) {
+        auto goal_msg = sobits_interfaces::action::MoveJoint::Goal();
+        goal_msg.target_joint_names = {"head_camera_pan_joint", "head_camera_tilt_joint"};
+        goal_msg.target_joint_rad = {pan_angle, tilt_angle};
+        goal_msg.time_allowance.sec = static_cast<int>(sec);
+        goal_msg.time_allowance.nanosec = static_cast<int>((sec - static_cast<int>(sec)) * 1e9);
+
+        auto send_goal_options = rclcpp_action::Client<sobits_interfaces::action::MoveJoint>::SendGoalOptions();
+        send_goal_options.result_callback = [this](auto result_future) {
+            auto result = result_future.get();
+            if (result->success) {
+                RCLCPP_INFO(this->get_logger(), "[Action Result] %s", result->message.c_str());
+            } else {
+                RCLCPP_WARN(this->get_logger(), "[Action Failed] %s", result->message.c_str());
+            }
+        };
+
+        sobit_edu_ctr_->async_send_goal(goal_msg, send_goal_options);
+    }
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;
@@ -140,15 +158,29 @@ void multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator::onInit() {
 
     pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "rotator_marker", 1 );
 
-	sobit_edu_ctr_ = std::make_unique<sobit_edu::SobitEduJointController>();
+    sobit_edu_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>(
+        this, "move_joint");
+    
+    while (!sobit_edu_ctr_->wait_for_action_server(std::chrono::seconds(1))) {
+        RCLCPP_WARN(this->get_logger(), "Waiting for action server...");
+    }
     tracking_position_ = std::make_shared<geometry_msgs::msg::Point>();
 
     sub_following_position_ = this->create_subscription<FollowingPosition>(
         following_position_topic_name, 1, std::bind(&SobitEduPersonAimSensorRotator::callbackData, this, std::placeholders::_1));
 
-	if ( !use_rotate_ ) return;
-	sobit_edu_ctr_->moveToPose( "initial_pose" );
-	sobit_edu_ctr_->moveHeadPanTilt ( 0.0, 0.2, 0.3, false );
+    if (use_rotate_) {
+        auto pose_goal = sobits_interfaces::action::MoveToPose::Goal();
+        pose_goal.pose_name = "initial_pose";
+        pose_goal.time_allowance.sec = 1;
+        pose_goal.time_allowance.nanosec = 0;
+    
+        auto pose_client = rclcpp_action::create_client<sobits_interfaces::action::MoveToPose>(this, "move_to_pose");
+        while (!pose_client->wait_for_action_server(std::chrono::seconds(1))) {
+            RCLCPP_INFO(this->get_logger(), "Waiting for move_to_pose action server...");
+        }
+        pose_client->async_send_goal(pose_goal);
+    }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::SobitEduPersonAimSensorRotator)
