@@ -8,6 +8,9 @@
 #include <geometry_msgs/msg/point_stamped.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
+#include <sobits_interfaces/action/move_joint.hpp>
+#include <sobits_interfaces/action/move_to_pose.hpp>
 
 #include "multiple_sensor_person_tracking/msg/following_position.hpp"
 #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
@@ -23,6 +26,8 @@ namespace multiple_sensor_person_tracking {
 			tf2_ros::Buffer tfBuffer_;
             std::shared_ptr<tf2_ros::TransformListener> tf_sub_;
 
+            rclcpp_action::Client<sobits_interfaces::action::MoveJoint>::SharedPtr head_pantilt_ctr_;
+
 			std::shared_ptr<geometry_msgs::msg::Point> tracking_position_;
 			double pre_tilt_;
 			double pre_pan_;
@@ -33,6 +38,7 @@ namespace multiple_sensor_person_tracking {
 			bool use_rotate_;
 			bool use_smoothing_;
 			bool display_marker_;
+            std::string head_pantilt_action_client_name_;
             std::string head_pan_joint_name_;
             std::string head_tilt_joint_name_;
 
@@ -107,11 +113,11 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 
         auto send_goal_options = rclcpp_action::Client<sobits_interfaces::action::MoveJoint>::SendGoalOptions();
         send_goal_options.result_callback = [this](auto result_future) {
-            auto result = result_future.get();
-            if (result->success) {
-                RCLCPP_INFO(this->get_logger(), "[Action Result] %s", result->message.c_str());
+            auto result = result_future;
+            if (result.result->success) {
+                RCLCPP_INFO(this->get_logger(), "[Action Result] %s", result.result->message.c_str());
             } else {
-                RCLCPP_WARN(this->get_logger(), "[Action Failed] %s", result->message.c_str());
+                RCLCPP_WARN(this->get_logger(), "[Action Failed] %s", result.result->message.c_str());
             }
         };
 
@@ -147,7 +153,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     this->get_parameter("person_height", person_height_);
     this->get_parameter("smoothing_gain", smoothing_gain_);
     this->get_parameter("display_marker", display_marker_);
-    this->get_parameter("head_pantilt_action_client_name", head_pantilt_action_client_name);
+    this->get_parameter("head_pantilt_action_client_name", head_pantilt_action_client_name_);
     this->get_parameter("head_pan_joint_name", head_pan_joint_name_);
     this->get_parameter("head_tilt_joint_name", head_tilt_joint_name_);
 
@@ -163,7 +169,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
     pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "rotator_marker", 1 );
 
-    head_pantilt_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>( this, head_pantilt_action_client_name );
+    head_pantilt_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>( this, head_pantilt_action_client_name_ );
     
     while (!head_pantilt_ctr_->wait_for_action_server(std::chrono::seconds(1))) {
         RCLCPP_WARN(this->get_logger(), "Waiting for action server...");

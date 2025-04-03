@@ -1,0 +1,13 @@
+<library path="libmultiple_sensor_person_tracking_component">
+  <class name="multiple_sensor_person_tracking::PersonTracker"
+         type="multiple_sensor_person_tracking::PersonTracker"
+         base_class_type="rclcpp_components::NodeFactory">
+    <description>PersonTracker Component</description>
+  </class>
+
+  <class name="multiple_sensor_person_tracking::PersonAimSensorRotator"
+         type="multiple_sensor_person_tracking::PersonAimSensorRotator"
+         base_class_type="rclcpp_components::NodeFactory">
+    <description>PersonAimSensorRotator Component</description>
+  </class>
+</library>

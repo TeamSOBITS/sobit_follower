@@ -30,7 +30,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES sensor_msgs geometry_msgs std_msgs
 )
 
-include_directories(include ${sobit_edu_library_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+include_directories(
+  include
+  multiple_observation_kalman_filter
+)
 
 add_library(${PROJECT_NAME}_component SHARED
   src/multiple_sensor_person_tracker_component.cpp 
@@ -57,11 +60,19 @@ ament_target_dependencies(${PROJECT_NAME}_component
   cv_bridge
 )
 
-target_link_libraries(${PROJECT_NAME}_component ${OpenCV_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_component 
+  ${OpenCV_LIBRARIES}
+  ${multiple_observation_kalman_filter_LIBRARIES}
+)
 
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
 target_link_libraries(${PROJECT_NAME}_component "${cpp_typesupport_target}")
 
+# Register nodes as components explicitly
+rclcpp_components_register_nodes(${PROJECT_NAME}_component
+  "multiple_sensor_person_tracking::PersonTracker"
+  "multiple_sensor_person_tracking::PersonAimSensorRotator"
+)
 
 install(TARGETS ${PROJECT_NAME}_component
   DESTINATION lib
@@ -74,5 +85,12 @@ install(DIRECTORY include/
 install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
+
+install(FILES
+  component_description.xml
+  DESTINATION share/${PROJECT_NAME}
+)
+
+pluginlib_export_plugin_description_file(rclcpp_components component_description.xml)
 
 ament_package()

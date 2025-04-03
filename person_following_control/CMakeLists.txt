@@ -56,6 +56,7 @@ add_library(${PROJECT_NAME} SHARED
 
 ament_target_dependencies(${PROJECT_NAME} 
   rclcpp 
+  rclcpp_components
   geometry_msgs 
   nav_msgs 
   pcl_conversions 
@@ -71,12 +72,17 @@ ament_target_dependencies(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
 
+# Register nodes as components explicitly
+rclcpp_components_register_nodes(${PROJECT_NAME}
+  "person_following_control::PersonFollowing"
+)
+
 # Install Targets
 install(TARGETS 
   # robot_pose_broadcaster 
   # virtual_environment
   ${PROJECT_NAME}
-  DESTINATION lib/${PROJECT_NAME})
+  DESTINATION lib)
 
 # Install Headers
 install(DIRECTORY include/
@@ -85,6 +91,13 @@ install(DIRECTORY include/
 # Install RViz Plugins
 install(DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config)
+
+install(FILES
+  component_description.xml
+  DESTINATION share/${PROJECT_NAME}
+)
+
+pluginlib_export_plugin_description_file(rclcpp_components component_description.xml)
 
 # Testing & Linting
 if(BUILD_TESTING)

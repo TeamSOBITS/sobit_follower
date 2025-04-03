@@ -13,12 +13,12 @@ def generate_launch_description():
         GroupAction([
             Node(
                 package="dr_spaam_ros",
-                executable="node.py",
+                executable="dr_spaam_ros",
                 name="dr_spaam_ros",
                 namespace="dr_spaam",
                 output="screen",
                 parameters=[
-                    PathJoinSubstitution([FindPackageShare('sobit_follower'), "launch", 'config', 'dr_spaam_param.yaml'])
+                    PathJoinSubstitution([FindPackageShare('sobit_follower'), "param", 'dr_spaam_param.yaml'])
                 ]
             )
         ])

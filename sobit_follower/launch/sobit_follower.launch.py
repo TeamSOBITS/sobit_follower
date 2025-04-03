@@ -12,20 +12,22 @@ def generate_launch_description():
 
     sobit_follower_share = FindPackageShare("sobit_follower")
 
-    # Launch Arguments
-    DeclareLaunchArgument("robot_type", default_value="sobit_edu"), 
-        # sobit_edu
-        # sobit_pro
-        # hsrb
-    DeclareLaunchArgument("rviz", default_value="false"),
-    DeclareLaunchArgument("rviz_cfg", default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower.rviz"])),
-    DeclareLaunchArgument("use_rotate", default_value="true"),
-    DeclareLaunchArgument("following_method", default_value="0"),
-        # 0 : VirtualSpringModel-DynamicWindowApproach
-        # 1 : VirtualSpringModel
-        # 2 : DynamicWindowApproach
-        # 3 : PIDController
-    DeclareLaunchArgument("use_smoother", default_value="true"),
+    declared_args = [
+        # Launch Arguments
+        DeclareLaunchArgument("robot_type", default_value="sobit_edu"), 
+            # sobit_edu
+            # sobit_pro
+            # hsrb
+        DeclareLaunchArgument("rviz", default_value="false"),
+        DeclareLaunchArgument("rviz_cfg", default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower.rviz"])),
+        DeclareLaunchArgument("use_rotate", default_value="true"),
+        DeclareLaunchArgument("following_method", default_value="0"),
+            # 0 : VirtualSpringModel-DynamicWindowApproach
+            # 1 : VirtualSpringModel
+            # 2 : DynamicWindowApproach
+            # 3 : PIDController
+        DeclareLaunchArgument("use_smoother", default_value="true"),
+    ]
 
     robot_type = LaunchConfiguration("robot_type")
     use_rviz = LaunchConfiguration("rviz")
@@ -53,7 +55,7 @@ def generate_launch_description():
         }
     ]
 
-    return LaunchDescription([ 
+    return LaunchDescription(declared_args + [ 
 
         # RViz Node
         Node(

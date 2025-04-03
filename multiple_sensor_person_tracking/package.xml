@@ -15,6 +15,7 @@
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
   <depend>visualization_msgs</depend>
+  <depend>sobits_interfaces</depend>
   <depend>pcl_ros</depend>
   <depend>pcl_conversions</depend>
   <depend>tf2</depend>
@@ -22,9 +23,6 @@
   <depend>laser_geometry</depend>
   <depend>pluginlib</depend>
   <depend>OpenCV</depend>
-  <!-- <depend>sobit_edu_library</depend> -->
-  <!-- <depend>sobit_pro_library</depend> -->
-  <!-- <depend>hsrb_library</depend> -->
   <depend>multiple_observation_kalman_filter</depend>
 
   <build_depend>rosidl_default_generators</build_depend>
