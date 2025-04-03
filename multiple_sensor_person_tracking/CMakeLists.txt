@@ -21,9 +21,6 @@ find_package(laser_geometry REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(cv_bridge REQUIRED)
-# find_package(sobit_edu_library REQUIRED) 
-# find_package(sobit_pro_library REQUIRED)
-# find_package(hsrb_library REQUIRED)
 find_package(multiple_observation_kalman_filter REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
@@ -37,9 +34,7 @@ include_directories(include ${sobit_edu_library_INCLUDE_DIRS} ${OpenCV_INCLUDE_D
 
 add_library(${PROJECT_NAME}_component SHARED
   src/multiple_sensor_person_tracker_component.cpp 
-  # src/sobit_edu/sobit_edu_person_aim_sensor_rotator_component.cpp
-  # src/sobit_pro/sobit_pro_person_aim_sensor_rotator_component.cpp
-  # src/hsrb/hsrb_person_aim_sensor_rotator_component.cpp
+  src/person_aim_sensor_rotator_component.cpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}_component
@@ -57,9 +52,6 @@ ament_target_dependencies(${PROJECT_NAME}_component
   tf2_ros
   laser_geometry
   pluginlib
-  # sobit_edu_library
-  # sobit_pro_library
-  # hsrb_library
   multiple_observation_kalman_filter
   OpenCV
   cv_bridge

@@ -81,7 +81,7 @@ namespace person_following_control {
 
         public:
             explicit PersonFollowing(const rclcpp::NodeOptions & options)
-            : Node("person_following", options)
+            : Node("person_following_control", options)
             {
                 onInit();
             }

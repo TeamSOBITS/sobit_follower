@@ -1,23 +1,25 @@
 # Single Shot Multibox Detector
-# ssd_image_topic_name : /rgb_to_depth/image_raw
-# ssd_cloud_topic_name : /points2 
-ssd_image_topic_name : /camera/rgb/image_raw
-ssd_cloud_topic_name : /camera/depth_registered/points
-target_frame : base_footprint
-# target_frame : head_camera_depth_camera_link
+/**:
+  ros__parameters:
+    # ssd_image_topic_name : /rgb_to_depth/image_raw
+    # ssd_cloud_topic_name : /points2 
+    ssd_image_topic_name : /camera/rgb/image_raw
+    ssd_cloud_topic_name : /camera/depth_registered/points
+    target_frame : base_footprint
+    # target_frame : head_camera_depth_camera_link
 
-ssd_img_show_flag : false
-ssd_execute_default : true
-ssd_pub_result_image : true
-rqt_image_view_flag : false
-use_tf : false
+    ssd_img_show_flag : false
+    ssd_execute_default : true
+    ssd_pub_result_image : true
+    rqt_image_view_flag : false
+    use_tf : false
 
-ssd_in_scale_factor : 0.007843
-ssd_confidence_threshold : 0.5
+    ssd_in_scale_factor : 0.007843
+    ssd_confidence_threshold : 0.5
 
-ssd_prototxt_name : voc_object.prototxt
-ssd_caffemodel_name : voc_object.caffemodel
-ssd_class_names_file : voc_object_names.txt
+    ssd_prototxt_name : voc_object.prototxt
+    ssd_caffemodel_name : voc_object.caffemodel
+    ssd_class_names_file : voc_object_names.txt
 
-object_specified_enabled : true
-specified_object_name : person
+    object_specified_enabled : true
+    specified_object_name : person
