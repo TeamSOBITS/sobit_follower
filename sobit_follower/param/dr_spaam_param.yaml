@@ -6,7 +6,7 @@
     conf_thresh : 0.9                                 # Set confidence threshold
     stride : 1                                        # Downsample scans for faster inference
     panoramic_scan : false                            # Set to True if the scan covers 360 degree
-    detect_mode: True                                 # Set to True to enable detection
+    detect_mode: true                                 # Set to True to enable detection
     publisher:
         detections:
             topic: /dr_spaam_detections

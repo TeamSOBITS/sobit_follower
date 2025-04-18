@@ -6,6 +6,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
+from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
@@ -14,7 +15,7 @@ def generate_launch_description():
 
     declared_args = [
         # Launch Arguments
-        DeclareLaunchArgument("robot_type", default_value="sobit_edu"), 
+        DeclareLaunchArgument("robot_type", default_value="hsrb"), 
             # sobit_edu
             # sobit_pro
             # hsrb
