@@ -11,20 +11,20 @@ git clone -b humble-devel https://github.com/TeamSOBITS/2d_lidar_person_detectio
 cd 2d_lidar_person_detection/dr_spaam/
 sudo python3 setup.py install
 
-# Download default weight file from Google Drive
-echo -e "\e[34m\n Downloading required weight file from Google Drive \e[m"
-cd ../dr_spaam_ros/weights/
-FILE_ID="1JfGzRotJSapktNjlcNZ_k4IJKwiRTQwa"
-FILE_NAME="ckpt_jrdb_ann_ft_dr_spaam_e20.pth"
+# # Download default weight file from Google Drive
+# echo -e "\e[34m\n Downloading required weight file from Google Drive \e[m"
+# cd ../dr_spaam_ros/weights/
+# FILE_ID="1JfGzRotJSapktNjlcNZ_k4IJKwiRTQwa"
+# FILE_NAME="ckpt_jrdb_ann_ft_dr_spaam_e20.pth"
 
-# Use wget to download from Google Drive
-echo "Downloading ${FILE_NAME} from Google Drive..."
-wget --no-check-certificate "https://docs.google.com/uc?export=download&id=${FILE_ID}" -O ${FILE_NAME}
-if [ $? -ne 0 ]; then
-    echo "Failed to download ${FILE_NAME} from Google Drive."
-    exit 1
-fi
-echo "Successfully downloaded ${FILE_NAME}"
+# # Use wget to download from Google Drive
+# echo "Downloading ${FILE_NAME} from Google Drive..."
+# wget --no-check-certificate "https://docs.google.com/uc?export=download&id=${FILE_ID}" -O ${FILE_NAME}
+# if [ $? -ne 0 ]; then
+#     echo "Failed to download ${FILE_NAME} from Google Drive."
+#     exit 1
+# fi
+# echo "Successfully downloaded ${FILE_NAME}"
 
 # Return to the colcon_ws/src directory
 cd ~/colcon_ws/src
