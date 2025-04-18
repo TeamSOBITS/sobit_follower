@@ -557,6 +557,9 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     leg_tracking_range_ = this->get_parameter("leg_tracking_range").as_double();
     body_tracking_range_ = this->get_parameter("body_tracking_range").as_double();
 
+    rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
+    qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+
     // Initialize class members
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
     cloud_scan_.reset(new PointCloud());
@@ -573,7 +576,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
         pointcloud_nontravelable_region_topic_name, 1, std::bind(&PersonTracker::nontravelableRegionCallback, this, std::placeholders::_1));
 
     // message_filters subscribers
-    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::msg::PoseArray> ( this, dr_spaam_topic_name ) );
+    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::msg::PoseArray> ( this, dr_spaam_topic_name, qos_profile ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<sobits_interfaces::msg::ObjectPoseArray> ( this, ssd_topic_name ) );
 
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );

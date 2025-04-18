@@ -83,7 +83,12 @@ namespace person_following_control {
             explicit PersonFollowing(const rclcpp::NodeOptions & options)
             : Node("person_following_control", options)
             {
-                onInit();
+                this->create_wall_timer(
+                    std::chrono::milliseconds(100),
+                    [this]() {
+                        this->onInit();
+                    }
+                );
             }
 
             void onInit();
