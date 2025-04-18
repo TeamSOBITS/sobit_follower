@@ -32,7 +32,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 include_directories(
   include
-  multiple_observation_kalman_filter
 )
 
 add_library(${PROJECT_NAME}_component SHARED
@@ -63,6 +62,12 @@ ament_target_dependencies(${PROJECT_NAME}_component
 target_link_libraries(${PROJECT_NAME}_component 
   ${OpenCV_LIBRARIES}
   ${multiple_observation_kalman_filter_LIBRARIES}
+)
+
+target_include_directories(${PROJECT_NAME}_component PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${CMAKE_CURRENT_SOURCE_DIR}/../multiple_observation_kalman_filter/include
 )
 
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
