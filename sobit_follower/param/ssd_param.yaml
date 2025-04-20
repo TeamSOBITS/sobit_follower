@@ -3,9 +3,12 @@
   ros__parameters:
     # image_topic_name : /rgb_to_depth/image_raw
     # cloud_topic_name : /points2 
-    image_topic_name : /head_rgbd_sensor/rgb/image_rect_color
-    cloud_topic_name : /camera/depth_registered/points
-    base_frame_name : base_footprint
+    # image_topic_name : /head_rgbd_sensor/rgb/image_rect_color
+    # cloud_topic_name : /camera/depth_registered/points
+    image_topic_name : /sobit_edu/color/image_raw
+    cloud_topic_name : /sobit_edu/depth_registered/points
+    # base_frame_name : base_footprint
+    base_frame_name : sobit_edu/base_footprint
 
     image_show_flag : false
     execute_default : true

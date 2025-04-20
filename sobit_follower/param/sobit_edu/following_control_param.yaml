@@ -4,7 +4,7 @@
     following_position_topic_name : /sobit_follower/following_position
     odom_topic_name : /odom
 
-    base_footprint_name         : base_footprint
+    base_footprint_name         : sobit_edu/base_footprint
     # following_distance          : 1.10, 1.80
     following_distance          : 1.50
 

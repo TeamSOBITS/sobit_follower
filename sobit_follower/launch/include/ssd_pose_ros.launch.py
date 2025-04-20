@@ -12,8 +12,8 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        DeclareLaunchArgument("image_topic_name", default_value="/head_rgbd_sensor/rgb/image_rect_color"),
-        DeclareLaunchArgument("cloud_topic_name", default_value="/compressed_points"),
+        DeclareLaunchArgument("image_topic_name", default_value="/sobit_edu/color/image_raw"),
+        DeclareLaunchArgument("cloud_topic_name", default_value="/sobit_edu/depth_registered/points"),
         DeclareLaunchArgument("in_scale_factor", default_value="0.007843"),
         DeclareLaunchArgument("confidence_threshold", default_value="0.5"),
         DeclareLaunchArgument("ssd_prototxt_name", default_value=PathJoinSubstitution([ssd_ros_pkg, "models", "voc_object.prototxt"])),

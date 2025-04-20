@@ -56,13 +56,13 @@ namespace multiple_observation_tracing_simulator {
             visualization_msgs::msg::Marker trajectory_smooth_;
 
             bool exists_target_;
-            double previous_time_;
+            rclcpp::Time previous_time_;
             bool use_smoothing_;
             double smoothing_weight_;
     };
 
     Tracker::Tracker()
-        : Node("tracker"), tfBuffer_(this->get_clock()), tfListener_(tfBuffer_), exists_target_(false), previous_time_(0.0),
+        : Node("tracker"), tfBuffer_(this->get_clock()), tfListener_(tfBuffer_), exists_target_(false), previous_time_(this->now();),
         use_smoothing_(false), smoothing_weight_(0.75)
     {
         pub_marker_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("/track_marker", 1);
@@ -110,8 +110,11 @@ namespace multiple_observation_tracing_simulator {
         Eigen::Vector2f observed_value1(observed_value_msg->point.x, observed_value_msg->point.y);
         Eigen::Vector2f observed_value2(observed_value_add_msg->point.x, observed_value_add_msg->point.y);
         Eigen::Vector4f estimated_value(0.0, 0.0, 0.0, 0.0);
-        double dt = this->now().seconds() - previous_time_;
-        previous_time_ = this->now().seconds();
+        // double dt = this->now().seconds() - previous_time_;
+        // previous_time_ = this->now().seconds();
+        rclcpp::Time current_time = this->now();
+        double dt = (current_time - previous_time_).seconds();
+        previous_time_ = current_time;
 
         geometry_msgs::msg::PoseStamped target;
         if (!exists_target_) {

@@ -15,13 +15,13 @@ def generate_launch_description():
 
     declared_args = [
         # Launch Arguments
-        DeclareLaunchArgument("robot_type", default_value="hsrb"), 
+        DeclareLaunchArgument("robot_type", default_value="sobit_edu"), 
             # sobit_edu
             # sobit_pro
             # hsrb
         DeclareLaunchArgument("rviz", default_value="false"),
         DeclareLaunchArgument("rviz_cfg", default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower.rviz"])),
-        DeclareLaunchArgument("use_rotate", default_value="true"),
+        DeclareLaunchArgument("use_rotate", default_value="false"),
         DeclareLaunchArgument("following_method", default_value="0"),
             # 0 : VirtualSpringModel-DynamicWindowApproach
             # 1 : VirtualSpringModel

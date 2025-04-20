@@ -28,16 +28,20 @@
 #include <pcl/filters/voxel_grid.h>
 #include <cv_bridge/cv_bridge.h>
 
-#include "sobits_interfaces/msg/bounding_box.hpp"
-#include "sobits_interfaces/msg/object_pose_array.hpp"
-#include "sobits_interfaces/msg/string_array.hpp"
+#include "vision_msgs/msg/detection2_d_array.hpp"
+#include "vision_msgs/msg/detection3_d_array.hpp"
+#include "vision_msgs/msg/detection2_d.hpp"
+#include "vision_msgs/msg/detection3_d.hpp"
+#include "vision_msgs/msg/object_hypothesis_with_pose.hpp"
+#include "vision_msgs/msg/bounding_box2_d.hpp"
+
 #include "multiple_sensor_person_tracking/msg/following_position.hpp"
 
 #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::msg::PoseArray, sobits_interfaces::msg::ObjectPoseArray> MySyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<geometry_msgs::msg::PoseArray, vision_msgs::msg::Detection3DArray> MySyncPolicy;
 
 namespace multiple_sensor_person_tracking {
     enum Status {
@@ -55,7 +59,7 @@ namespace multiple_sensor_person_tracking {
             PointCloud::Ptr cloud_nontravelable_region_;
 
             std::unique_ptr<message_filters::Subscriber<geometry_msgs::msg::PoseArray>> sub_dr_spaam_;
-            std::unique_ptr<message_filters::Subscriber<sobits_interfaces::msg::ObjectPoseArray>> sub_ssd_;
+            std::unique_ptr<message_filters::Subscriber<vision_msgs::msg::Detection3DArray>> sub_ssd_;
             std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
             std::unique_ptr<multiple_observation_kalman_filter::KalmanFilter> kf_;
@@ -75,7 +79,7 @@ namespace multiple_sensor_person_tracking {
             std::string target_frame_;
 
             geometry_msgs::msg::Point previous_target_;
-            double previous_time_;
+            rclcpp::Time previous_time_;
             bool exists_target_;
             double leg_tracking_range_;
             double body_tracking_range_;
@@ -90,12 +94,12 @@ namespace multiple_sensor_person_tracking {
 
             visualization_msgs::msg::Marker makeLegPoseMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses );
             visualization_msgs::msg::Marker makeLegAreaMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses );
-            visualization_msgs::msg::Marker makeBodyPoseMarker( const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses );
+            visualization_msgs::msg::Marker makeBodyPoseMarker( const std::vector<vision_msgs::msg::Detection3D>& body_poses );
             visualization_msgs::msg::Marker makeTargetPoseMarker( const Eigen::Vector4f& target_pose );
 
             int findTwoObservationValue(
                 const std::vector<geometry_msgs::msg::Pose>& leg_poses,
-                const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses,
+                const std::vector<vision_msgs::msg::Detection3D>& body_poses,
                 Eigen::Vector2f* leg_observed_value,
                 Eigen::Vector2f* body_observed_value );
 
@@ -117,7 +121,7 @@ namespace multiple_sensor_person_tracking {
 
             void callbackPoseArray (
                 const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg,
-                const sobits_interfaces::msg::ObjectPoseArray::ConstSharedPtr ssd_msg );
+                const vision_msgs::msg::Detection3DArray::ConstSharedPtr ssd_msg );
         public:
             explicit PersonTracker(const rclcpp::NodeOptions & options)
             : Node("person_tracker", options),
@@ -182,7 +186,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::
     return leg_marker;
 }
 
-visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::makeBodyPoseMarker( const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses ) {
+visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::makeBodyPoseMarker( const std::vector<vision_msgs::msg::Detection3D>& body_poses ) {
     visualization_msgs::msg::Marker body_marker;
     body_marker.header.frame_id = target_frame_;
     body_marker.header.stamp = this->get_clock()->now();
@@ -194,7 +198,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::
     body_marker.color.r = 0.0; body_marker.color.g = 1.0; body_marker.color.b = 0.0; body_marker.color.a = 1.0;
     body_marker.pose.orientation.w = 1.0;
     body_marker.lifetime = rclcpp::Duration::from_seconds(0.3);
-    for ( const auto& pose : body_poses ) body_marker.points.push_back( pose.pose.position );
+    for ( const auto& detection : body_poses ) body_marker.points.push_back(detection.bbox.center.position);
     return body_marker;
 }
 
@@ -222,7 +226,7 @@ visualization_msgs::msg::Marker multiple_sensor_person_tracking::PersonTracker::
 
 int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     const std::vector<geometry_msgs::msg::Pose>& leg_poses,
-    const std::vector<sobits_interfaces::msg::ObjectPose>& body_poses,
+    const std::vector<vision_msgs::msg::Detection3D>& body_poses,
     Eigen::Vector2f* leg_observed_value,
     Eigen::Vector2f* body_observed_value )
 {
@@ -246,11 +250,11 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
         }
     }
     min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
-    for ( const auto& pose : body_poses ) {
-        double distance = std::hypotf( pose.pose.position.x - search_pt.x, pose.pose.position.y - search_pt.y );
+    for ( const auto& detection : body_poses ) {
+        double distance = std::hypotf( detection.bbox.center.position.x - search_pt.x, detection.bbox.center.position.y - search_pt.y );
         if ( min_distance > distance ) {
             min_distance = distance;
-            body_pt = pose.pose.position;
+            body_pt = detection.bbox.center.position;
             exists_body_pt = true;
         }
     }
@@ -371,15 +375,18 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
     }
 }
 
-void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const sobits_interfaces::msg::ObjectPoseArray::ConstSharedPtr ssd_msg ) {
+void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const vision_msgs::msg::Detection3DArray::ConstSharedPtr ssd_msg ) {
     std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
     sensor_msgs::msg::PointCloud2 cloud_scan_msg;
     Eigen::Vector4f estimated_value( 0.0, 0.0, 0.0, 0.0 );
 
-    double dt = ( rclcpp::Time(dr_spaam_msg->header.stamp) - rclcpp::Time(previous_time_)).seconds();	//dt - expressed in seconds
-    previous_time_ = rclcpp::Time(dr_spaam_msg->header.stamp).seconds();
+    // double dt = ( rclcpp::Time(dr_spaam_msg->header.stamp) - rclcpp::Time(previous_time_)).seconds();	//dt - expressed in seconds
+    // previous_time_ = rclcpp::Time(dr_spaam_msg->header.stamp).seconds();
+    rclcpp::Time current_time(dr_spaam_msg->header.stamp);
+    double dt = (current_time - previous_time_).seconds();
+    previous_time_ = current_time;
 
     // Sensor data to TF2 conversion
     try {
@@ -396,7 +403,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
         return;
     }
 
-    if ( !exists_target_ && ssd_msg->object_poses.size() == 0) {
+    if ( !exists_target_ && ssd_msg->detections.size() == 0) {
         if ( dr_spaam_msg->poses.size() == 0 ) {
             RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (DR-SPAAM)" );
             exists_target_ = false;
@@ -437,7 +444,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
     }
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
-    int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->object_poses, &leg_observed_value, &body_observed_value );
+    int result = findTwoObservationValue( dr_spaam_msg->poses, ssd_msg->detections, &leg_observed_value, &body_observed_value );
     if ( result == Status::NO_EXISTS ) {
         if ( no_exists_time_ == -1.0 ) no_exists_time_ = this->get_clock()->now().seconds();
         else if ( this->get_clock()->now().seconds() - no_exists_time_ >= target_change_tolerance_ ){
@@ -516,7 +523,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
     if ( display_marker_ ) {
         marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg->poses) );
         marker_array_->markers.push_back( makeLegAreaMarker(dr_spaam_msg->poses) );
-        marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->object_poses) );
+        marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->detections) );
         marker_array_->markers.push_back( makeTargetPoseMarker(estimated_value) );
         pub_marker_->publish ( *marker_array_ );
     }
@@ -537,7 +544,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     this->declare_parameter<std::string>("scan_topic_name", "/scan");
     this->declare_parameter<std::string>("pointcloud_nontravelable_region_topic_name", "/pointcloud_nontravelable_region");
     this->declare_parameter<std::string>("dr_spaam_topic_name", "/dr_spaam_detections");
-    this->declare_parameter<std::string>("ssd_topic_name", "/ssd_object_detect/object_pose");
+    this->declare_parameter<std::string>("ssd_topic_name", "/ssd_ros/object_3d_poses");
     this->declare_parameter<std::string>("target_frame", "base_footprint");
     this->declare_parameter<bool>("merge_nontravelable_region", true);
     this->declare_parameter<double>("leg_tracking_range", 0.5);
@@ -557,9 +564,6 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     leg_tracking_range_ = this->get_parameter("leg_tracking_range").as_double();
     body_tracking_range_ = this->get_parameter("body_tracking_range").as_double();
 
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
-    qos_profile.reliability = RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
-
     // Initialize class members
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
     cloud_scan_.reset(new PointCloud());
@@ -576,8 +580,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
         pointcloud_nontravelable_region_topic_name, 1, std::bind(&PersonTracker::nontravelableRegionCallback, this, std::placeholders::_1));
 
     // message_filters subscribers
-    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::msg::PoseArray> ( this, dr_spaam_topic_name, qos_profile ) );
-    sub_ssd_ .reset ( new message_filters::Subscriber<sobits_interfaces::msg::ObjectPoseArray> ( this, ssd_topic_name ) );
+    sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::msg::PoseArray> ( this, dr_spaam_topic_name ) );
+    sub_ssd_ .reset ( new message_filters::Subscriber<vision_msgs::msg::Detection3DArray> ( this, ssd_topic_name ) );
 
     sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
     sync_ ->registerCallback ( &PersonTracker::callbackPoseArray, this );
@@ -601,7 +605,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     target_cloud_radius_ = this->get_parameter("target_cloud_radius").as_double();
 
     // Initialize timers and flags
-    previous_time_ = 0.0;
+    previous_time_ = this->now();;
     exists_target_ = false;
     no_exists_time_ = -1.0;
     attention_leg_time_ = -1.0;

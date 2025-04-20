@@ -3,8 +3,8 @@
     # Topic & Frame
     scan_topic_name : /scan
     dr_spaam_topic_name : /dr_spaam_detections
-    ssd_topic_name : /ssd_object_detect/object_pose
-    target_frame : base_footprint
+    ssd_topic_name : /ssd_ros/object_3d_poses
+    target_frame : sobit_edu/base_footprint
 
     # Merging Point Cloud Non-travelable region (true) or Not merging (false)
     merge_nontravelable_region : false
