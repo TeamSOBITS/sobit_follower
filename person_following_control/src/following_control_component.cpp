@@ -313,9 +313,13 @@ void person_following_control::PersonFollowing::obstacles_callback (const std::s
 }
 
 void person_following_control::PersonFollowing::onInit() {
+
+    RCLCPP_INFO( this->get_logger(), "FOLOWING CONTROL INIt hakuuuuuuuuuuu");
+    std::cout << "Hakuu" << std::endl;
+
     // Declare parameters
-    this->declare_parameter<std::string>("obstacles_topic_name", "/obstacles");
-    this->declare_parameter<std::string>("following_position_topic_name", "/following_position");
+    this->declare_parameter<std::string>("obstacles_topic_name", "obstacles");
+    this->declare_parameter<std::string>("following_position_topic_name", "following_position");
     this->declare_parameter<std::string>("odom_topic_name", "/odom");
     this->declare_parameter<int>("following_method", FollowingMethod::VSM_DWA);
     this->declare_parameter<double>("following_distance", 1.0);
@@ -369,9 +373,11 @@ void person_following_control::PersonFollowing::onInit() {
 
     // Load parameters
     loadParametersFromServer();
+
+    RCLCPP_INFO( this->get_logger(), "FOLOWING CONTROL INIt hakuuuuuuuuuuu1  11111");
     
     // Publisher initialization
-    pub_vel_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+    pub_vel_ = this->create_publisher<geometry_msgs::msg::Twist>("/commands/velocity", 10);
 
     // Subscriber initialization
     sub_obstacles_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
@@ -379,12 +385,14 @@ void person_following_control::PersonFollowing::onInit() {
         std::bind(&PersonFollowing::obstacles_callback, this, std::placeholders::_1)
     );
 
+    RCLCPP_INFO( this->get_logger(), "FOLOWING CONTROL INIt hakuuuuuuuuuuu 22222222222");
+
     // Message Filters Subscribers initialization
     sub_following_position_ = std::make_unique<message_filters::Subscriber<multiple_sensor_person_tracking::msg::FollowingPosition>>(this, following_position_topic_name_);
     sub_odom_ = std::make_unique<message_filters::Subscriber<nav_msgs::msg::Odometry>>(this, odom_topic_name_);
 
     // Approximate Time Synchronization
-    sync_ = std::make_shared<message_filters::Synchronizer<MySyncPolicy>>(MySyncPolicy(10), *sub_following_position_, *sub_odom_);
+    sync_ = std::make_shared<message_filters::Synchronizer<MySyncPolicy>>(MySyncPolicy(300), *sub_following_position_, *sub_odom_);
     sync_->registerCallback(
         std::bind(&PersonFollowing::callbackData, this, std::placeholders::_1, std::placeholders::_2)
     );

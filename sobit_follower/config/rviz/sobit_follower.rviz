@@ -5,11 +5,6 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Status1
-        - /RobotModel1
-        - /PointCloud21
-        - /Image1
-        - /Image2
       Splitter Ratio: 0.5
     Tree Height: 225
   - Class: rviz_common/Selection
@@ -582,6 +577,315 @@ Visualization Manager:
         Value: /ssd_ros/object_3d_cloud
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        head_camera_color_frame:
+          Value: true
+        head_camera_color_optical_frame:
+          Value: true
+        head_camera_depth_frame:
+          Value: true
+        head_camera_depth_optical_frame:
+          Value: true
+        person:
+          Value: true
+        sobit_edu/arm_base_link:
+          Value: true
+        sobit_edu/arm_elbow_pitch_link:
+          Value: true
+        sobit_edu/arm_forearm_roll_link:
+          Value: true
+        sobit_edu/arm_hand_link:
+          Value: true
+        sobit_edu/arm_platform_link:
+          Value: true
+        sobit_edu/arm_shoulder_pitch_link:
+          Value: true
+        sobit_edu/arm_shoulder_pitch_sub_link:
+          Value: true
+        sobit_edu/arm_shoulder_roll_link:
+          Value: true
+        sobit_edu/arm_wrist_pitch_link:
+          Value: true
+        sobit_edu/arm_wrist_roll_link:
+          Value: true
+        sobit_edu/back_base_link:
+          Value: true
+        sobit_edu/base_footprint:
+          Value: true
+        sobit_edu/base_link:
+          Value: true
+        sobit_edu/caster_back_link:
+          Value: true
+        sobit_edu/caster_front_link:
+          Value: true
+        sobit_edu/cliff_sensor_front_link:
+          Value: true
+        sobit_edu/cliff_sensor_left_link:
+          Value: true
+        sobit_edu/cliff_sensor_right_link:
+          Value: true
+        sobit_edu/cover_link:
+          Value: true
+        sobit_edu/gyro_link:
+          Value: true
+        sobit_edu/hand_end_effector_link:
+          Value: true
+        sobit_edu/hand_finger_tip_l_link:
+          Value: true
+        sobit_edu/hand_finger_tip_r_link:
+          Value: true
+        sobit_edu/hand_link:
+          Value: true
+        sobit_edu/hand_sub_l_link:
+          Value: true
+        sobit_edu/hand_sub_link:
+          Value: true
+        sobit_edu/hand_sub_r_link:
+          Value: true
+        sobit_edu/head_camera_base_link:
+          Value: true
+        sobit_edu/head_camera_camera_bottom_screw_frame:
+          Value: true
+        sobit_edu/head_camera_camera_color_frame:
+          Value: true
+        sobit_edu/head_camera_camera_color_optical_frame:
+          Value: true
+        sobit_edu/head_camera_camera_depth_frame:
+          Value: true
+        sobit_edu/head_camera_camera_depth_optical_frame:
+          Value: true
+        sobit_edu/head_camera_camera_infra2_frame:
+          Value: true
+        sobit_edu/head_camera_camera_infra2_optical_frame:
+          Value: true
+        sobit_edu/head_camera_camera_infra_1_frame:
+          Value: true
+        sobit_edu/head_camera_camera_infra_1_optical_frame:
+          Value: true
+        sobit_edu/head_camera_link:
+          Value: true
+        sobit_edu/head_camera_pan_link:
+          Value: true
+        sobit_edu/head_camera_plug_base_link:
+          Value: true
+        sobit_edu/head_camera_tilt_link:
+          Value: true
+        sobit_edu/lidar_base_link:
+          Value: true
+        sobit_edu/lidar_laser:
+          Value: true
+        sobit_edu/lidar_laser_mount:
+          Value: true
+        sobit_edu/matrix_base_link:
+          Value: true
+        sobit_edu/matrix_board_link:
+          Value: true
+        sobit_edu/matrix_sensor_1_link:
+          Value: true
+        sobit_edu/matrix_sensor_2_link:
+          Value: true
+        sobit_edu/matrix_sensor_3_link:
+          Value: true
+        sobit_edu/matrix_sensor_4_link:
+          Value: true
+        sobit_edu/matrix_sensor_5_link:
+          Value: true
+        sobit_edu/matrix_sensor_6_link:
+          Value: true
+        sobit_edu/matrix_sensor_7_link:
+          Value: true
+        sobit_edu/matrix_sensor_8_link:
+          Value: true
+        sobit_edu/mic_base_link:
+          Value: true
+        sobit_edu/mic_link:
+          Value: true
+        sobit_edu/odom:
+          Value: true
+        sobit_edu/plate_bottom_link:
+          Value: true
+        sobit_edu/plate_middle_link:
+          Value: true
+        sobit_edu/plate_top_link:
+          Value: true
+        sobit_edu/pole_bottom_0_link:
+          Value: true
+        sobit_edu/pole_bottom_1_link:
+          Value: true
+        sobit_edu/pole_bottom_2_link:
+          Value: true
+        sobit_edu/pole_bottom_3_link:
+          Value: true
+        sobit_edu/pole_bottom_4_link:
+          Value: true
+        sobit_edu/pole_bottom_5_link:
+          Value: true
+        sobit_edu/pole_middle_4_link:
+          Value: true
+        sobit_edu/pole_middle_5_link:
+          Value: true
+        sobit_edu/pole_middle_6_link:
+          Value: true
+        sobit_edu/pole_middle_7_link:
+          Value: true
+        sobit_edu/pole_top_0_link:
+          Value: true
+        sobit_edu/pole_top_1_link:
+          Value: true
+        sobit_edu/pole_top_2_link:
+          Value: true
+        sobit_edu/pole_top_3_link:
+          Value: true
+        sobit_edu/sim_laser_frame:
+          Value: true
+        sobit_edu/wheel_l_link:
+          Value: true
+        sobit_edu/wheel_r_link:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        sobit_edu/odom:
+          sobit_edu/base_footprint:
+            person:
+              {}
+            sobit_edu/base_link:
+              sobit_edu/caster_back_link:
+                {}
+              sobit_edu/caster_front_link:
+                {}
+              sobit_edu/cliff_sensor_front_link:
+                {}
+              sobit_edu/cliff_sensor_left_link:
+                {}
+              sobit_edu/cliff_sensor_right_link:
+                {}
+              sobit_edu/gyro_link:
+                {}
+              sobit_edu/plate_bottom_link:
+                sobit_edu/lidar_base_link:
+                  sobit_edu/lidar_laser_mount:
+                    sobit_edu/lidar_laser:
+                      {}
+                  sobit_edu/sim_laser_frame:
+                    {}
+              sobit_edu/plate_middle_link:
+                {}
+              sobit_edu/plate_top_link:
+                sobit_edu/arm_platform_link:
+                  sobit_edu/arm_base_link:
+                    sobit_edu/arm_shoulder_roll_link:
+                      sobit_edu/arm_shoulder_pitch_link:
+                        sobit_edu/arm_elbow_pitch_link:
+                          sobit_edu/arm_forearm_roll_link:
+                            sobit_edu/arm_wrist_pitch_link:
+                              sobit_edu/arm_wrist_roll_link:
+                                sobit_edu/arm_hand_link:
+                                  sobit_edu/hand_sub_l_link:
+                                    sobit_edu/hand_link:
+                                      sobit_edu/hand_finger_tip_l_link:
+                                        {}
+                                  sobit_edu/hand_sub_r_link:
+                                    sobit_edu/hand_sub_link:
+                                      sobit_edu/hand_finger_tip_r_link:
+                                        {}
+                                sobit_edu/hand_end_effector_link:
+                                  {}
+                      sobit_edu/arm_shoulder_pitch_sub_link:
+                        {}
+                sobit_edu/back_base_link:
+                  sobit_edu/head_camera_base_link:
+                    sobit_edu/head_camera_pan_link:
+                      sobit_edu/head_camera_tilt_link:
+                        sobit_edu/head_camera_link:
+                          head_camera_depth_frame:
+                            head_camera_color_frame:
+                              head_camera_color_optical_frame:
+                                {}
+                            head_camera_depth_optical_frame:
+                              {}
+                          sobit_edu/head_camera_plug_base_link:
+                            sobit_edu/head_camera_camera_bottom_screw_frame:
+                              sobit_edu/head_camera_camera_color_frame:
+                                {}
+                              sobit_edu/head_camera_camera_color_optical_frame:
+                                {}
+                              sobit_edu/head_camera_camera_depth_frame:
+                                {}
+                              sobit_edu/head_camera_camera_depth_optical_frame:
+                                {}
+                              sobit_edu/head_camera_camera_infra2_frame:
+                                {}
+                              sobit_edu/head_camera_camera_infra2_optical_frame:
+                                {}
+                              sobit_edu/head_camera_camera_infra_1_frame:
+                                {}
+                              sobit_edu/head_camera_camera_infra_1_optical_frame:
+                                {}
+                  sobit_edu/matrix_base_link:
+                    sobit_edu/matrix_board_link:
+                      sobit_edu/matrix_sensor_1_link:
+                        {}
+                      sobit_edu/matrix_sensor_2_link:
+                        {}
+                      sobit_edu/matrix_sensor_3_link:
+                        {}
+                      sobit_edu/matrix_sensor_4_link:
+                        {}
+                      sobit_edu/matrix_sensor_5_link:
+                        {}
+                      sobit_edu/matrix_sensor_6_link:
+                        {}
+                      sobit_edu/matrix_sensor_7_link:
+                        {}
+                      sobit_edu/matrix_sensor_8_link:
+                        {}
+                  sobit_edu/mic_base_link:
+                    sobit_edu/mic_link:
+                      {}
+                sobit_edu/cover_link:
+                  {}
+              sobit_edu/pole_bottom_0_link:
+                {}
+              sobit_edu/pole_bottom_1_link:
+                {}
+              sobit_edu/pole_bottom_2_link:
+                {}
+              sobit_edu/pole_bottom_3_link:
+                {}
+              sobit_edu/pole_bottom_4_link:
+                {}
+              sobit_edu/pole_bottom_5_link:
+                {}
+              sobit_edu/pole_middle_4_link:
+                {}
+              sobit_edu/pole_middle_5_link:
+                {}
+              sobit_edu/pole_middle_6_link:
+                {}
+              sobit_edu/pole_middle_7_link:
+                {}
+              sobit_edu/pole_top_0_link:
+                {}
+              sobit_edu/pole_top_1_link:
+                {}
+              sobit_edu/pole_top_2_link:
+                {}
+              sobit_edu/pole_top_3_link:
+                {}
+              sobit_edu/wheel_l_link:
+                {}
+              sobit_edu/wheel_r_link:
+                {}
+      Update Interval: 0
       Value: true
   Enabled: true
   Global Options:

@@ -1,7 +1,7 @@
 # Following Control
 /**:
   ros__parameters:
-    following_position_topic_name : /sobit_follower/following_position
+    following_position_topic_name : /following_position
     odom_topic_name : /odom
 
     base_footprint_name         : sobit_edu/base_footprint

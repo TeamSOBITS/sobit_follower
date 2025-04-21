@@ -169,7 +169,7 @@ void person_following_control::VirtualEnvironment::pubData (  ) {
     ros::Rate rate(30);
     static tf2_ros::TransformBroadcaster br;
     ros::Publisher pub_trajectory = nh_.advertise< visualization_msgs::Marker >( "/target_trajectory", 1 );
-    ros::Publisher pub_following_position = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "/following_position", 1 );
+    ros::Publisher pub_following_position = nh_.advertise< multiple_sensor_person_tracking::FollowingPosition >( "following_position", 1 );
     ros::Publisher pub_obstacles = nh_.advertise< sensor_msgs::PointCloud2 >( "/obstacles", 1 );
     ros::Publisher pub_following_position_marker_ = nh_.advertise< visualization_msgs::Marker >( "/following_position_marker", 1 );
 

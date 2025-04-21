@@ -245,7 +245,11 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     }
 
     geometry_msgs::msg::Point search_pt, leg_pt, body_pt;
+    
     double min_distance = ( exists_target_ ) ? leg_tracking_range_ : target_range_;
+
+    RCLCPP_INFO(this->get_logger(), "min_distance 1 : %lf", min_distance);
+
     bool exists_leg_pt = false, exists_body_pt = false;
     int result;
     if ( !exists_target_ ) {
@@ -256,17 +260,40 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
         search_pt = previous_target_;
     }
     for ( const auto& pose : leg_poses ) {
+
+        // Debug
+        RCLCPP_INFO(this->get_logger(), "min_distance leg : %lf", min_distance);
+        RCLCPP_INFO(this->get_logger(), "pose.position.x : %lf", pose.position.x);
+        RCLCPP_INFO(this->get_logger(), "search_pt.x : %lf", search_pt.x);
+        RCLCPP_INFO(this->get_logger(), "pose.position.y : %lf", pose.position.y);
+        RCLCPP_INFO(this->get_logger(), "search_pt.y : %lf", search_pt.y);
+
+        RCLCPP_INFO(this->get_logger(), "min_distance 2 : %lf", min_distance);
         double distance = std::hypotf( pose.position.x - search_pt.x, pose.position.y - search_pt.y );
         if ( min_distance > distance ) {
             min_distance = distance;
             leg_pt = pose.position;
             exists_leg_pt = true;
+            RCLCPP_INFO(this->get_logger(), "min_distance 3 : %lf", min_distance);
         }
     }
+    RCLCPP_INFO(this->get_logger(), "min_distance 4 : %lf", min_distance);
     min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
     for ( const auto& detection : body_poses ) {
+
+        // Debug
+        RCLCPP_INFO(this->get_logger(), "min_distance body : %lf", min_distance);
+        RCLCPP_INFO(this->get_logger(), "detection.bbox.center.position.x : %lf", detection.bbox.center.position.x);
+        RCLCPP_INFO(this->get_logger(), "search_pt.x : %lf", search_pt.x);
+        RCLCPP_INFO(this->get_logger(), "detection.bbox.center.position.y : %lf", detection.bbox.center.position.y);
+        RCLCPP_INFO(this->get_logger(), "search_pt.y : %lf", search_pt.y);
+        
         double distance = std::hypotf( detection.bbox.center.position.x - search_pt.x, detection.bbox.center.position.y - search_pt.y );
+
+        RCLCPP_INFO(this->get_logger(), "distance : %lf", distance);
+
         if ( min_distance > distance ) {
+            RCLCPP_INFO(this->get_logger(), "min_distance 6 : %lf", min_distance);
             min_distance = distance;
             body_pt = detection.bbox.center.position;
             exists_body_pt = true;
@@ -491,7 +518,6 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
     if ( result == Status::NO_EXISTS ) {
         if ( no_exists_time_ == -1.0 ) no_exists_time_ = this->get_clock()->now().seconds();
         else if ( this->get_clock()->now().seconds() - no_exists_time_ >= target_change_tolerance_ ){
-            RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (findTwoObservationValue)" );
             exists_target_ = false;
             following_position_->pose.position.x = 0.0;
             following_position_->pose.position.y = 0.0;
@@ -653,6 +679,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     no_exists_time_ = -1.0;
     attention_leg_time_ = -1.0;
     attention_leg_idx_ = 0;
+    target_range_ = 3.0;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::PersonTracker)
