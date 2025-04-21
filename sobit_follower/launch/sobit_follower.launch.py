@@ -19,7 +19,7 @@ def generate_launch_description():
             # sobit_edu
             # sobit_pro
             # hsrb
-        DeclareLaunchArgument("rviz", default_value="false"),
+        DeclareLaunchArgument("rviz", default_value="true"),
         DeclareLaunchArgument("rviz_cfg", default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower.rviz"])),
         DeclareLaunchArgument("use_rotate", default_value="false"),
         DeclareLaunchArgument("following_method", default_value="0"),
@@ -102,13 +102,13 @@ def generate_launch_description():
                     name="person_aim_sensor_rotator",
                     parameters=sensor_rotator_params,
                 ),
-                # Following Control Component
-                ComposableNode(
-                    package="person_following_control",
-                    plugin="person_following_control::PersonFollowing",
-                    name="person_following_control",
-                    parameters=person_following_control_params,
-                ),
+                # # Following Control Component
+                # ComposableNode(
+                #     package="person_following_control",
+                #     plugin="person_following_control::PersonFollowing",
+                #     name="person_following_control",
+                #     parameters=person_following_control_params,
+                # ),
             ]
         )
     ])

@@ -230,6 +230,20 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     Eigen::Vector2f* leg_observed_value,
     Eigen::Vector2f* body_observed_value )
 {
+    RCLCPP_INFO(this->get_logger(), "[DEBUG] --- Leg Poses ---");
+    for (size_t i = 0; i < leg_poses.size(); ++i) {
+        const auto& pose = leg_poses[i];
+        RCLCPP_INFO(this->get_logger(), "Leg %zu: position = (%.3f, %.3f, %.3f)", 
+                    i, pose.position.x, pose.position.y, pose.position.z);
+    }
+    RCLCPP_INFO(this->get_logger(), "[DEBUG] --- Body Poses (SSD Detections) ---");
+    for (size_t i = 0; i < body_poses.size(); ++i) {
+        const auto& detection = body_poses[i];
+        const auto& pos = detection.bbox.center.position;
+        RCLCPP_INFO(this->get_logger(), "Body %zu: bbox center = (%.3f, %.3f, %.3f)", 
+                    i, pos.x, pos.y, pos.z);
+    }
+
     geometry_msgs::msg::Point search_pt, leg_pt, body_pt;
     double min_distance = ( exists_target_ ) ? leg_tracking_range_ : target_range_;
     bool exists_leg_pt = false, exists_body_pt = false;
@@ -376,6 +390,35 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
 }
 
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const vision_msgs::msg::Detection3DArray::ConstSharedPtr ssd_msg ) {
+    
+    std::cout << "Dr Spaam values:" << std::endl;
+    for (size_t i = 0; i < dr_spaam_msg->poses.size(); ++i) {
+        const auto& pose = dr_spaam_msg->poses[i];
+        std::cout << " - Pose " << i << ": position = ("
+                << pose.position.x << ", "
+                << pose.position.y << ", "
+                << pose.position.z << "), orientation = ("
+                << pose.orientation.x << ", "
+                << pose.orientation.y << ", "
+                << pose.orientation.z << ", "
+                << pose.orientation.w << ")"
+                << std::endl;
+    }
+    std::cout << "SSD value : " << std::endl;
+    if (ssd_msg->detections.empty()) {
+        std::cout << "SSD detections: none" << std::endl;
+    } else {
+        for (size_t i = 0; i < ssd_msg->detections.size(); ++i) {
+            const auto& detection = ssd_msg->detections[i];
+            std::cout << " - Detection " << i << ": "
+                    << "bbox center = ("
+                    << detection.bbox.center.position.x << ", "
+                    << detection.bbox.center.position.y << ", "
+                    << detection.bbox.center.position.z << ")"
+                    << std::endl;
+        }
+    }
+    
     std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
@@ -547,8 +590,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     this->declare_parameter<std::string>("ssd_topic_name", "/ssd_ros/object_3d_poses");
     this->declare_parameter<std::string>("target_frame", "base_footprint");
     this->declare_parameter<bool>("merge_nontravelable_region", true);
-    this->declare_parameter<double>("leg_tracking_range", 0.5);
-    this->declare_parameter<double>("body_tracking_range", 0.5);
+    this->declare_parameter<double>("leg_tracking_range", 2.5);
+    this->declare_parameter<double>("body_tracking_range", 2.5);
     this->declare_parameter<double>("outlier_radius", 0.1);
     this->declare_parameter<int>("outlier_min_pts", 2);
     this->declare_parameter<double>("leaf_size", 0.1);
@@ -583,7 +626,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     sub_dr_spaam_ .reset ( new message_filters::Subscriber<geometry_msgs::msg::PoseArray> ( this, dr_spaam_topic_name ) );
     sub_ssd_ .reset ( new message_filters::Subscriber<vision_msgs::msg::Detection3DArray> ( this, ssd_topic_name ) );
 
-    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(10), *sub_dr_spaam_, *sub_ssd_ ) );
+    sync_ .reset ( new message_filters::Synchronizer<MySyncPolicy> ( MySyncPolicy(100), *sub_dr_spaam_, *sub_ssd_ ) );
     sync_ ->registerCallback ( &PersonTracker::callbackPoseArray, this );
 
     // Create publishers

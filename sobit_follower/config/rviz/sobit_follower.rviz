@@ -1,40 +1,41 @@
 Panels:
-  - Class: rviz/Displays
-    Help Height: 70
+  - Class: rviz_common/Displays
+    Help Height: 78
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1/Frames1
+        - /Global Options1
+        - /Status1
+        - /RobotModel1
+        - /PointCloud21
+        - /Image1
+        - /Image2
       Splitter Ratio: 0.5
-    Tree Height: 286
-  - Class: rviz/Selection
+    Tree Height: 225
+  - Class: rviz_common/Selection
     Name: Selection
-  - Class: rviz/Tool Properties
+  - Class: rviz_common/Tool Properties
     Expanded:
-      - /2D Pose Estimate1
-      - /2D Nav Goal1
+      - /2D Goal Pose1
       - /Publish Point1
     Name: Tool Properties
     Splitter Ratio: 0.5886790156364441
-  - Class: rviz/Views
+  - Class: rviz_common/Views
     Expanded:
       - /Current View1
     Name: Views
     Splitter Ratio: 0.5
-  - Class: rviz/Time
+  - Class: rviz_common/Time
+    Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image
-Preferences:
-  PromptSaveOnExit: true
-Toolbars:
-  toolButtonStyle: 2
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
     - Alpha: 0.5
       Cell Size: 1
-      Class: rviz/Grid
+      Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
       Enabled: true
       Line Style:
@@ -50,47 +51,395 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/TF
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /sobit_edu/robot_description
       Enabled: true
-      Filter (blacklist): ""
-      Filter (whitelist): ""
-      Frame Timeout: 15
-      Frames:
-        All Enabled: false
-      Marker Alpha: 1
-      Marker Scale: 1
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: true
-      Tree:
-        {}
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        arm_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_elbow_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_forearm_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_hand_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_platform_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_shoulder_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_shoulder_pitch_sub_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        arm_shoulder_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_wrist_pitch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        arm_wrist_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        back_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        caster_back_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        caster_front_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        cliff_sensor_front_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_sensor_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cliff_sensor_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        cover_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gyro_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        hand_end_effector_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_finger_tip_l_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_finger_tip_r_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_sub_l_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_sub_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        hand_sub_r_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_bottom_screw_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_color_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra2_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra2_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra_1_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_camera_infra_1_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        head_camera_pan_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_plug_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        head_camera_tilt_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lidar_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        lidar_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lidar_laser_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        matrix_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        matrix_board_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        matrix_sensor_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_5_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_6_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_7_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        matrix_sensor_8_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        mic_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        mic_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_bottom_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_middle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plate_top_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_bottom_5_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_5_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_6_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_middle_7_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_0_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pole_top_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        sim_laser_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wheel_l_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wheel_r_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: RobotModel
+      TF Prefix: /sobit_edu
       Update Interval: 0
       Value: true
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /camera/rgb/image_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 1
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /ssd_object_detect/detect_result
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: SSD
-      Normalize Range: true
-      Queue Size: 1
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
+      Visual Enabled: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -99,23 +448,29 @@ Visualization Manager:
         Value: true
       Axis: Z
       Channel Name: intensity
-      Class: rviz/LaserScan
+      Class: rviz_default_plugins/LaserScan
       Color: 255; 255; 255
-      Color Transformer: FlatColor
+      Color Transformer: Intensity
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
+      Max Intensity: 4096
       Min Color: 0; 0; 0
+      Min Intensity: 0
       Name: LaserScan
       Position Transformer: XYZ
-      Queue Size: 1
       Selectable: true
-      Size (Pixels): 5
+      Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Points
-      Topic: /scan
-      Unreliable: false
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -127,443 +482,182 @@ Visualization Manager:
         Value: true
       Axis: Z
       Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 167; 87; 168
-      Color Transformer: FlatColor
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /sobit_edu/depth_registered/points
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /sobit_edu/color/image_raw
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /ssd_ros/detect_result
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: Marker
+      Namespaces:
+        dr_spaam_ros: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /dr_spaam_rviz
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
-      Max Color: 155; 114; 176
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
       Min Color: 0; 0; 0
-      Name: Obstacles
+      Min Intensity: 0
+      Name: PointCloud2
       Position Transformer: XYZ
-      Queue Size: 1
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.05000000074505806
-      Style: Boxes
-      Topic: /sobit_follower/obstacles
-      Unreliable: false
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /ssd_ros/object_3d_cloud
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /sobit_follower/tracker_marker
-      Name: Tracker
-      Namespaces:
-        body_marker: true
-        leg_area_marker: true
-        leg_marker: true
-        no_target_marker: true
-        target_marker: true
-      Queue Size: 1
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /sobit_follower/tracker_marker_last_position
-      Name: Tracker
-      Namespaces:
-        {}
-      Queue Size: 1
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /dwa_path_marker
-      Name: DWA
-      Namespaces:
-        optimal_path: true
-      Queue Size: 1
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /dwa_path_marker_all
-      Name: DWA(ALL)
-      Namespaces:
-        all_path: true
-      Queue Size: 1
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /vsm_path_marker
-      Name: VSM
-      Namespaces:
-        virtual_spring_path: true
-      Queue Size: 1
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /dr_spaam_rviz
-      Name: Marker
-      Namespaces:
-        {}
-      Queue Size: 1
-      Value: true
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /person_id_follow_nodelet/person_id_img
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /person_id_follow_nodelet/person_id_rect
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /person_id_follow_nodelet/features
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /person_id_follow_nodelet/person_id_img
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /person_id_follow_nodelet/features
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /person_id_follow_nodelet/person_id_rect
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /yolov10/detect_result
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /yolov10/detect_result
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/feature_maps
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/feature_maps
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/feature_maps
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: false
-      Image Topic: /mono_following/patches
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /mono_following/feature_maps
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /mono_following/vis_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Default Light: true
-    Fixed Frame: base_footprint
+    Fixed Frame: sobit_edu/base_footprint
     Frame Rate: 30
   Name: root
   Tools:
-    - Class: rviz/Interact
+    - Class: rviz_default_plugins/Interact
       Hide Inactive Objects: true
-    - Class: rviz/MoveCamera
-    - Class: rviz/Select
-    - Class: rviz/FocusCamera
-    - Class: rviz/Measure
-    - Class: rviz/SetInitialPose
-      Theta std deviation: 0.2617993950843811
-      Topic: /initialpose
-      X std deviation: 0.5
-      Y std deviation: 0.5
-    - Class: rviz/SetGoal
-      Topic: /move_base_simple/goal
-    - Class: rviz/PublishPoint
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+    - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /goal_pose
+    - Class: rviz_default_plugins/PublishPoint
       Single click: true
-      Topic: /clicked_point
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /clicked_point
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
   Value: true
   Views:
     Current:
-      Angle: -1.5799992084503174
-      Class: rviz/TopDownOrtho
+      Class: rviz_default_plugins/Orbit
+      Distance: 5.102585792541504
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 0.8514721393585205
+        Y: -0.16445228457450867
+        Z: 1.324316143989563
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 55.7396125793457
+      Pitch: 0.4453984498977661
       Target Frame: <Fixed Frame>
-      X: 2.894026517868042
-      Y: 4.780161380767822
+      Value: Orbit (rviz)
+      Yaw: 2.445399045944214
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1016
+  Height: 846
   Hide Left Dock: false
   Hide Right Dock: true
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001560000019dfc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000001fe0000019d000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650000000319000000820000001600ffffff000000010000010f00000325fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000039000003250000009d00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000748000001bffc0100000006fc000000000000037f0000007b00fffffffa000000000200000010fb0000000a0049006d0061006700650100000000ffffffff0000001600fffffffb0000000a0049006d0061006700650100000000ffffffff0000001600fffffffb0000000a0049006d00610067006502000000410000024b0000039f000001a9fb0000000a0049006d0061006700650100000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d00610067006502000000380000007900000280000001e0fb000000060053005300440000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000039000001590000001600fffffffb0000000a0049006d00610067006500000002f1000001620000006e00fffffffc00000332000001540000000000fffffffaffffffff0200000007fb0000000a0049006d006100670065030000003e0000023500000375000001bcfb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000000ffffffff0000001600fffffffb0000000a0049006d0061006700650000000039000001590000001600fffffffc00000385000003c30000007b00fffffffa000000010200000002fb0000000a0049006d0061006700650100000000ffffffff0000001600fffffffb0000000a0049006d0061006700650100000039000001bf0000001600fffffffb0000000a0049006d00610067006500000001d8000001cc0000006e00fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007480000003efc0100000002fb0000000800540069006d0065010000000000000748000002c100fffffffb0000000800540069006d00650100000000000004500000000000000000000005ec0000019d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-  SSD:
-    collapsed: false
+  QMainWindow State: 000000ff00000000fd000000040000000000000156000002b8fc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003900000168000000c500fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006501000001a7000000880000002800fffffffb0000000a0049006d0061006700650100000235000000bc0000002800ffffff000000010000010f000002b8fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000039000002b80000009d00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004b00000003efc0100000002fb0000000800540069006d00650100000000000004b00000021400fffffffb0000000800540069006d0065010000000000000450000000000000000000000354000002b800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -572,6 +666,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: true
-  Width: 1864
-  X: 56
-  Y: 27
+  Width: 1200
+  X: 70
+  Y: 60
