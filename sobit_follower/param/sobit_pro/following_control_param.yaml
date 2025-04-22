@@ -2,6 +2,7 @@
 
 /**:
   ros__parameters:
+    command_velocity_topic_name : /commands/velocity
     following_position_topic_name : /following_position
     obstacles_topic_name : /obstacles
     odom_topic_name : /odom

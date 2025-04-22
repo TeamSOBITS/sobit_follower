@@ -1,6 +1,7 @@
 # Following Control
 /**:
   ros__parameters:
+    command_velocity_topic_name : /commands/velocity
     following_position_topic_name : /following_position
     odom_topic_name : /odom
 

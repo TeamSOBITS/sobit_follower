@@ -1,6 +1,7 @@
 # Following Control
 /**:
   ros__parameters:
+    command_velocity_topic_name : /omni_base_controller/cmd_vel
     following_position_topic_name : /sobit_follower/following_position
     obstacles_topic_name : /sobit_follower/obstacles
     odom_topic_name : /odom

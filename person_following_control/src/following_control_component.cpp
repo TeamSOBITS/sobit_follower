@@ -52,6 +52,7 @@ namespace person_following_control {
 
             int following_method_;
             double following_distance_;
+            std::string  command_velocity_topic_name_;
             std::string obstacles_topic_name_;
             std::string following_position_topic_name_;
             std::string odom_topic_name_;
@@ -110,6 +111,7 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
 
     following_method_ = this->get_parameter("following_method").as_int();
     following_distance_ = this->get_parameter("following_distance").as_double();
+    command_velocity_topic_name = this->get_parameter("command_velocity").as_string();
     obstacles_topic_name_ = this->get_parameter("obstacles_topic_name").as_string();
     following_position_topic_name_ = this->get_parameter("following_position_topic_name").as_string();
     odom_topic_name_ = this->get_parameter("odom_topic_name").as_string();
@@ -343,6 +345,7 @@ void person_following_control::PersonFollowing::odom_callback (const std::shared
 void person_following_control::PersonFollowing::onInit() {
 
     // Declare parameters
+    this->declare_parameter<std::string>("command_velocity_topic_name", "/commands/velocity");
     this->declare_parameter<std::string>("obstacles_topic_name", "obstacles");
     this->declare_parameter<std::string>("following_position_topic_name", "following_position");
     this->declare_parameter<std::string>("odom_topic_name", "/odom");
@@ -399,7 +402,7 @@ void person_following_control::PersonFollowing::onInit() {
     loadParametersFromServer();
 
     // Publisher initialization
-    pub_vel_ = this->create_publisher<geometry_msgs::msg::Twist>("/commands/velocity", 10);
+    pub_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(command_velocity_topic_name_, 10);
 
     // Subscriber initialization
     sub_obstacles_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
