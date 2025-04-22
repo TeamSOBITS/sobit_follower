@@ -18,7 +18,7 @@
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
-typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::msg::FollowingPosition, nav_msgs::msg::Odometry> MySyncPolicy;
+// typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::msg::FollowingPosition, nav_msgs::msg::Odometry> MySyncPolicy;
 
 namespace person_following_control {
     enum FollowingMethod {
@@ -27,68 +27,79 @@ namespace person_following_control {
 
     class PersonFollowing : public rclcpp::Node {
         private:
+
+            rclcpp::TimerBase::SharedPtr init_timer_;
             rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_vel_;
             rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_obstacles_;
+            rclcpp::Subscription<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr sub_following_position_;
+            rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
 
-            std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::msg::FollowingPosition>> sub_following_position_;
-            std::unique_ptr<message_filters::Subscriber<nav_msgs::msg::Odometry>> sub_odom_;
-            std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
+
+            // std::unique_ptr<message_filters::Subscriber<multiple_sensor_person_tracking::msg::FollowingPosition>> sub_following_position_;
+            // std::unique_ptr<message_filters::Subscriber<nav_msgs::msg::Odometry>> sub_odom_;
+            // std::shared_ptr<message_filters::Synchronizer<MySyncPolicy>> sync_;
 
             std::unique_ptr<person_following_control::VirtualSpringModel> vsm_;
             std::unique_ptr<person_following_control::DynamicWindowApproach> dwa_;
-            std::unique_ptr<person_following_control::PIDController> pid_;
+            person_following_control::PIDController pid_;
 
-            std::shared_ptr<geometry_msgs::msg::Twist> velocity_;
+            geometry_msgs::msg::Twist velocity_;
             PointCloud::Ptr cloud_obstacles_;
             sensor_msgs::msg::PointCloud2::ConstSharedPtr obstacles_msg_;
+            multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr following_position_msg_;
+            nav_msgs::msg::Odometry::ConstSharedPtr odom_msg_;
+
 
             int following_method_;
             double following_distance_;
             std::string obstacles_topic_name_;
             std::string following_position_topic_name_;
             std::string odom_topic_name_;
-            double pre_time_;
+            rclcpp::Time pre_time_;
             bool use_pid_;
 
             void loadParametersFromServer( );
             void callbackData (
-                const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-                const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg
+                const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg
+                // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg
             );
             void virtualSpringModelDynamicWindowApproach (
-                const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-                const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-                std::shared_ptr<geometry_msgs::msg::Twist> output_path
+                // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
+                // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+                // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
             );
             void virtualSpringModel (
-                const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-                const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-                std::shared_ptr<geometry_msgs::msg::Twist> output_path
+                // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
+                // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+                // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
             );
             void dynamicWindowApproach (
-                const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-                const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-                std::shared_ptr<geometry_msgs::msg::Twist> output_path
+                // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
+                // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+                // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
             );
             void rotatePID (
-                const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-                const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-                std::shared_ptr<geometry_msgs::msg::Twist> output_path
+                // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
+                // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+                // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
             );
             void obstacles_callback(
                 const std::shared_ptr<const sensor_msgs::msg::PointCloud2> &obstacles_msg 
+            );
+            void odom_callback(
+                const std::shared_ptr<const nav_msgs::msg::Odometry> &odom_msg
             );
 
         public:
             explicit PersonFollowing(const rclcpp::NodeOptions & options)
             : Node("person_following_control", options)
             {
-                this->create_wall_timer(
-                    std::chrono::milliseconds(100),
-                    [this]() {
-                        this->onInit();
-                    }
-                );
+                auto timer_callback = [this]() -> void {
+                    this->onInit();
+                    init_timer_->cancel();
+                };
+            
+                init_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), timer_callback);
             }
 
             void onInit();
@@ -96,11 +107,17 @@ namespace person_following_control {
 }
 
 void person_following_control::PersonFollowing::loadParametersFromServer() {
+
+    // if (!vsm_ || !dwa_ || !pid_) {
+    //     RCLCPP_ERROR(this->get_logger(), "vsm_ is nullptr! 初期化前に使用している可能性があるのだ！");
+    //     return;
+    // }
+
     following_method_ = this->get_parameter("following_method").as_int();
     following_distance_ = this->get_parameter("following_distance").as_double();
-    obstacles_topic_name_ = this->get_parameter("obstacles_topic").as_string();
-    following_position_topic_name_ = this->get_parameter("following_position_topic").as_string();
-    odom_topic_name_ = this->get_parameter("odom_topic").as_string();
+    obstacles_topic_name_ = this->get_parameter("obstacles_topic_name").as_string();
+    following_position_topic_name_ = this->get_parameter("following_position_topic_name").as_string();
+    odom_topic_name_ = this->get_parameter("odom_topic_name").as_string();
 
     vsm_->setFollowParamater(
         this->get_parameter("following_angle_deg").as_double(),
@@ -162,154 +179,208 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
         this->get_parameter("display_all_path").as_bool()
     );
 
-    pid_->setGain(
+    pid_.setGain(
         this->get_parameter("p_gain").as_double(),
         this->get_parameter("i_gain").as_double(),
         this->get_parameter("d_gain").as_double()
     );
-    pid_->setMaxAngular(
+    pid_.setMaxAngular(
         this->get_parameter("max_pid_angular_deg").as_double() * M_PI / 180.0
     );
 }
 
 
 void person_following_control::PersonFollowing::callbackData (
-    const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-    const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg) {
-    if ( following_position_msg->pose.position.x == 0.0 && following_position_msg->pose.position.y == 0.0 ) {
-        velocity_->linear.x = 0.0;
-        velocity_->angular.z = 0.0;
-        pub_vel_->publish(*velocity_);
+    const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg
+    // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg
+) {
+
+    following_position_msg_ = following_position_msg;
+
+    // RCLCPP_INFO(this->get_logger(), "!!!!callbackData 呼ばれたのだ！");
+
+    // if (!velocity_) {
+    //     RCLCPP_ERROR(this->get_logger(), "velocity_ is nullptr! 初期化されていないのだ！");
+    //     return;
+    // }
+    // if (!odom_msg_ || !following_position_msg_) {
+    //     RCLCPP_WARN(this->get_logger(), "受信データがnullなのだ！");
+    //     return;
+    // }
+
+    if ( following_position_msg_->pose.position.x == 0.0 && following_position_msg_->pose.position.y == 0.0 ) {
+        velocity_.linear.x = 0.0;
+        velocity_.angular.z = 0.0;
+        pub_vel_->publish(velocity_);
     }
-    RCLCPP_INFO( this->get_logger(), "\033[1mOdom\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z*180/M_PI );
+    RCLCPP_INFO( this->get_logger(), "\033[1mOdom\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", odom_msg_->twist.twist.linear.x, odom_msg_->twist.twist.angular.z*180/M_PI );
 
-    if ( following_method_ == FollowingMethod::VSM_DWA ) virtualSpringModelDynamicWindowApproach( following_position_msg, odom_msg, velocity_ );
-    else if ( following_method_ == FollowingMethod::VSM ) virtualSpringModel( following_position_msg, odom_msg, velocity_ );
-    else if ( following_method_ == FollowingMethod::DWA ) dynamicWindowApproach( following_position_msg, odom_msg, velocity_ );
-    else if ( following_method_ == FollowingMethod::PID ) rotatePID( following_position_msg, odom_msg, velocity_ );
+    if ( following_method_ == FollowingMethod::VSM_DWA ) virtualSpringModelDynamicWindowApproach( );
+    else if ( following_method_ == FollowingMethod::VSM ) virtualSpringModel( );
+    else if ( following_method_ == FollowingMethod::DWA ) dynamicWindowApproach( );
+    else if ( following_method_ == FollowingMethod::PID ) rotatePID( );
 
-    // if ( velocity_->linear.x == 0.0 && odom_msg->twist.twist.linear.x >= 0.2 ) {
+    // if ( velocity_.linear.x == 0.0 && odom_msg_->twist.twist.linear.x >= 0.2 ) {
     //     RCLCPP_ERROR( this->get_logger(), "Velocity Error");
     // }
     std::cout << "\n" << std::endl;
-    pub_vel_->publish(*velocity_);
-    pre_time_ = this->get_clock()->now().seconds();
+    pub_vel_->publish(velocity_);
+    pre_time_ = this->get_clock()->now();
     return;
 }
 
 void person_following_control::PersonFollowing::virtualSpringModelDynamicWindowApproach(
-    const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-    const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path)
+    // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
+    // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+    // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
+)
 {
-    double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
-    double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
+    double target_angle = std::atan2(  following_position_msg_->pose.position.y,  following_position_msg_->pose.position.x );
+    double target_distance = std::hypotf( following_position_msg_->pose.position.x, following_position_msg_->pose.position.y );
+
+    std::cout << "!!!!!TARGET DISTANCE : " << target_distance << std::endl;
+
+    if (!obstacles_msg_) {
+        RCLCPP_ERROR(this->get_logger(), "obstacles_msg_ is null!");
+        return;
+    }
+    if (!cloud_obstacles_) {
+        RCLCPP_WARN(this->get_logger(), "cloud_obstacles_ is nullptr! 再初期化するのだ！");
+        cloud_obstacles_ = std::make_shared<PointCloud>();
+    }
 
     pcl::fromROSMsg<PointT>( *obstacles_msg_, *cloud_obstacles_ );
 
-    vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, output_path );
-    RCLCPP_INFO( this->get_logger(), "\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    vsm_->compute( following_position_msg_->pose, odom_msg_->twist.twist.linear.x, odom_msg_->twist.twist.angular.z, velocity_ );
+    RCLCPP_INFO( this->get_logger(), "\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
 
-    // if ( output_path->linear.x <= 0.0 || target_distance < following_distance_  ) use_pid_ = true;
+    // if ( velocity_.linear.x <= 0.0 || target_distance < following_distance_  ) use_pid_ = true;
     // if ( use_pid_ ) {
-    //     // if ( odom_msg->twist.twist.linear.x > 0.1 ) {
-    //     //     output_path->angular.z = 0.0;
-    //     //     output_path->linear.x = odom_msg->twist.twist.linear.x * 0.8;
-    //     //     RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    //     // if ( odom_msg_->twist.twist.linear.x > 0.1 ) {
+    //     //     velocity_.angular.z = 0.0;
+    //     //     velocity_.linear.x = odom_msg_->twist.twist.linear.x * 0.8;
+    //     //     RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     //     // } else {
-    //     //     pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-    //     //     RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    //     //     pid_.generatePIRotate( pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+    //     //     RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     //     //     if ( std::fabs( target_angle ) < 0.174533 ) use_pid_ = false;
     //     // }
-    //     pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-    //     RCLCPP_INFO( this->get_logger(), "\033[1;32mPID*\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    //     pid_.generatePIRotate( pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+    //     RCLCPP_INFO( this->get_logger(), "\033[1;32mPID*\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     //     if ( std::fabs( target_angle ) < 0.785398 ) use_pid_ = false;
     //     return;
     // }
-    if ( output_path->linear.x <= 0.0 || target_distance < following_distance_  ) {
+
+    RCLCPP_INFO(this->get_logger(), "!!!!!TARGET DISTANCE 2222 : %5.3f", target_distance);
+    RCLCPP_INFO(this->get_logger(), "!!!!!following_distance_ : %5.3f", following_distance_);
+    RCLCPP_INFO(this->get_logger(), "!!!!!velocity_.linear.x : %5.3f", velocity_.linear.x);
+    RCLCPP_INFO(this->get_logger(), "!!!!!velocity_.linear.y : %5.3f", velocity_.linear.y);
+    RCLCPP_INFO(this->get_logger(), "!!!!!target_angle : %5.3f", target_angle);
+
+    if ( velocity_.linear.x <= 0.0 || target_distance < following_distance_  ) {
         if ( std::fabs( target_angle ) < 0.174533 ) {
-            output_path->linear.x = 0.0;
-            output_path->angular.z = 0.0;
-            RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            velocity_.linear.x = 0.0;
+            velocity_.angular.z = 0.0;
+            RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         } else {
-            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-            RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+            RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         }
     }
 
-    if ( dwa_->generatePath2TargetVSMDWA( following_position_msg->pose.position, cloud_obstacles_, output_path, output_path ) ) {
-    // if ( dwa_->generatePath2Target( following_position_msg->pose.position, cloud_obstacles_, output_path, output_path ) ) {
-        RCLCPP_INFO( this->get_logger(), "\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    std::cout << "!!!!!No yet HERE : " << std::endl;
+
+    if ( dwa_->generatePath2TargetVSMDWA( following_position_msg_->pose.position, cloud_obstacles_, velocity_ ) ) {
+    // if ( dwa_->generatePath2Target( following_position_msg_->pose.position, cloud_obstacles_, velocity_, velocity_ ) ) {
+        RCLCPP_INFO( this->get_logger(), "\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     } else {
         if ( std::fabs( target_angle ) < 0.174533 ) {
-            output_path->linear.x = 0.0;
-            output_path->angular.z = 0.0;
-            RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            velocity_.linear.x = 0.0;
+            velocity_.angular.z = 0.0;
+            RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         } else {
-            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-            RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+            RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         }
     }
     return;
 }
 
 void person_following_control::PersonFollowing::virtualSpringModel (
-    const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-    const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path)
+    // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg_,
+    // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+    // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
+)
 {
-    vsm_->compute( following_position_msg->pose, odom_msg->twist.twist.linear.x, odom_msg->twist.twist.angular.z, output_path );
-    RCLCPP_INFO( this->get_logger(), "\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    vsm_->compute( following_position_msg_->pose, odom_msg_->twist.twist.linear.x, odom_msg_->twist.twist.angular.z, velocity_ );
+    RCLCPP_INFO( this->get_logger(), "\033[1;33mVSM\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     return;
 }
 
 void person_following_control::PersonFollowing::dynamicWindowApproach (
-    const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-    const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path)
+    // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg_,
+    // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+    // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
+)
 {
-    double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
-    double target_distance = std::hypotf( following_position_msg->pose.position.x, following_position_msg->pose.position.y );
+    double target_angle = std::atan2(  following_position_msg_->pose.position.y,  following_position_msg_->pose.position.x );
+    double target_distance = std::hypotf( following_position_msg_->pose.position.x, following_position_msg_->pose.position.y );
     
     pcl::fromROSMsg<PointT>( *obstacles_msg_, *cloud_obstacles_ );
 
     if ( target_distance < following_distance_  ) use_pid_ = true;
     if ( use_pid_ ) {
-        if ( odom_msg->twist.twist.linear.x > 0.1 ) {
-            output_path->angular.z = 0.0;
-            output_path->linear.x = odom_msg->twist.twist.linear.x * 0.5;
-            RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+        if ( odom_msg_->twist.twist.linear.x > 0.1 ) {
+            velocity_.angular.z = 0.0;
+            velocity_.linear.x = odom_msg_->twist.twist.linear.x * 0.5;
+            RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         } else {
-            pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-            RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+            pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+            RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
             if ( std::fabs( target_angle ) < 0.174533 ) use_pid_ = false;
         }
         return;
     }
 
-    if( dwa_->generatePath2TargetDWA( following_position_msg->pose.position, cloud_obstacles_, output_path ) ) {
-        RCLCPP_INFO( this->get_logger(), "\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    if( dwa_->generatePath2TargetDWA( following_position_msg_->pose.position, cloud_obstacles_, velocity_ ) ) {
+        RCLCPP_INFO( this->get_logger(), "\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     } else {
-        pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-        RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+        pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+        RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     }
     return;
 }
 
 void person_following_control::PersonFollowing::rotatePID (
-    const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg,
-    const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path)
+    // const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg_,
+    // const nav_msgs::msg::Odometry::ConstSharedPtr &odom_msg,
+    // std::shared_ptr<geometry_msgs::msg::Twist> velocity_
+)
 {
-    double target_angle = std::atan2(  following_position_msg->pose.position.y,  following_position_msg->pose.position.x );
-    pid_->generatePIRotate( pre_time_, odom_msg->twist.twist.angular.z, target_angle, output_path );
-    RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", output_path->linear.x, output_path->angular.z*180/M_PI );
+    double target_angle = std::atan2(  following_position_msg_->pose.position.y,  following_position_msg_->pose.position.x );
+    // if (!pid_) {
+    //     RCLCPP_ERROR(this->get_logger(), "pid_ is nullptr!");
+    //     return;
+    // }
+    pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+    RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     return;
 }
 
 void person_following_control::PersonFollowing::obstacles_callback (const std::shared_ptr<const sensor_msgs::msg::PointCloud2> &obstacles_msg)
 {
     obstacles_msg_ = obstacles_msg;
+}
+// void person_following_control::PersonFollowing::following_position_callback (const std::shared_ptr<const multiple_sensor_person_tracking::msg::FollowingPosition> &following_position_msg)
+// {
+//     following_position_msg_ = following_position_msg;
+// }
+void person_following_control::PersonFollowing::odom_callback (const std::shared_ptr<const nav_msgs::msg::Odometry> &odom_msg)
+{
+    odom_msg_ = odom_msg;
+    if (following_position_msg_) {
+        callbackData(following_position_msg_);
+    }
 }
 
 void person_following_control::PersonFollowing::onInit() {
@@ -364,11 +435,11 @@ void person_following_control::PersonFollowing::onInit() {
     this->declare_parameter<double>("max_pid_angular_deg", 70.0);
 
     // Instantiate class members
-    auto node_ptr = shared_from_this();
-    vsm_ = std::make_unique<person_following_control::VirtualSpringModel>(node_ptr);
-    dwa_ = std::make_unique<person_following_control::DynamicWindowApproach>(node_ptr);
-    pid_ = std::make_unique<person_following_control::PIDController>();
-    velocity_ = std::make_shared<geometry_msgs::msg::Twist>();
+    // auto node_ptr = shared_from_this();
+    vsm_ = std::make_unique<person_following_control::VirtualSpringModel>(this);
+    dwa_ = std::make_unique<person_following_control::DynamicWindowApproach>(this);
+    // pid_ = std::make_unique<person_following_control::PIDController>();
+    // velocity_ = std::make_shared<geometry_msgs::msg::Twist>();
     cloud_obstacles_ = std::make_shared<PointCloud>();
 
     // Load parameters
@@ -384,22 +455,34 @@ void person_following_control::PersonFollowing::onInit() {
         obstacles_topic_name_, 10,
         std::bind(&PersonFollowing::obstacles_callback, this, std::placeholders::_1)
     );
+    sub_following_position_ = this->create_subscription<multiple_sensor_person_tracking::msg::FollowingPosition>(
+        "/following_position", 10,
+        // std::bind(&PersonFollowing::following_position_callback, this, std::placeholders::_1)
+        std::bind(&PersonFollowing::callbackData, this, std::placeholders::_1)
+    );
+    sub_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
+        "/odom", 10,
+        std::bind(&PersonFollowing::odom_callback, this, std::placeholders::_1)
+    );
 
     RCLCPP_INFO( this->get_logger(), "FOLOWING CONTROL INIt hakuuuuuuuuuuu 22222222222");
 
     // Message Filters Subscribers initialization
-    sub_following_position_ = std::make_unique<message_filters::Subscriber<multiple_sensor_person_tracking::msg::FollowingPosition>>(this, following_position_topic_name_);
-    sub_odom_ = std::make_unique<message_filters::Subscriber<nav_msgs::msg::Odometry>>(this, odom_topic_name_);
+    // sub_following_position_ = std::make_unique<message_filters::Subscriber<multiple_sensor_person_tracking::msg::FollowingPosition>>(this, following_position_topic_name_);
+    // sub_odom_ = std::make_unique<message_filters::Subscriber<nav_msgs::msg::Odometry>>(this, odom_topic_name_);
 
-    // Approximate Time Synchronization
-    sync_ = std::make_shared<message_filters::Synchronizer<MySyncPolicy>>(MySyncPolicy(300), *sub_following_position_, *sub_odom_);
-    sync_->registerCallback(
-        std::bind(&PersonFollowing::callbackData, this, std::placeholders::_1, std::placeholders::_2)
-    );
+    // DEBUG
+    RCLCPP_INFO(this->get_logger(), "Subscribed topics: following_position_topic_name_ %s, odom_topic_name_ %s", following_position_topic_name_.c_str(), odom_topic_name_.c_str());
 
     // Initialize PID usage flag and previous time
     use_pid_ = false;
-    pre_time_ = this->get_clock()->now().seconds();
+    pre_time_ = this->get_clock()->now();
+
+    // // Approximate Time Synchronization
+    // sync_ = std::make_shared<message_filters::Synchronizer<MySyncPolicy>>(MySyncPolicy(300), *sub_following_position_, *sub_odom_);
+    // sync_->registerCallback(
+    //     std::bind(&PersonFollowing::callbackData, this, std::placeholders::_1, std::placeholders::_2)
+    // );
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(person_following_control::PersonFollowing)

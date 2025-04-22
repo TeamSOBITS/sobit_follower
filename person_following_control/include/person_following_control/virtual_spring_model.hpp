@@ -36,7 +36,7 @@ namespace person_following_control{
             visualization_msgs::msg::Marker displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const float r, const float g, const float b);
 
         public :
-            VirtualSpringModel ( std::shared_ptr<rclcpp::Node> node );
+            VirtualSpringModel ( rclcpp::Node* node );
 
             void setFollowParamater( float ang_follow, float dist_follow );
             void setSpringParamater( float spring_constant_linear, float spring_constant_angular );
@@ -45,7 +45,7 @@ namespace person_following_control{
             void setMomentParamater( float moment_inertia );
 			void setDisplayFlag ( const bool display_vsm_path, const bool display_target );
 
-            void compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, std::shared_ptr<geometry_msgs::msg::Twist> output_vel );
+            void compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, geometry_msgs::msg::Twist& output_vel );
     };
 }
 inline void person_following_control::VirtualSpringModel::setFollowParamater( float ang_follow, float dist_follow ){

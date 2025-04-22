@@ -87,10 +87,13 @@ void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedP
     pub_path_marker_all_->publish( marker_array );
 }
 
-DynamicWindowApproach::DynamicWindowApproach ( std::shared_ptr<rclcpp::Node> node ) : node_( node ) {
+DynamicWindowApproach::DynamicWindowApproach ( rclcpp::Node* node ) : node_( node ) {
+    dwap_ = std::make_shared<DWAParameters>();
     pub_path_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/dwa_path_marker", 1);
     pub_path_marker_all_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/dwa_path_marker_all", 1);
     dwap_ = std::make_shared<DWAParameters>();
+    display_optimal_path_ = false;
+    display_all_path_ = false;
 
     // DWA Parameters :
 	setTargetFrame( "base_footprint" );
@@ -104,7 +107,7 @@ DynamicWindowApproach::DynamicWindowApproach ( std::shared_ptr<rclcpp::Node> nod
 bool DynamicWindowApproach::generatePath2TargetDWA (
     const geometry_msgs::msg::Point& target,
     const PointCloud::Ptr obstacles,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path )
+    geometry_msgs::msg::Twist& output_path )
 {
     // Predict paths and create a path list
     std::vector< EvaluatedPath > path_list;
@@ -205,8 +208,8 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
     }
     // Output optimal path speed
     if ( exists_path ) {
-        output_path->linear.x = optimal_path.linear;
-        output_path->angular.z = optimal_path.angular;
+        output_path.linear.x = optimal_path.linear;
+        output_path.angular.z = optimal_path.angular;
     } else {
         RCLCPP_ERROR(node_->get_logger(), "No Optimal Path");
     }
@@ -219,14 +222,13 @@ bool DynamicWindowApproach::generatePath2TargetDWA (
 bool DynamicWindowApproach::generatePath2TargetVSMDWA (
     const geometry_msgs::msg::Point& target,
     const PointCloud::Ptr obstacles,
-    std::shared_ptr<geometry_msgs::msg::Twist> base_path,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path ) {
+    geometry_msgs::msg::Twist& output_path ) {
 
     // Predict paths and create a path list
     std::vector< EvaluatedPath > path_list;
     MinMaxValue mmv;
-    double base_linear = ( base_path->linear.x < dwap_->max_vel ) ? base_path->linear.x : dwap_->max_vel;
-    double base_angular = base_path->angular.z;
+    double base_linear = ( output_path.linear.x < dwap_->max_vel ) ? output_path.linear.x : dwap_->max_vel;
+    double base_angular = output_path.angular.z;
     std::vector<double> linear_list;
     double delta_lin = ( base_linear - dwap_->min_vel) / dwap_->vel_step;
     for ( double vel = dwap_->min_vel; vel < base_linear; vel += delta_lin ) linear_list.push_back(vel);
@@ -336,8 +338,8 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
     }
     // Output optimal path speed
     if ( exists_path ) {
-        output_path->linear.x = optimal_path.linear;
-        output_path->angular.z = optimal_path.angular;
+        output_path.linear.x = optimal_path.linear;
+        output_path.angular.z = optimal_path.angular;
     } else {
         RCLCPP_ERROR(node_->get_logger(), "No Optimal Path");
     }
@@ -351,15 +353,14 @@ bool DynamicWindowApproach::generatePath2TargetVSMDWA (
 bool DynamicWindowApproach::generatePath2Target (
     const geometry_msgs::msg::Point& target,
     const PointCloud::Ptr obstacles,
-    std::shared_ptr<geometry_msgs::msg::Twist> base_path,
-    std::shared_ptr<geometry_msgs::msg::Twist> output_path ) {
+    geometry_msgs::msg::Twist& output_path ) {
     pcl::KdTreeFLANN<PointT> kdtree;
     std::vector<int> k_indices;
     std::vector<float> k_distances;
     kdtree.setInputCloud (obstacles);
     PointT base_point(0.0, 0.0, 0.0);
     if ( kdtree.nearestKSearch ( base_point, 1, k_indices, k_distances ) > 0 ) {
-        return ( std::sqrt(k_distances[0]) > 0.5 ) ? generatePath2TargetVSMDWA( target, obstacles, base_path, output_path ) : generatePath2TargetDWA( target, obstacles, output_path );
+        return ( std::sqrt(k_distances[0]) > 0.5 ) ? generatePath2TargetVSMDWA( target, obstacles, output_path ) : generatePath2TargetDWA( target, obstacles, output_path );
     }
     return false;
 }

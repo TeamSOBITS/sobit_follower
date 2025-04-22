@@ -11,7 +11,7 @@
 namespace person_following_control {
     class PIDController {
 		private :
-            std::shared_ptr<rclcpp::Node> node_;
+            // std::shared_ptr<rclcpp::Node> node_;
             double p_gain_;
             double i_gain_;
             double d_gain_;
@@ -21,7 +21,7 @@ namespace person_following_control {
 			PIDController ( );
             void setGain( const double p_gain, const double i_gain, const double d_gain );
             void setMaxAngular( const double max_angular_rad );
-			bool generatePIRotate ( const double pre_time , const double curt_vel_ang, const double target_angle, std::shared_ptr<geometry_msgs::msg::Twist> output_vel );
+			bool generatePIRotate ( const rclcpp::Duration time_diff , const double curt_vel_ang, const double target_angle, geometry_msgs::msg::Twist &output_vel );
     };
 
     inline void PIDController::setGain( const double p_gain, const double i_gain, const double d_gain ) {

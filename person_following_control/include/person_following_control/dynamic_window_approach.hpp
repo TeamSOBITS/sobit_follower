@@ -81,7 +81,7 @@ namespace person_following_control {
 		protected :
 			std::shared_ptr<rclcpp::Node> node_;
 			rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_;
-            rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
+            		rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
 
 			bool display_optimal_path_;
 			bool display_all_path_;
@@ -91,7 +91,7 @@ namespace person_following_control {
 			void displayOptimalPathMarker ( const EvaluatedPath& optimal_path );
 			void displayAllPathMarker ( const std::vector< EvaluatedPath >& path_list );
 		public :
-			DynamicWindowApproach( std::shared_ptr<rclcpp::Node> node );
+			DynamicWindowApproach( rclcpp::Node* node );
 
 			void setTargetFrame ( const std::string& target_frame );
 
@@ -117,19 +117,17 @@ namespace person_following_control {
 			bool generatePath2TargetDWA (
 				const geometry_msgs::msg::Point& target,
                 const PointCloud::Ptr obstacles,
-				std::shared_ptr<geometry_msgs::msg::Twist> output_path );
+				geometry_msgs::msg::Twist& output_path );
 
 			bool generatePath2TargetVSMDWA (
 				const geometry_msgs::msg::Point& target,
                 const PointCloud::Ptr obstacles,
-				std::shared_ptr<geometry_msgs::msg::Twist> base_path,
-				std::shared_ptr<geometry_msgs::msg::Twist> output_path );
+				geometry_msgs::msg::Twist& output_path );
 
 			bool generatePath2Target (
 				const geometry_msgs::msg::Point& target,
                 const PointCloud::Ptr obstacles,
-				std::shared_ptr<geometry_msgs::msg::Twist> base_path,
-				std::shared_ptr<geometry_msgs::msg::Twist> output_path );
+				geometry_msgs::msg::Twist& output_path );
 	};
 }
 

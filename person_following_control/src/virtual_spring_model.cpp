@@ -73,9 +73,21 @@ visualization_msgs::msg::Marker VirtualSpringModel::displayTargetMarker ( const 
     return marker;
 }
 
-VirtualSpringModel::VirtualSpringModel ( std::shared_ptr<rclcpp::Node> node ) : node_( node ) {
+VirtualSpringModel::VirtualSpringModel ( rclcpp::Node* node ) : node_( node ) {
     pub_mrk_tgt_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/vsm_target_marker", 1);
     pub_mrk_path_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/vsm_path_marker", 1);
+
+    ang_follow_ = 0.0;
+    dist_follow_ = 0.7;
+    spring_constant_linear_ = 3.0;
+    spring_constant_angular_ = 0.001;
+    weight_robot_ = 30.0;
+    moment_inertia_ = 15.0;
+    viscous_friction_linear_ = 30.0;
+    viscous_friction_angular_ = 20.0;
+    radius_robot_ = 0.3;
+    display_vsm_path_ = false;
+    display_target_ = false;
 
     setFollowParamater( 0.0, 0.7 );
     setSpringParamater( 3.0 , 0.001 );
@@ -85,8 +97,14 @@ VirtualSpringModel::VirtualSpringModel ( std::shared_ptr<rclcpp::Node> node ) : 
 	setDisplayFlag( false, false );
 }
 
-void VirtualSpringModel::compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, std::shared_ptr< geometry_msgs::msg::Twist > output_vel ) {
+void VirtualSpringModel::compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, geometry_msgs::msg::Twist& output_vel ) {
     float yaw = std::atan2( pose_msg.position.y, pose_msg.position.x );
+
+    std::cout << "???? yaw : " << yaw << std::endl;
+    std::cout << "???? pose_msg.position.x : " << pose_msg.position.x << std::endl;
+    std::cout << "???? pose_msg.position.x : " << pose_msg.position.x << std::endl;
+    std::cout << "???? curt_vel_linear : " << curt_vel_linear << std::endl;
+    std::cout << "???? curt_vel_angular : " << curt_vel_angular << std::endl;
 
     // Find the position of the robot when the mobile robot follows a person (coordinate transformation)
     float ang_follow = ang_follow_;
@@ -125,10 +143,15 @@ void VirtualSpringModel::compute ( const geometry_msgs::msg::Pose &pose_msg, con
                     -viscous_friction_angular_ * curt_vel_angular ) * radius_robot_;            // Term 3 : Viscous frictional force by the product of κ3 and the rotational speed of the mobile robot
     angular = angular / moment_inertia_;
 
-    auto vel = std::make_shared<geometry_msgs::msg::Twist>();
-    vel->linear.x = linear;
-    vel->angular.z = angular;
-    *output_vel = *vel;
+    if (linear < 0.0f) {
+        std::cout << "minus linear output" << std::endl;
+        linear = 0.0f; // Add haku
+    }
+
+    auto vel = geometry_msgs::msg::Twist();
+    vel.linear.x = linear;
+    vel.angular.z = angular;
+    output_vel = vel;
     if ( display_vsm_path_ ) displayVirtualSpringPathMarker ( linear, angular );
     if ( display_target_ ) {
         auto marker_array = std::make_shared<visualization_msgs::msg::MarkerArray>();

@@ -6,21 +6,25 @@ namespace person_following_control {
         setGain( 2.8, 0.1, 0.0 );
         setMaxAngular( 90.0 * M_PI / 180.0 );
     }
-    bool PIDController::generatePIRotate ( const double pre_time, const double curt_vel_ang, const double target_angle, std::shared_ptr<geometry_msgs::msg::Twist> output_vel ) {
-        double now_time = node_->get_clock()->now().seconds();
-        double time_diff = now_time - pre_time;
+
+
+    bool PIDController::generatePIRotate ( const rclcpp::Duration time_diff, const double curt_vel_ang, const double target_angle, geometry_msgs::msg::Twist &output_vel ) {
+        std::cout << "KEITHHH Hereeee111";
+        // rclcpp::Time now_time = node_->get_clock()->now();
+        std::cout << "KEITHHH Hereeee222";
+        // rclcpp::Duration time_diff = now_time - pre_time;
         double angle_abs = std::abs( target_angle );
         double proportional = 0.0, integral = 0.0, differential = 0.0, ctl_qty = 0.0;
 
         proportional = p_gain_ * angle_abs;
-        integral = i_gain_ * ( ( curt_vel_ang + proportional ) * time_diff / 2 );
-        differential = d_gain_ * ( angle_abs / time_diff );
+        integral = i_gain_ * ( ( curt_vel_ang + proportional ) * time_diff.seconds() / 2.0 );
+        differential = d_gain_ * ( angle_abs / time_diff.seconds() );
         ctl_qty = proportional + integral - differential;
 
         if ( ctl_qty > max_angular_ ) ctl_qty = max_angular_;
         if ( target_angle < 0.0 ) ctl_qty = -ctl_qty;
-        output_vel->linear.x = 0.0;
-        output_vel->angular.z = ctl_qty;
+        output_vel.linear.x = 0.0;
+        output_vel.angular.z = ctl_qty;
         return true;
     }
 }

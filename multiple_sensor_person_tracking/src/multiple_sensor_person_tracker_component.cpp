@@ -230,25 +230,10 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     Eigen::Vector2f* leg_observed_value,
     Eigen::Vector2f* body_observed_value )
 {
-    RCLCPP_INFO(this->get_logger(), "[DEBUG] --- Leg Poses ---");
-    for (size_t i = 0; i < leg_poses.size(); ++i) {
-        const auto& pose = leg_poses[i];
-        RCLCPP_INFO(this->get_logger(), "Leg %zu: position = (%.3f, %.3f, %.3f)", 
-                    i, pose.position.x, pose.position.y, pose.position.z);
-    }
-    RCLCPP_INFO(this->get_logger(), "[DEBUG] --- Body Poses (SSD Detections) ---");
-    for (size_t i = 0; i < body_poses.size(); ++i) {
-        const auto& detection = body_poses[i];
-        const auto& pos = detection.bbox.center.position;
-        RCLCPP_INFO(this->get_logger(), "Body %zu: bbox center = (%.3f, %.3f, %.3f)", 
-                    i, pos.x, pos.y, pos.z);
-    }
 
     geometry_msgs::msg::Point search_pt, leg_pt, body_pt;
     
     double min_distance = ( exists_target_ ) ? leg_tracking_range_ : target_range_;
-
-    RCLCPP_INFO(this->get_logger(), "min_distance 1 : %lf", min_distance);
 
     bool exists_leg_pt = false, exists_body_pt = false;
     int result;
@@ -261,39 +246,19 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
     }
     for ( const auto& pose : leg_poses ) {
 
-        // Debug
-        RCLCPP_INFO(this->get_logger(), "min_distance leg : %lf", min_distance);
-        RCLCPP_INFO(this->get_logger(), "pose.position.x : %lf", pose.position.x);
-        RCLCPP_INFO(this->get_logger(), "search_pt.x : %lf", search_pt.x);
-        RCLCPP_INFO(this->get_logger(), "pose.position.y : %lf", pose.position.y);
-        RCLCPP_INFO(this->get_logger(), "search_pt.y : %lf", search_pt.y);
-
-        RCLCPP_INFO(this->get_logger(), "min_distance 2 : %lf", min_distance);
         double distance = std::hypotf( pose.position.x - search_pt.x, pose.position.y - search_pt.y );
         if ( min_distance > distance ) {
             min_distance = distance;
             leg_pt = pose.position;
             exists_leg_pt = true;
-            RCLCPP_INFO(this->get_logger(), "min_distance 3 : %lf", min_distance);
         }
     }
-    RCLCPP_INFO(this->get_logger(), "min_distance 4 : %lf", min_distance);
     min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
     for ( const auto& detection : body_poses ) {
 
-        // Debug
-        RCLCPP_INFO(this->get_logger(), "min_distance body : %lf", min_distance);
-        RCLCPP_INFO(this->get_logger(), "detection.bbox.center.position.x : %lf", detection.bbox.center.position.x);
-        RCLCPP_INFO(this->get_logger(), "search_pt.x : %lf", search_pt.x);
-        RCLCPP_INFO(this->get_logger(), "detection.bbox.center.position.y : %lf", detection.bbox.center.position.y);
-        RCLCPP_INFO(this->get_logger(), "search_pt.y : %lf", search_pt.y);
-        
         double distance = std::hypotf( detection.bbox.center.position.x - search_pt.x, detection.bbox.center.position.y - search_pt.y );
 
-        RCLCPP_INFO(this->get_logger(), "distance : %lf", distance);
-
         if ( min_distance > distance ) {
-            RCLCPP_INFO(this->get_logger(), "min_distance 6 : %lf", min_distance);
             min_distance = distance;
             body_pt = detection.bbox.center.position;
             exists_body_pt = true;
@@ -368,7 +333,7 @@ geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::PersonTracker:
     geometry_msgs::msg::PointStamped pt_transformed;
     geometry_msgs::msg::PointStamped pt;
     pt.header.frame_id = org_frame;
-    pt.header.stamp = this->get_clock()->now();
+    pt.header.stamp = this->get_clock()->now() - rclcpp::Duration::from_seconds(0.1);
     pt.point = point;
     try{
         tfBuffer_.transform(pt, pt_transformed, target_frame);
@@ -398,7 +363,7 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
     geometry_msgs::msg::TransformStamped transform;
     try {
         transform = tfBuffer_.lookupTransform(
-            "base_footprint",
+            target_frame_,
             nontravelable_region_msg->header.frame_id,
             tf2::TimePointZero);
 
@@ -408,7 +373,7 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
         pcl::fromROSMsg(transformed_cloud_msg, transformed_cloud);
 
         *cloud_nontravelable_region_ = transformed_cloud;
-        cloud_nontravelable_region_->header.frame_id = "base_footprint"; 
+        cloud_nontravelable_region_->header.frame_id = target_frame_; 
     }
     catch (tf2::TransformException &ex) {
         RCLCPP_WARN(this->get_logger(), "Could not transform non-travelable region cloud: %s", ex.what());
@@ -417,34 +382,6 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
 }
 
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const vision_msgs::msg::Detection3DArray::ConstSharedPtr ssd_msg ) {
-    
-    std::cout << "Dr Spaam values:" << std::endl;
-    for (size_t i = 0; i < dr_spaam_msg->poses.size(); ++i) {
-        const auto& pose = dr_spaam_msg->poses[i];
-        std::cout << " - Pose " << i << ": position = ("
-                << pose.position.x << ", "
-                << pose.position.y << ", "
-                << pose.position.z << "), orientation = ("
-                << pose.orientation.x << ", "
-                << pose.orientation.y << ", "
-                << pose.orientation.z << ", "
-                << pose.orientation.w << ")"
-                << std::endl;
-    }
-    std::cout << "SSD value : " << std::endl;
-    if (ssd_msg->detections.empty()) {
-        std::cout << "SSD detections: none" << std::endl;
-    } else {
-        for (size_t i = 0; i < ssd_msg->detections.size(); ++i) {
-            const auto& detection = ssd_msg->detections[i];
-            std::cout << " - Detection " << i << ": "
-                    << "bbox center = ("
-                    << detection.bbox.center.position.x << ", "
-                    << detection.bbox.center.position.y << ", "
-                    << detection.bbox.center.position.z << ")"
-                    << std::endl;
-        }
-    }
     
     std::cout << "\n====================================" << std::endl;
     // variable initialization
@@ -586,7 +523,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
         pub_obstacles_->publish( obstacles );
         following_position_->header.stamp = this->get_clock()->now();
         pub_following_position_->publish( *following_position_ );
-        pub_target_odom_->publish( transformPoint( target_frame_, "odom", following_position_->pose.position ) );
+        pub_target_odom_->publish( transformPoint( target_frame_, "sobit_edu/odom", following_position_->pose.position ) );
     } 
 
     if ( display_marker_ ) {
