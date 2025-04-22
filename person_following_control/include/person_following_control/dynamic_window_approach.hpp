@@ -81,7 +81,7 @@ namespace person_following_control {
 		protected :
 			std::shared_ptr<rclcpp::Node> node_;
 			rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_;
-            		rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
+			rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
 
 			bool display_optimal_path_;
 			bool display_all_path_;

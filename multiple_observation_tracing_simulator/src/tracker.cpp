@@ -12,8 +12,7 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <memory>
 #include <vector>
-// #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
-#include "/home/sobits/colcon_ws/src/sobit_follower/multiple_observation_kalman_filter/include/multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
+#include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
 
 using namespace std::chrono_literals;
 using MySyncPolicy = message_filters::sync_policies::ApproximateTime<

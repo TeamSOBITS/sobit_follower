@@ -10,14 +10,12 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-// #include <tf2/transform_datatypes.h>
 #include <Eigen/Core>
 
 
 namespace multiple_observation_tracing_simulator{
     class VirtualSpringModel : public rclcpp::Node {
         private :
-            // rclcpp::Node::SharedPtr node_;
             rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_mrk_tgt_;
             rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_mrk_path_;
 

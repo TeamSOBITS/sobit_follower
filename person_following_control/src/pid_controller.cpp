@@ -9,10 +9,6 @@ namespace person_following_control {
 
 
     bool PIDController::generatePIRotate ( const rclcpp::Duration time_diff, const double curt_vel_ang, const double target_angle, geometry_msgs::msg::Twist &output_vel ) {
-        std::cout << "KEITHHH Hereeee111";
-        // rclcpp::Time now_time = node_->get_clock()->now();
-        std::cout << "KEITHHH Hereeee222";
-        // rclcpp::Duration time_diff = now_time - pre_time;
         double angle_abs = std::abs( target_angle );
         double proportional = 0.0, integral = 0.0, differential = 0.0, ctl_qty = 0.0;
 

@@ -11,7 +11,6 @@
 namespace person_following_control {
     class PIDController {
 		private :
-            // std::shared_ptr<rclcpp::Node> node_;
             double p_gain_;
             double i_gain_;
             double d_gain_;

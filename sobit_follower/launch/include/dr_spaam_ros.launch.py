@@ -2,12 +2,9 @@ from launch import LaunchDescription
 from launch.actions import GroupAction
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-import os
 
 def generate_launch_description():
-    weight_file = LaunchConfiguration("weight_file")
 
     return LaunchDescription([
         GroupAction([

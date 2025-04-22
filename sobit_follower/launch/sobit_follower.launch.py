@@ -6,8 +6,6 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
-from ament_index_python.packages import get_package_share_directory
-import os
 
 def generate_launch_description():
 

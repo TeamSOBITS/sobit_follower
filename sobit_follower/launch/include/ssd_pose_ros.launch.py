@@ -4,7 +4,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
-import os
 
 def generate_launch_description():
     ssd_ros_pkg = FindPackageShare("ssd_ros")
