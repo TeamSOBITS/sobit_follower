@@ -10,8 +10,6 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <sobits_interfaces/action/move_joint.hpp>
-#include <sobits_interfaces/action/move_to_pose.hpp>
-
 #include "multiple_sensor_person_tracking/msg/following_position.hpp"
 #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
 
@@ -38,7 +36,6 @@ namespace multiple_sensor_person_tracking {
 			bool use_rotate_;
 			bool use_smoothing_;
 			bool display_marker_;
-            std::string move_to_pose_action_name_;
             std::string head_pantilt_action_name_;
             std::string head_pan_joint_name_;
             std::string head_tilt_joint_name_;
@@ -140,7 +137,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     this->declare_parameter<double>("person_height", 1.7);
     this->declare_parameter<double>("smoothing_gain", 0.5);
     this->declare_parameter<bool>("display_marker", true);
-    this->declare_parameter<std::string>("move_to_pose_action_name", "move_to_pose");
     this->declare_parameter<std::string>("head_pantilt_action_name", "move_joint");
     this->declare_parameter<std::string>("head_pan_joint_name", "head_camera_pan_joint");
     this->declare_parameter<std::string>("head_tilt_joint_name", "head_camera_tilt_joint");
@@ -155,7 +151,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     this->get_parameter("person_height", person_height_);
     this->get_parameter("smoothing_gain", smoothing_gain_);
     this->get_parameter("display_marker", display_marker_);
-    this->get_parameter("move_to_pose_action_name", move_to_pose_action_name_);
     this->get_parameter("head_pantilt_action_name", head_pantilt_action_name_);
     this->get_parameter("head_pan_joint_name", head_pan_joint_name_);
     this->get_parameter("head_tilt_joint_name", head_tilt_joint_name_);
@@ -181,19 +176,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
     sub_following_position_ = this->create_subscription<FollowingPosition>(
         following_position_topic_name, 1, std::bind(&PersonAimSensorRotator::callbackData, this, std::placeholders::_1));
-
-    // if (use_rotate_) {
-    //     auto pose_goal = sobits_interfaces::action::MoveToPose::Goal();
-    //     pose_goal.pose_name = "initial_pose";
-    //     pose_goal.time_allowance.sec = 1;
-    //     pose_goal.time_allowance.nanosec = 0;
-    
-    //     auto pose_client = rclcpp_action::create_client<sobits_interfaces::action::MoveToPose>( this, move_to_pose_action_name_ );
-    //     while (!pose_client->wait_for_action_server(std::chrono::seconds(1))) {
-    //         RCLCPP_INFO(this->get_logger(), "Waiting for move_to_pose action server...");
-    //     }
-    //     pose_client->async_send_goal(pose_goal);
-    // }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::PersonAimSensorRotator)
