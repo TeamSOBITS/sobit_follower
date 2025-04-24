@@ -111,7 +111,7 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
 
     following_method_ = this->get_parameter("following_method").as_int();
     following_distance_ = this->get_parameter("following_distance").as_double();
-    command_velocity_topic_name = this->get_parameter("command_velocity").as_string();
+    command_velocity_topic_name_ = this->get_parameter("command_velocity_topic_name").as_string();
     obstacles_topic_name_ = this->get_parameter("obstacles_topic_name").as_string();
     following_position_topic_name_ = this->get_parameter("following_position_topic_name").as_string();
     odom_topic_name_ = this->get_parameter("odom_topic_name").as_string();
