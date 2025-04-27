@@ -6,20 +6,15 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <geometry_msgs/msg/point_stamped.hpp>
-#include <visualization_msgs/msg/marker.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <sobits_interfaces/action/move_joint.hpp>
-// #include "multiple_sensor_person_tracking/msg/following_position.hpp"
 #include "vision_msgs/msg/detection3_d_array.hpp"
 #include "multiple_observation_kalman_filter/multiple_observation_kalman_filter.hpp"
-
-// using multiple_sensor_person_tracking::msg::FollowingPosition;
 
 namespace multiple_sensor_person_tracking {
     class PersonAimSensorRotator : public rclcpp::Node {
         private:
-            rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_marker_;
             rclcpp::Subscription<vision_msgs::msg::Detection3DArray>::SharedPtr sub_ssd_;
 
 			tf2_ros::Buffer tfBuffer_;
@@ -36,15 +31,9 @@ namespace multiple_sensor_person_tracking {
 			double smoothing_gain_;
 			bool use_rotate_;
 			bool use_smoothing_;
-			bool display_marker_;
             std::string head_pantilt_action_name_;
             std::string head_pan_joint_name_;
             std::string head_tilt_joint_name_;
-
-			void makeMarker( const double pan_angle, const double tilt_angle, const double distance );
-            void callbackData (
-                const std::shared_ptr<const vision_msgs::msg::Detection3DArray> &ssd_msg
-            );
 
         public:
             explicit PersonAimSensorRotator(const rclcpp::NodeOptions & options)
@@ -117,7 +106,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 
         head_pantilt_ctr_->async_send_goal(goal_msg, send_goal_options);
     }
-	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;
 }
@@ -132,7 +120,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     this->declare_parameter<double>("tilt_angle_max_deg", 15.0);
     this->declare_parameter<double>("person_height", 1.7);
     this->declare_parameter<double>("smoothing_gain", 0.5);
-    this->declare_parameter<bool>("display_marker", true);
     this->declare_parameter<std::string>("head_pantilt_action_name", "move_joint");
     this->declare_parameter<std::string>("head_pan_joint_name", "head_camera_pan_joint");
     this->declare_parameter<std::string>("head_tilt_joint_name", "head_camera_tilt_joint");
@@ -146,7 +133,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     this->get_parameter("tilt_angle_max_deg", tilt_angle_max_);
     this->get_parameter("person_height", person_height_);
     this->get_parameter("smoothing_gain", smoothing_gain_);
-    this->get_parameter("display_marker", display_marker_);
     this->get_parameter("head_pantilt_action_name", head_pantilt_action_name_);
     this->get_parameter("head_pan_joint_name", head_pan_joint_name_);
     this->get_parameter("head_tilt_joint_name", head_tilt_joint_name_);
@@ -160,8 +146,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
     // Initialize class members
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
-
-    pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "rotator_marker", 1 );
 
     head_pantilt_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>( this, head_pantilt_action_name_ );
     
