@@ -35,6 +35,10 @@ namespace multiple_sensor_person_tracking {
             std::string head_pan_joint_name_;
             std::string head_tilt_joint_name_;
 
+            void callbackData (
+                const std::shared_ptr<const vision_msgs::msg::Detection3DArray> &ssd_msg
+            );
+
         public:
             explicit PersonAimSensorRotator(const rclcpp::NodeOptions & options)
             : rclcpp::Node("person_aim_sensor_rotator", options),
@@ -142,7 +146,10 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     tilt_angle_max_ = tilt_angle_max_ * M_PI / 180.0;
 
     RCLCPP_INFO(this->get_logger(), "Parameters loaded: ssd_topic_name=%s, use_rotate=%d, use_smoothing=%d, tilt_angle_min=%f rad, tilt_angle_max=%f rad",
-    ssd_topic_name.c_str(), use_rotate_, use_smoothing_, tilt_angle_min_, tilt_angle_max_);
+        ssd_topic_name.c_str(), use_rotate_, use_smoothing_, tilt_angle_min_, tilt_angle_max_);
+
+    RCLCPP_INFO(this->get_logger(), "Parameters loaded: head_pantilt_action_name=%s, head_pan_joint_name=%s, head_tilt_joint_name=%s",
+        head_pantilt_action_name_.c_str(), head_pan_joint_name_.c_str(), head_tilt_joint_name_.c_str());
 
     // Initialize class members
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
