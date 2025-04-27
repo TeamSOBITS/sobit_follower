@@ -118,6 +118,9 @@ namespace multiple_sensor_person_tracking {
 
             void nontravelableRegionCallback(
                 const sensor_msgs::msg::PointCloud2::ConstSharedPtr& nontravelable_region_msg );
+            
+            void dr_spaam_callback (
+                const geometry_msgs::msg::PoseArray::ConstSharedPtr &dr_spaam_msg);
 
             void callbackPoseArray (
                 const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg,
@@ -382,7 +385,7 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
 }
 
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const geometry_msgs::msg::PoseArray::ConstSharedPtr dr_spaam_msg, const vision_msgs::msg::Detection3DArray::ConstSharedPtr ssd_msg ) {
-    
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK" );
     std::cout << "\n====================================" << std::endl;
     // variable initialization
     std::string target_frame = target_frame_;
@@ -394,6 +397,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
     rclcpp::Time current_time(dr_spaam_msg->header.stamp);
     double dt = (current_time - previous_time_).seconds();
     previous_time_ = current_time;
+
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK 1" );
 
     // Sensor data to TF2 conversion
     try {
@@ -409,6 +414,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
         pub_following_position_->publish( *following_position_ );
         return;
     }
+
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK 2" );
 
     if ( !exists_target_ && ssd_msg->detections.size() == 0) {
         if ( dr_spaam_msg->poses.size() == 0 ) {
@@ -464,6 +471,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
         }
     } else no_exists_time_ = -1.0;
 
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK 3" );
+
     // Tracking by Kalman Filter
     if ( ( !exists_target_ && result == Status::EXISTS_LEG_AND_BODY) || (!exists_target_ && result == Status::EXISTS_BODY) ) {
         kf_->init( body_observed_value );
@@ -498,6 +507,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
         }
     }
 
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK 4" );
+
     // following_position_ : pose :
     following_position_->pose.position.x = estimated_value[0];
     following_position_->pose.position.y = estimated_value[1];
@@ -518,12 +529,14 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
     voxel_.filter ( *cloud_scan_ );
     bool can_pub_obstacles = searchObstacles( following_position_->pose.position, cloud_scan_, &obstacles );
 
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK 5" );
+
     // following_position_ : header :
     if ( can_pub_obstacles ){
         pub_obstacles_->publish( obstacles );
         following_position_->header.stamp = this->get_clock()->now();
         pub_following_position_->publish( *following_position_ );
-        pub_target_odom_->publish( transformPoint( target_frame_, "sobit_edu/odom", following_position_->pose.position ) );
+        pub_target_odom_->publish( transformPoint( target_frame_, "sobit_pro/odom", following_position_->pose.position ) );
     } 
 
     if ( display_marker_ ) {
@@ -535,6 +548,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
     }
     previous_target_ = following_position_->pose.position;
 
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE CALLBACK 6" );
+
     RCLCPP_INFO( this->get_logger(), "\033[1mResult\033[m = %s",
         ( following_position_->status == Status::EXISTS_LEG ? "\033[1;36m EXISTS_LEG \033[m" :
         ( following_position_->status == Status::EXISTS_BODY ? "\033[1;33m EXISTS_BODY \033[m" :
@@ -545,6 +560,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const g
 }
 
 void multiple_sensor_person_tracking::PersonTracker::onInit() {
+
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE 1" );
 
     // Declare parameters
     this->declare_parameter<std::string>("scan_topic_name", "/scan");
@@ -617,6 +634,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     attention_leg_time_ = -1.0;
     attention_leg_idx_ = 0;
     target_range_ = 3.0;
+
+    RCLCPP_INFO( this->get_logger(), "HEREEEEEE 1 INFO" );
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::PersonTracker)

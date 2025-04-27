@@ -7,12 +7,13 @@ from launch.substitutions import PathJoinSubstitution
 
 def generate_launch_description():
     ssd_ros_pkg = FindPackageShare("ssd_ros")
-    ssd_launch_file = PathJoinSubstitution([ssd_ros_pkg, "launch", "ssd_ros.launch.py"])
+    ssd_opl_cml = FindPackageShare("robocup_opl_cml")
+    ssd_launch_file = PathJoinSubstitution([ssd_opl_cml, "launch", "ssd_ros.launch.py"])
 
     return LaunchDescription([
 
-        DeclareLaunchArgument("image_topic_name", default_value="/sobit_edu/color/image_raw"),
-        DeclareLaunchArgument("cloud_topic_name", default_value="/sobit_edu/depth_registered/points"),
+        DeclareLaunchArgument("image_topic_name", default_value="/sobit_pro/head_camera/rgb/image_raw"),
+        DeclareLaunchArgument("cloud_topic_name", default_value="/sobit_pro/head_camera/depth_registered/points"),
         DeclareLaunchArgument("in_scale_factor", default_value="0.007843"),
         DeclareLaunchArgument("confidence_threshold", default_value="0.5"),
         DeclareLaunchArgument("ssd_prototxt_name", default_value=PathJoinSubstitution([ssd_ros_pkg, "models", "voc_object.prototxt"])),
