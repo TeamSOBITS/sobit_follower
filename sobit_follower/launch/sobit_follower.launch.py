@@ -25,7 +25,7 @@ def generate_launch_description():
             # 1 : VirtualSpringModel
             # 2 : DynamicWindowApproach
             # 3 : PIDController
-        DeclareLaunchArgument("use_smoother", default_value="true"),
+        DeclareLaunchArgument("use_smoother", default_value="false"),
     ]
 
     robot_type = LaunchConfiguration("robot_type")

@@ -4,7 +4,7 @@
     scan_topic_name : /scan
     dr_spaam_topic_name : /dr_spaam_detections
     ssd_topic_name : /ssd_ros/object_3d_poses
-    target_frame : sobit_edu/base_footprint
+    target_frame : sobit_pro/base_footprint
 
     # Merging Point Cloud Non-travelable region (true) or Not merging (false)
     merge_nontravelable_region : false
@@ -18,8 +18,8 @@
     target_cloud_radius : 0.4
     outlier_radius : 0.1
     outlier_min_pts : 2
-    leaf_size : 0.1
-    target_change_tolerance : 1.0
+    leaf_size : 0.14
+    target_change_tolerance : 2.0
     # display_marker : true
 
     # Kalman Filter
