@@ -114,7 +114,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_recon
 |トピック名|型|意味|
 |---|---|---|
 |/dr_spaam_detections|geometry_msgs/PoseArray|検出結果|
-|/ssd_object_detect/object_pose|sobits_msgs/ObjectPoseArray|検出結果(３次元位置)|
+|/ssd_ros/object_3d_poses|vision_msgs/msg/Detection3DArray|検出結果(３次元位置)|
 
 #### Publications
 |トピック名|型|意味|
@@ -184,9 +184,9 @@ $ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_recon
 |トピック名|型|意味|
 |---|---|---|
 |/ssd_object_detect/detect_result|sensor_msgs/Image|検出結果(画像)|
-|/ssd_object_detect/object_name|sobits_msgs/StringArray|検出結果(物体名)|
-|/ssd_object_detect/object_rect|sobits_msgs/BoundingBoxes|検出結果(バウンディングボックス)|
-|/ssd_object_detect/object_pose|sobits_msgs/ObjectPoseArray|検出結果(３次元位置)|
+|/ssd_object_detect/object_name|sobits_interfaces/StringArray|検出結果(物体名)|
+|/ssd_object_detect/object_rect|sobits_interfaces/BoundingBoxes|検出結果(バウンディングボックス)|
+|/ssd_ros/object_3d_poses|vision_msgs/msg/Detection3DArray|検出結果(３次元位置)|
 
 #### Parameters
 |パラメータ名|型|意味|
