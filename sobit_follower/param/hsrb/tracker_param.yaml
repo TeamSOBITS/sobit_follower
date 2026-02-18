@@ -2,7 +2,7 @@
   ros__parameters:
     # Topic & Frame
     dr_spaam_topic_name : /dr_spaam_detections
-    ssd_topic_name : /ssd_object_detect/object_pose
+    ssd_topic_name : /ssd_ros/object_3d_poses
     target_frame : base_footprint
 
     # Merging Point Cloud Non-travelable region (true) or Not merging (false)

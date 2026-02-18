@@ -1,0 +1,22 @@
+# Single Shot Multibox Detector
+/**:
+  ros__parameters:
+    image_topic_name : /head_rgbd_sensor/rgb/image_rect_color
+    cloud_topic_name : /head_rgbd_sensor/depth_registered/rectified_points
+    base_frame_name : base_footprint
+    info_topic_name : /head_rgbd_sensor/rgb/camera_info
+
+    image_show_flag : false
+    execute_default : true
+    ssd_pub_result_image : true
+    rqt_image_view_flag : false
+    use_tf : false
+
+    ssd_in_scale_factor : 0.007843
+    ssd_confidence_threshold : 0.5
+
+    object_specified_enabled : true
+    specified_object_name : person
+
+    use_3d : true
+    positioning_detection_mode : 'fast_point' # point_cloud, depth_image, fast_point
