@@ -37,12 +37,14 @@ namespace multiple_sensor_person_tracking {
                 double pan_angle_max_;
 				double person_height_;
 				double smoothing_gain_;
-			bool use_rotate_;
+            bool use_rotate_;
 			bool use_smoothing_;
 			bool display_marker_;
             std::string head_pantilt_action_name_;
             std::string head_pan_joint_name_;
             std::string head_tilt_joint_name_;
+            rclcpp::Time last_goal_sent_time_;
+            bool goal_in_flight_;
 
 			void makeMarker( const double pan_angle, const double tilt_angle, const double distance );
             void callbackData (
@@ -114,6 +116,9 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 	double angle = std::atan2( pt.y, pt.x );
 	double pan_angle, tilt_angle;
 	double sec = (distance < 1.0e-6) ? 0.5 : 0.05;
+    constexpr double kMinActionTimeSec = 0.4;
+    constexpr double kMinGoalIntervalSec = 0.12;
+    sec = std::max(sec, kMinActionTimeSec);
 
     if (!std::isfinite(distance) || !std::isfinite(angle)) {
         RCLCPP_WARN_THROTTLE(
@@ -138,20 +143,53 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 
 	RCLCPP_INFO(this->get_logger(), "\033[1mRotator\033[m               :\tpan = %8.3f[deg],\ttilt = %8.3f [deg]", pan_angle*180/M_PI, tilt_angle*180/M_PI);
 
-    if ( use_rotate_ ) {
+	    if ( use_rotate_ ) {
+	        const auto now = this->get_clock()->now();
+	        if ((now - last_goal_sent_time_).seconds() < kMinGoalIntervalSec) {
+	            return;
+	        }
+	        if (goal_in_flight_) {
+	            return;
+	        }
+	        if (!head_pantilt_ctr_->action_server_is_ready()) {
+	            RCLCPP_WARN_THROTTLE(
+	                this->get_logger(), *this->get_clock(), 2000,
+	                "Head action server is not ready. Skipping pan/tilt command.");
+	            return;
+        }
+
         auto goal_msg = sobits_interfaces::action::MoveJoint::Goal();
         goal_msg.target_joint_names = { head_pan_joint_name_, head_tilt_joint_name_ };
         goal_msg.target_joint_rad = { pan_angle, tilt_angle };
         goal_msg.time_allowance.sec = static_cast<int>(sec);
         goal_msg.time_allowance.nanosec = static_cast<int>((sec - static_cast<int>(sec)) * 1e9);
+        RCLCPP_INFO(
+            this->get_logger(),
+            "Sending MoveJoint goal: action=%s joints=[%s, %s] target=[%.3f, %.3f] rad time=%.2f s",
+            head_pantilt_action_name_.c_str(),
+            head_pan_joint_name_.c_str(),
+            head_tilt_joint_name_.c_str(),
+            pan_angle,
+            tilt_angle,
+            sec);
 
-        auto send_goal_options = rclcpp_action::Client<sobits_interfaces::action::MoveJoint>::SendGoalOptions();
-        send_goal_options.result_callback = [this](auto result_future) {
-            auto result = result_future;
-            if (!result.result) {
-                RCLCPP_WARN(this->get_logger(), "[Action Failed] Empty result payload from MoveJoint.");
-                return;
-            }
+	        auto send_goal_options = rclcpp_action::Client<sobits_interfaces::action::MoveJoint>::SendGoalOptions();
+	        send_goal_options.goal_response_callback =
+	            [this](const rclcpp_action::ClientGoalHandle<sobits_interfaces::action::MoveJoint>::SharedPtr & goal_handle) {
+	                if (!goal_handle) {
+	                    goal_in_flight_ = false;
+	                    RCLCPP_WARN(this->get_logger(), "[Action Failed] MoveJoint goal rejected.");
+	                    return;
+	                }
+	                RCLCPP_INFO(this->get_logger(), "MoveJoint goal accepted.");
+	            };
+	        send_goal_options.result_callback = [this](auto result_future) {
+	            auto result = result_future;
+	            goal_in_flight_ = false;
+	            if (!result.result) {
+	                RCLCPP_WARN(this->get_logger(), "[Action Failed] Empty result payload from MoveJoint.");
+	                return;
+	            }
             if (result.result->success) {
                 RCLCPP_INFO(this->get_logger(), "[Action Result] %s", result.result->message.c_str());
             } else {
@@ -159,8 +197,10 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
             }
         };
 
-        head_pantilt_ctr_->async_send_goal(goal_msg, send_goal_options);
-    }
+	        goal_in_flight_ = true;
+	        head_pantilt_ctr_->async_send_goal(goal_msg, send_goal_options);
+	        last_goal_sent_time_ = now;
+	    }
 	if ( display_marker_ ) makeMarker( pan_angle, tilt_angle, distance );
 
 	return;
@@ -226,6 +266,8 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     while (!head_pantilt_ctr_->wait_for_action_server(std::chrono::seconds(1))) {
         RCLCPP_WARN(this->get_logger(), "Waiting for action server...");
     }
+    last_goal_sent_time_ = this->get_clock()->now() - rclcpp::Duration::from_seconds(1.0);
+    goal_in_flight_ = false;
     tracking_position_ = std::make_shared<geometry_msgs::msg::Point>();
 
     sub_following_position_ = this->create_subscription<FollowingPosition>(
