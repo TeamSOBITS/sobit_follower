@@ -1,19 +1,25 @@
 import os
 from ament_index_python.packages import get_package_share_directory
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.substitutions import FindPackageShare
 from launch import LaunchDescription
 
 
 def generate_launch_description():
-
-    default_param_file = os.path.join(
-        get_package_share_directory('sobit_follower'),
+    robot_type = LaunchConfiguration('robot_type')
+    default_param_file = PathJoinSubstitution([
+        FindPackageShare('sobit_follower'),
         'param',
-        'hsrb',
-        'ssd_param.yaml'
+        robot_type,
+        'ssd_param.yaml',
+    ])
+    robot_type_arg = DeclareLaunchArgument(
+        'robot_type',
+        default_value='hsrb',
+        description='Robot type for selecting SSD param file.',
     )
 
     params_file_arg = DeclareLaunchArgument(
@@ -36,10 +42,22 @@ def generate_launch_description():
                 "ssd_class_names_file": os.path.join(get_package_share_directory('ssd_ros'), 'models', 'voc_object_names.txt'),    
             },
         ],
+    )
 
+    bbox_to_3d_cmd = Node(
+        package='image_to_position',
+        executable='bbox_to_3d',
+        name='bbox_to_3d',
+        namespace='ssd_ros',
+        output='screen',
+        parameters=[
+            params_file
+        ]
     )
 
     return LaunchDescription([
+        robot_type_arg,
         params_file_arg,
-        ssd_node
+        ssd_node,
+        bbox_to_3d_cmd
     ])
