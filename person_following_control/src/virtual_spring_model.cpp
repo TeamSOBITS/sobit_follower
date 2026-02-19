@@ -100,12 +100,6 @@ VirtualSpringModel::VirtualSpringModel ( rclcpp::Node* node ) : node_( node ) {
 void VirtualSpringModel::compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, geometry_msgs::msg::Twist& output_vel ) {
     float yaw = std::atan2( pose_msg.position.y, pose_msg.position.x );
 
-    std::cout << "???? yaw : " << yaw << std::endl;
-    std::cout << "???? pose_msg.position.x : " << pose_msg.position.x << std::endl;
-    std::cout << "???? pose_msg.position.x : " << pose_msg.position.x << std::endl;
-    std::cout << "???? curt_vel_linear : " << curt_vel_linear << std::endl;
-    std::cout << "???? curt_vel_angular : " << curt_vel_angular << std::endl;
-
     // Find the position of the robot when the mobile robot follows a person (coordinate transformation)
     float ang_follow = ang_follow_;
     Eigen::Vector3f robot(0.0f, 0.0f, 0.0f);
