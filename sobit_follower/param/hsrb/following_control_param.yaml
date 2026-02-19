@@ -35,7 +35,7 @@
     max_angular_deg : 15.0
     # Dynamic Window Approach : Step Value
     predict_step : 10
-    sampling_time : 0.08     # Predicted time[s] = predict_step[step] * sampling_time[s]
+    sampling_time : 0.15     # Predicted time[s] = predict_step[step] * sampling_time[s]
     velocity_step : 7.0
     angle_velocity_step : 30.0
     # Dynamic Window Approach : Weight
@@ -48,7 +48,7 @@
     weight_vsm_linear : 2.0
     weight_vsm_angular : 0.5
     # Dynamic Window Approach : Cost Distance
-    obstacle_cost_radius : 0.4
+    obstacle_cost_radius : 0.35
     # Dynamic Window Approach : Display Flag
     # display_optimal_path : true
     # display_all_path : true
