@@ -1,10 +1,10 @@
 # Single Shot Multibox Detector
 /**:
   ros__parameters:
-    image_topic_name : /head_rgbd_sensor/rgb/image_rect_color
-    cloud_topic_name : /head_rgbd_sensor/depth_registered/rectified_points
-    base_frame_name : base_footprint
-    info_topic_name : /head_rgbd_sensor/rgb/camera_info
+    image_topic_name : /sobit_pro/head_camera/rgb/image_raw
+    cloud_topic_name : /sobit_pro/head_camera/depth_registered/points
+    base_frame_name : sobit_pro/base_footprint
+    info_topic_name : /sobit_pro/head_camera/rgb/camera_info
 
     image_show_flag : false
     execute_default : true

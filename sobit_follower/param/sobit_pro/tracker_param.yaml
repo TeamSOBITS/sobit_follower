@@ -1,10 +1,10 @@
 /**:
   ros__parameters:
     # Topic & Frame
-    scan_topic_name : /scan
+    scan_topic_name : /sobit_pro/scan
     dr_spaam_topic_name : /dr_spaam_detections
     ssd_topic_name : /ssd_ros/object_3d_poses
-    target_frame : base_footprint
+    target_frame : sobit_pro/base_footprint
 
     # Merging Point Cloud Non-travelable region (true) or Not merging (false)
     merge_nontravelable_region : false
