@@ -1,22 +1,35 @@
 from launch import LaunchDescription
-from launch.actions import GroupAction
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    robot_type = LaunchConfiguration("robot_type")
+    params_file = LaunchConfiguration("params_file")
 
     return LaunchDescription([
-        GroupAction([
-            Node(
-                package="dr_spaam_ros",
-                executable="dr_spaam_ros",
-                name="dr_spaam_ros",
-                namespace="dr_spaam",
-                output="screen",
-                parameters=[
-                    PathJoinSubstitution([FindPackageShare('sobit_follower'), "param", 'dr_spaam_param.yaml'])
-                ]
-            )
-        ])
+        DeclareLaunchArgument(
+            "robot_type",
+            default_value="hsrb",
+            description="Type of robot for selecting DR-SPAAM params",
+        ),
+        DeclareLaunchArgument(
+            "params_file",
+            default_value=PathJoinSubstitution([
+                FindPackageShare("sobit_follower"),
+                "param",
+                robot_type,
+                "dr_spaam_param.yaml",
+            ]),
+            description="Path to DR-SPAAM parameter file",
+        ),
+        Node(
+            package="dr_spaam_ros",
+            executable="dr_spaam_ros",
+            name="dr_spaam_ros",
+            namespace="dr_spaam",
+            output="screen",
+            parameters=[params_file],
+        ),
     ])
