@@ -20,5 +20,5 @@
 
     subscriber:
         scan:
-            topic: /scan
+            topic: /sobit_edu/scan
             queue_size: 1

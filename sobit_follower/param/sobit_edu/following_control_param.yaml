@@ -1,9 +1,9 @@
 # Following Control
 /**:
   ros__parameters:
-    command_velocity_topic_name : /commands/velocity
+    command_velocity_topic_name : /sobit_edu/commands/velocity
     following_position_topic_name : /following_position
-    odom_topic_name : /odom
+    odom_topic_name : /sobit_edu/odom
 
     base_footprint_name         : sobit_edu/base_footprint
     # following_distance          : 1.10, 1.80
