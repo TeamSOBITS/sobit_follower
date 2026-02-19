@@ -1,45 +1,62 @@
-from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch.substitutions import PathJoinSubstitution
+from launch import LaunchDescription
+
 
 def generate_launch_description():
-    ssd_ros_pkg = FindPackageShare("ssd_ros")
-    ssd_opl_cml = FindPackageShare("robocup_opl_cml")
-    ssd_launch_file = PathJoinSubstitution([ssd_opl_cml, "launch", "ssd_ros.launch.py"])
+    robot_type = LaunchConfiguration('robot_type')
+    default_param_file = PathJoinSubstitution([
+        FindPackageShare('sobit_follower'),
+        'param',
+        robot_type,
+        'ssd_param.yaml',
+    ])
+    robot_type_arg = DeclareLaunchArgument(
+        'robot_type',
+        default_value='hsrb',
+        description='Robot type for selecting SSD param file.',
+    )
+
+    params_file_arg = DeclareLaunchArgument(
+        'params_file',
+        default_value=default_param_file,
+        description='Full path to the SSD parameter file.'
+    )
+
+    params_file = LaunchConfiguration('params_file')
+
+    ssd_node = Node(
+        package='ssd_ros',
+        executable='single_shot_multibox_detector',
+        name='ssd_ros',
+        parameters=[
+            params_file, 
+            {
+                "ssd_prototxt_name": os.path.join(get_package_share_directory('ssd_ros'), 'models', 'voc_object.prototxt'),
+                "ssd_caffemodel_name": os.path.join(get_package_share_directory('ssd_ros'), 'models', 'voc_object.caffemodel'),
+                "ssd_class_names_file": os.path.join(get_package_share_directory('ssd_ros'), 'models', 'voc_object_names.txt'),    
+            },
+        ],
+    )
+
+    bbox_to_3d_cmd = Node(
+        package='image_to_position',
+        executable='bbox_to_3d',
+        name='bbox_to_3d',
+        namespace='ssd_ros',
+        output='screen',
+        parameters=[
+            params_file
+        ]
+    )
 
     return LaunchDescription([
-
-        DeclareLaunchArgument("image_topic_name", default_value="/sobit_pro/head_camera/rgb/image_raw"),
-        DeclareLaunchArgument("cloud_topic_name", default_value="/sobit_pro/head_camera/depth_registered/points"),
-        DeclareLaunchArgument("in_scale_factor", default_value="0.007843"),
-        DeclareLaunchArgument("confidence_threshold", default_value="0.5"),
-        DeclareLaunchArgument("ssd_prototxt_name", default_value=PathJoinSubstitution([ssd_ros_pkg, "models", "voc_object.prototxt"])),
-        DeclareLaunchArgument("ssd_caffemodel_name", default_value=PathJoinSubstitution([ssd_ros_pkg, "models", "voc_object.caffemodel"])),
-        DeclareLaunchArgument("ssd_class_names_file", default_value=PathJoinSubstitution([ssd_ros_pkg, "models", "voc_object_names.txt"])),
-        DeclareLaunchArgument("object_specified_enabled", default_value="true"),
-        DeclareLaunchArgument("specified_object_name", default_value="person"),
-        DeclareLaunchArgument("image_show_flag", default_value="false"),
-        DeclareLaunchArgument("execute_default", default_value="true"),
-        DeclareLaunchArgument("namespace", default_value="ssd_ros"),
-
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(ssd_launch_file),
-            launch_arguments={
-                "image_topic_name": LaunchConfiguration("image_topic_name"),
-                "cloud_topic_name": LaunchConfiguration("cloud_topic_name"),
-                "in_scale_factor": LaunchConfiguration("in_scale_factor"),
-                "confidence_threshold": LaunchConfiguration("confidence_threshold"),
-                "ssd_prototxt_name": LaunchConfiguration("ssd_prototxt_name"),
-                "ssd_caffemodel_name": LaunchConfiguration("ssd_caffemodel_name"),
-                "ssd_class_names_file": LaunchConfiguration("ssd_class_names_file"),
-                "object_specified_enabled": LaunchConfiguration("object_specified_enabled"),
-                "specified_object_name": LaunchConfiguration("specified_object_name"),
-                "image_show_flag": LaunchConfiguration("image_show_flag"),
-                "execute_default": LaunchConfiguration("execute_default"),
-                "namespace": LaunchConfiguration("namespace"),
-            }.items()
-        )
+        robot_type_arg,
+        params_file_arg,
+        ssd_node,
+        bbox_to_3d_cmd
     ])

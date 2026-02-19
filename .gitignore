@@ -1,0 +1,4 @@
+2d_lidar_person_detection/
+
+__pycache__/
+*.pyc

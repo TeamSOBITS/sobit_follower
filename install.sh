@@ -31,11 +31,8 @@ cd ~/colcon_ws/src
 
 # Dowload required packages for SOBIT Follower
 ros_packages=(
-    "sobits_msgs" \
-    "ssd_nodelet" \
-    # "sobit_edu" \
-    # "sobit_pro" \
-    # "hsrb_library"
+    "sobits_interfaces" \
+    "ssd_ros"
 )
 
 # Clone all packages
@@ -55,7 +52,8 @@ for ((i = 0; i < ${#ros_packages[@]}; i++)) {
 # Download ROS packages
 sudo apt-get update
 sudo apt-get install -y \
-    ros-$ROS_DISTRO-pointcloud-to-laserscan -y \
-    ros-humble-vision-msgs
+    ros-$ROS_DISTRO-pointcloud-to-laserscan \
+    ros-$ROS_DISTRO-vision-msgs \
+    ros-$ROS_DISTRO-pcl-ros
 
 echo "╚══╣ Setup: SOBIT Follower (FINISHED) ╠══╝"
