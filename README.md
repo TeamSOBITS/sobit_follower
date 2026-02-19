@@ -58,7 +58,7 @@
 </div>
 
 ## セットアップ
-```python
+```
 $ cd ~/catkin_ws/src/
 $ git clone -b humble-devel https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
@@ -71,7 +71,7 @@ $ source ~/colcon_ws/install/setup.sh
 ```
 
 ## 対象者識別用の追加セットアップ
-```python
+```
 $ cd sobit_follower
 # 対象者識別に必要な追加パッケージのインストールを行う
 $ bash install_target_identification.sh
@@ -145,11 +145,15 @@ $ source ~/colcon_ws/install/setup.sh
 - 上に示す対象者識別用の追加セットアップを行うことで使用可能
 
 ## 実行方法
+
+### Robot Library Action Server
+- パン・チルト回転機構を制御用のロボットライブラリーアクションサーバの起動
+
 ### [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
 - Multiple Sensor Person TrackingとPerson Following Controlによる人追従走行
 - path：`sobit_follower/launch/sobit_follower.launch`
 - 詳細は[こちら](sobit_follower)
-```python
+```
 $ ros2 launch sobit_follower sobit_follower.launch.py
 ```
 
@@ -165,7 +169,7 @@ $ ros2 launch sobit_follower sobit_follower.launch.py
 - SOBIT_EDUでOSNetとリッジ回帰モデルからなる(GRR_SLT)対象者識別手法を組み合わせて追従対象者を識別することを可能とした人追従走行
 - path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
 - ここでは人物検出としてSSDの代わりにYOLOv10を用いている
-```python
+```
 $ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ```
 
@@ -173,7 +177,7 @@ $ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_r
 - SOBIT_EDUで対象者識別手法(KoideModel)を組み合わせて追従対象者を識別することを可能とした人追従走行
 - path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
 - ここでは人物検出としてSSDの代わりにYOLOv10を用いている
-```python
+```
 $ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ``` -->
 

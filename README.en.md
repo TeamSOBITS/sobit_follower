@@ -58,7 +58,7 @@
 </div>
 
 ## Setup
-```python
+```
 $ cd ~/catkin_ws/src/
 $ git clone -b humble-devel https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
@@ -71,7 +71,7 @@ $ source ~/colcon_ws/install/setup.sh
 ```
 
 ## Additional setup for target identification
-```python
+```
 $ cd sobit_follower
 # Installing additional packages required for target identification
 $ bash install_target_identification.sh
@@ -144,11 +144,15 @@ Target Identification Method
 - The additional setup for target identification shown above can be used
 
 ## Launch and Usage
+
+### Robot Library Action Server
+- Launch robot library action server for pan-tilt rotation control.
+
 ### [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
 - Person-following control by Multiple Sensor Person Tracking and Person Following Control
 - path：`sobit_follower/launch/sobit_follower.launch`
 - [For more information](sobit_follower)
-```python
+```
 $ ros2 launch sobit_follower sobit_follower.launch.py
 ```
 
@@ -162,7 +166,7 @@ $ ros2 launch sobit_follower sobit_follower.launch.py
 - Person-following run that enables SOBIT_EDU to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
 - path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
 - YOLOv10 is used here instead of SSD for person detection
-```python
+```
 $ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ```
 
@@ -170,7 +174,7 @@ $ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_r
 - Person-following run that enables SOBIT_EDU to identify the target person to be followed by combining the target person identification method(KoideModel)
 - path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
 - YOLOv10 is used here instead of SSD for person detection
-```python
+```
 $ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ``` -->
 
