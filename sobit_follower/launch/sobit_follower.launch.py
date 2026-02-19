@@ -84,15 +84,15 @@ def generate_launch_description():
     # SSD launch includes
     ssd_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(
+            PathJoinSubstitution([
                 sobit_follower_share,
-                'launch',
+                "launch",
                 "include",
-                'ssd_pose_ros.launch.py'
-            )
+                "ssd_pose_ros.launch.py",
+            ])
         ),
         launch_arguments={
-            'image_show_flag': 'false',
+            'robot_type': robot_type,
         }.items()
     )
 
@@ -112,14 +112,14 @@ def generate_launch_description():
                 namespace="sobit_follower",
                 parameters=[person_tracker_params],
             ),
-            # Sensor Rotator Component
-            ComposableNode(
-                package="multiple_sensor_person_tracking",
-                plugin="multiple_sensor_person_tracking::PersonAimSensorRotator",
-                name="person_aim_sensor_rotator",
-                namespace="sobit_follower",
-                parameters=[sensor_rotator_params],
-            ),
+            # # Sensor Rotator Component
+            # ComposableNode(
+            #     package="multiple_sensor_person_tracking",
+            #     plugin="multiple_sensor_person_tracking::PersonAimSensorRotator",
+            #     name="person_aim_sensor_rotator",
+            #     namespace="sobit_follower",
+            #     parameters=[sensor_rotator_params],
+            # ),
             # Following Control Component
             ComposableNode(
                 package="person_following_control",
