@@ -20,7 +20,7 @@
     outlier_min_pts : 2
     leaf_size : 0.14
     target_change_tolerance : 2.0
-    # display_marker : true
+    display_marker : true
 
     # Kalman Filter
     process_noise : 50.0
