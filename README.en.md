@@ -49,8 +49,7 @@
 </details>
 
 ## Summary
-- Robot person-following system with multiple sensors (usable with SOBIT EDU and SOBIT PRO)
-<!-- - [論文](sobit_follower/doc/murakami_daiki_Master_research_summary.pdf) -->
+- Robot person-following system with multiple sensors
 - [Development of a person-following  robot using LRF and RGB-D sensor on the pan-tilt-rotate mechanism](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)
 
 <div align="center">
@@ -61,13 +60,14 @@
 ## Setup
 ```python
 $ cd ~/catkin_ws/src/
-$ git clone https://github.com/TeamSOBITS/sobit_follower
+$ git clone -b humble-devel https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
-# Install the necessary packages for follow me
+# Install the necessary packages for sobit_follower
 $ bash install.sh
-# Setup the installed package, then catkin_make
-$ cd ~/catkin_ws
-$ catkin_make
+# Setup the installed package, then colcon build
+$ cd ~/colcon_ws/
+$ colcon build --symlink-install
+$ source ~/colcon_ws/install/setup.sh
 ```
 
 ## Additional setup for target identification
@@ -75,9 +75,10 @@ $ catkin_make
 $ cd sobit_follower
 # Installing additional packages required for target identification
 $ bash install_target_identification.sh
-# Setup the installed package, then catkin_make
-$ cd ~/catkin_ws
-$ catkin_make
+# Setup the installed package, then colcon build
+$ cd ~/colcon_ws/
+$ colcon build --symlink-install
+$ source ~/colcon_ws/install/setup.sh
 ```
 
 ## Package Configuration
@@ -143,42 +144,26 @@ Target Identification Method
 - The additional setup for target identification shown above can be used
 
 ## Launch and Usage
-### [sobit_edu_follower_me.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch)
-- Person-following control by Multiple Sensor Person Tracking and Person Following Control using SOBIT EDU
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me.launch`
+### [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
+- Person-following control by Multiple Sensor Person Tracking and Person Following Control
+- path：`sobit_follower/launch/sobit_follower.launch`
 - [For more information](sobit_follower)
 ```python
-$ roslaunch sobit_follower sobit_edu_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# Arguments
-# rviz : whether to start Rviz (bool)
-# rqt_reconfigure : whether to start rqt_reconfigure (bool)
-# use_rotate : activate SensorRotator (bool)
-# use_smoother : whether to perform velocity smoothing (bool)
+$ ros2 launch sobit_follower sobit_follower.launch.py
 ```
 
-### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
+> [!IMPORTANT]
+> Change the `robot_type` in `sobit_follower/launch/sobit_follower.launch` to match the robot you are using.
+
+> [!CAUTION]
+> Download the weight file from [thi Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W), and move it to `sobit_follower/dr_spaam_ros/weights/` if you encounter the following error: `FileNotFoundError: [Errno 2] No such file or directory: '/home/username/colcon_ws/install/dr_spaam_ros/share/dr_spaam_ros/weights/ckpt_jrdb_ann_ft_dr_spaam_e20.pth'` and rebuild the package.
+
+<!-- ### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
 - Person-following run that enables SOBIT_EDU to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
 - path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
 - YOLOv10 is used here instead of SSD for person detection
 ```python
 $ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# Arguments
-# rviz : whether to start Rviz (bool)
-# rqt_reconfigure : whether to start rqt_reconfigure (bool)
-# use_rotate : activate SensorRotator (bool)
-# use_smoother : whether to perform velocity smoothing (bool)
-# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
-#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
-#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
-# </include>
-# <include file="$(find mono_following)\launch\mono_following.launch"/>
-#   The following arguments can be changed in mono_following.launch
-#       <param name="initial_training_num_samples" value="50"/>  <!-- Arguments for setting the initial training count -->
-#       <param name="min_target_confidence" value="-1"/>  <!-- Not particularly meaningful -->
-#       <param name="id_switch_detection_thresh" value="0.65"/>  <!-- Threshold value at which a target is determined to be a target while following a target -->
-#       <param name="reid_pos_confidence_thresh" value="0.65"/>  <!-- Threshold when the target is judged to be a target again while the target is lost -->
-#       <param name="reid_neg_confidence_thresh" value="0.3"/>  <!-- Not particularly meaningful -->
-#       <param name="reid_positive_count" value="5"/>  <!-- The number of times that the threshold of reid_pos_confidence_thresh is exceeded while the target is lost (if this number is exceeded, the target is moved to the follow-up phase) -->
 ```
 
 ### [sobit_edu_follower_me_KoideModel.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
@@ -187,126 +172,45 @@ $ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_r
 - YOLOv10 is used here instead of SSD for person detection
 ```python
 $ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# Arguments
-# rviz : whether to start Rviz (bool)
-# rqt_reconfigure : whether to start rqt_reconfigure (bool)
-# use_rotate : activate SensorRotator (bool)
-# use_smoother : whether to perform velocity smoothing (bool)
-# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
-#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
-#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
-# </include>
-```
-
-
-### [sobit_pro_follower_me.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch)
-- Person-following control by Multiple Sensor Person Tracking and Person Following Control using SOBIT PRO
-- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me.launch`
-- [For more information](sobit_follower)
-```python
-$ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# Arguments
-# rviz : whether to start Rviz (bool)
-# rqt_reconfigure : whether to start rqt_reconfigure (bool)
-# use_rotate : activate SensorRotator (bool)
-# use_smoother : whether to perform velocity smoothing (bool)
-```
-
-### [sobit_pro_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_GRRSLT.launch)
-- Person-following run that enables SOBIT_PRO to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
-- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_GRRSLT.launch`
-- YOLOv10 is used here instead of SSD for person detection
-```python
-$ roslaunch sobit_follower sobit_pro_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# Arguments
-# rviz : whether to start Rviz (bool)
-# rqt_reconfigure : whether to start rqt_reconfigure (bool)
-# use_rotate : activate SensorRotator (bool)
-# use_smoother : whether to perform velocity smoothing (bool)
-# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
-#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
-#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
-# </include>
-# <include file="$(find mono_following)\launch\mono_following.launch"/>
-#   The following arguments can be changed in mono_following.launch
-#       <param name="initial_training_num_samples" value="50"/>  <!-- Arguments for setting the initial training count -->
-#       <param name="min_target_confidence" value="-1"/>  <!-- Not particularly meaningful -->
-#       <param name="id_switch_detection_thresh" value="0.65"/>  <!-- Threshold value at which a target is determined to be a target while following a target -->
-#       <param name="reid_pos_confidence_thresh" value="0.65"/>  <!-- Threshold when the target is judged to be a target again while the target is lost -->
-#       <param name="reid_neg_confidence_thresh" value="0.3"/>  <!-- Not particularly meaningful -->
-#       <param name="reid_positive_count" value="5"/>  <!-- The number of times that the threshold of reid_pos_confidence_thresh is exceeded while the target is lost (if this number is exceeded, the target is moved to the follow-up phase) -->
-```
-
-## [sobit_pro_follower_me_KoideModel.launch](sobit_follower/launch/sobit_pro/sobit_pro_follower_me_KoideModel.launch)
-- Person-following run that enables SOBIT_PRO to identify the target person to be followed by combining the target person identification method(KoideModel)
-- path：`sobit_follower/launch/sobit_pro/sobit_pro_follower_me_KoideModel.launch`
-- YOLOv10 is used here instead of SSD for person detection
-```python
-$ roslaunch sobit_follower sobit_pro_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
-# Arguments
-# rviz : whether to start Rviz (bool)
-# rqt_reconfigure : whether to start rqt_reconfigure (bool)
-# use_rotate : activate SensorRotator (bool)
-# use_smoother : whether to perform velocity smoothing (bool)
-# <include file="$(find yolov10_ros)\launch\yolov10_with_tf.launch">
-#   <arg name="detect_classes" value="['person']"/>  <!-- Argument to limit the class detected by YOLO to 'person' only -->
-#   <arg name="fast_shot" value="true"/>              <!-- set fast_shot to true -->
-# </include>
-```
+``` -->
 
 #### Launch Configuration
-- [ssd_pose_ros.launch.xml](sobit_follower/launch/include/ssd_pose_ros.launch.xml)
+- [ssd_pose_ros.launch.py](sobit_follower/launch/include/ssd_pose_ros.launch.py)
     - RGB image-based person detector
-    - path：`sobit_follower/launch/include/ssd_pose_ros.launch.xml`
+    - path：`sobit_follower/launch/include/ssd_pose_ros.launch.py`
     - [For more information](sobit_follower#ssd_pose_roslaunchxml)
-- [dr_spaam_ros.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
+- [dr_spaam_ros.launch.py](sobit_follower/launch/include/dr_spaam_ros.launch.py)
     - 2D LiDAR-based person detector
-    - path：`sobit_follower/launch/include/dr_spaam_ros.launch.xml`
+    - path：`sobit_follower/launch/include/dr_spaam_ros.launch.py`
     - [For more information](sobit_follower#dr_spaam_roslaunchxml)
 - [person_id.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
     - Target identification method using RGB-D sensors
     - path：`sobit_follower/launch/include/person_id.launch.xml`
     - [For more information](sobit_follower#peson_idlaunchxml)
-- [sobit_edu_tracker.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
-    - 2D-LiDAR sensor with SOBIT EDU combined with RGB-D sensor on pan-tilt rotation mechanism for person tracking
-    - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_tracker.launch.xml`
-    - [For more information](sobit_follower#sobit_edu_trackerlaunchxml)
-- [sobit_pro_tracker.launch.xml](sobit_follower/launch/include/sobit_pro/sobit_pro_tracker.launch.xml)
-    - 2D-LiDAR sensor with SOBIT PRO combined with RGB-D sensor on pan-tilt rotation mechanism for person tracking
-    - path：`sobit_follower/launch/include/sobit_pro/sobit_pro_tracker.launch.xml`
-    - [For more information](sobit_follower#sobit_pro_trackerlaunchxml)
-- [sobit_edu_person_following_control.launch.xml](sobit_follower/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml)
-    - Driving control that incorporates obstacle avoidance using the Dynamic Window Approach into tracking control using a Virtual Spring Model with SOBIT EDU
-    - path：`sobit_follower/launch/include/sobit_edu/sobit_edu_person_following_control.launch.xml`
-    - [For more information](sobit_follower#sobit_edu_person_following_controllaunchxml)
-- [sobit_pro_person_following_control.launch.xml](sobit_follower/launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml)
-    - Driving control that incorporates obstacle avoidance using the Dynamic Window Approach into tracking control using a Virtual Spring Model with SOBIT PRO
-    - path：`sobit_follower/launch/include/sobit_pro/sobit_pro_person_following_control.launch.xml`
-    - [For more information](sobit_follower#sobit_pro_person_following_controllaunchxml)
 
 #### Parameter file
 - [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
     - Parameters for person tracking
-    - path：`sobit_follower/param/tracker_param.launch.xml`
+    - path：`sobit_follower/param/<robot_type>/tracker_param.yaml`
     - [For more information](sobit_follower#parametersperson_tracker)
 - [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
     - Parameters for RGB image-based person detector
-    - path：`sobit_follower/param/ssd_param.launch.xml`
+    - path：`sobit_follower/param/<robot_type>/ssd_param.yaml`
     - [For more information](sobit_follower#parameters)
 - [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
     - Parameters for 2D LiDAR-based person detector
-    - path：`sobit_follower/param/dr_spaam_param.launch.xml`
+    - path：`sobit_follower/param/<robot_type>/dr_spaam_param.yaml`
     - [For more information](sobit_follower#parameters-1)
 - [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
     - Parameters for pan-tilt rotation control of RGB-D sensor
-    - path：`sobit_follower/param/sensor_rotator_param.launch.xml`
+    - path：`sobit_follower/param/<robot_type>/sensor_rotator_param.yaml`
 - [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
     - Parameters for driving control
-    - path：`sobit_follower/param/following_control_param.launch.xml`
+    - path：`sobit_follower/param/<robot_type>/following_control_param.yaml`
     - [For more information](sobit_follower##parameterfollowing-control)
 - [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
     - Parameters for speed smoothing
-    - path：`sobit_follower/param/velocity_smoother_param.launch.xml`
+    - path：`sobit_follower/param/<robot_type>/velocity_smoother_param.yaml`
     - [For more information](sobit_follower##velocity_smoother_param)
 
 <!-- Milestone -->
@@ -320,39 +224,6 @@ See the [open issues][license-url]  for a full list of proposed features (and kn
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- Acknowledgments -->
-<!-- ## Acknowledgments
-
-* [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
-
-
-<!-- CONTRIBUTING -->
-<!-- ## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
-
-
-<!-- LICENSE -->
-<!-- ## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more NOTErmation.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p> -->
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
 [contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
