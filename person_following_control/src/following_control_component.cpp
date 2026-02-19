@@ -171,10 +171,26 @@ void person_following_control::PersonFollowing::callbackData (
 
     following_position_msg_ = following_position_msg;
 
+    // Guard against async startup ordering: odom/obstacles may not be received yet.
+    if (!odom_msg_) {
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(), *this->get_clock(), 2000,
+            "Waiting for odometry message before computing following control.");
+        return;
+    }
+    if (!obstacles_msg_ &&
+        (following_method_ == FollowingMethod::VSM_DWA || following_method_ == FollowingMethod::DWA)) {
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(), *this->get_clock(), 2000,
+            "Waiting for obstacles message before computing DWA-based control.");
+        return;
+    }
+
     if ( following_position_msg_->pose.position.x == 0.0 && following_position_msg_->pose.position.y == 0.0 ) {
         velocity_.linear.x = 0.0;
         velocity_.angular.z = 0.0;
         pub_vel_->publish(velocity_);
+        return;
     }
     RCLCPP_INFO( this->get_logger(), "\033[1mOdom\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", odom_msg_->twist.twist.linear.x, odom_msg_->twist.twist.angular.z*180/M_PI );
 
