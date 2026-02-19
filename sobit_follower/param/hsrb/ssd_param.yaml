@@ -7,7 +7,7 @@
     base_frame_name : base_footprint
     info_topic_name : /head_rgbd_sensor/rgb/camera_info
 
-    image_show_flag : true
+    image_show_flag : false
     execute_default : true
     ssd_pub_result_image : true
     rqt_image_view_flag : false
