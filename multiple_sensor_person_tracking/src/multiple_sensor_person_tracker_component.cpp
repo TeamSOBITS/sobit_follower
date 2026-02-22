@@ -628,7 +628,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
         ssd_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
 
     // Create publishers
-    pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "following_position", 1 );
+    pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "/following_position", 1 );
     pub_marker_ = create_publisher< visualization_msgs::msg::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = create_publisher< sensor_msgs::msg::PointCloud2 >( "obstacles", 1 );
     pub_target_odom_ = create_publisher< geometry_msgs::msg::PointStamped >( "target_postion_odom", 1 );

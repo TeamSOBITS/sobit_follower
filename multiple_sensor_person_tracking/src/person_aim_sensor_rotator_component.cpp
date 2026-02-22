@@ -263,8 +263,16 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
     head_pantilt_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>( this, head_pantilt_action_name_ );
     
-    while (!head_pantilt_ctr_->wait_for_action_server(std::chrono::seconds(1))) {
-        RCLCPP_WARN(this->get_logger(), "Waiting for action server...");
+    while (rclcpp::ok() && !head_pantilt_ctr_->wait_for_action_server(std::chrono::milliseconds(500))) {
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(),
+            *this->get_clock(),
+            2000,
+            "Waiting for action server...");
+    }
+    if (!rclcpp::ok()) {
+        RCLCPP_INFO(this->get_logger(), "Shutdown requested while waiting for action server.");
+        return;
     }
     last_goal_sent_time_ = this->get_clock()->now() - rclcpp::Duration::from_seconds(1.0);
     goal_in_flight_ = false;

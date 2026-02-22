@@ -136,9 +136,6 @@ def generate_launch_description():
                 name="person_tracker",
                 namespace="sobit_follower",
                 parameters=[person_tracker_params],
-                remappings=[
-                    ("following_position", "/person"),
-                ],
             ),
             # Sensor Rotator Component
             ComposableNode(
