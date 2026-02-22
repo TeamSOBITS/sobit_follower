@@ -4,7 +4,6 @@
     command_velocity_topic_name : /sobit_pro/cmd_vel
     following_position_topic_name : /following_position
     odom_topic_name : /sobit_pro/odom
-    following_stale_timeout_sec   : 1.20
 
     base_footprint_name         : sobit_pro/base_footprint
     # following_distance          : 1.10, 1.80
