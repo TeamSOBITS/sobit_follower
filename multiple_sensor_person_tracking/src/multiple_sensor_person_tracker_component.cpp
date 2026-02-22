@@ -358,6 +358,15 @@ void multiple_sensor_person_tracking::PersonTracker::scan_callback (const sensor
 
 void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& nontravelable_region_msg)
 {
+    if (nontravelable_region_msg->header.frame_id.empty()) {
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(),
+            *this->get_clock(),
+            2000,
+            "Skipping non-travelable region cloud with empty frame_id.");
+        return;
+    }
+
     PointCloud temp_cloud;
     try {
         pcl::fromROSMsg(*nontravelable_region_msg, temp_cloud);
