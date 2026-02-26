@@ -3,16 +3,18 @@
     # Topic & Frame
     scan_topic_name : /sobit_pro/scan
     dr_spaam_topic_name : /dr_spaam_detections
-    ssd_topic_name : /ssd_ros/object_3d_poses
+    # ssd_topic_name : /ssd_ros/object_3d_poses
+    yolo_topic_name : /yolo_ros/object_3d_poses
     target_frame : sobit_pro/base_footprint
+    odom_frame_name : sobit_pro/odom
 
     # Merging Point Cloud Non-travelable region (true) or Not merging (false)
     merge_nontravelable_region : false
 
     # Tracking
     target_range : 3.0
-    leg_tracking_range : 0.70
-    body_tracking_range : 0.35
+    leg_tracking_range : 1.10
+    body_tracking_range : 0.90
     target_cloud_radius : 0.4
     outlier_radius : 0.1
     outlier_min_pts : 2

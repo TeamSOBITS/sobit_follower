@@ -25,8 +25,8 @@ def generate_launch_description():
             "robot_type",
             description="Type of the robot",
             # default_value="sobit_edu",
-            # default_value="sobit_pro",
-            default_value="hsrb",
+            default_value="sobit_pro",
+            # default_value="hsrb",
         ), 
         DeclareLaunchArgument(
             "use_rviz", 
@@ -78,17 +78,36 @@ def generate_launch_description():
                 "launch", 
                 "include",
                 "dr_spaam_ros.launch.py"])
-        )
+        ),
+        launch_arguments={
+            'robot_type': robot_type,
+        }.items()
     )
+    
 
     # SSD launch includes
-    ssd_ros_launch = IncludeLaunchDescription(
+    # ssd_ros_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         PathJoinSubstitution([
+    #             sobit_follower_share,
+    #             "launch",
+    #             "include",
+    #             "ssd_pose_ros.launch.py",
+    #         ])
+    #     ),
+    #     launch_arguments={
+    #         'robot_type': robot_type,
+    #     }.items()
+    # )
+
+    # # YOLO launch includes
+    yolo_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
                 sobit_follower_share,
                 "launch",
                 "include",
-                "ssd_pose_ros.launch.py",
+                "yolo_pose_ros.launch.py",
             ])
         ),
         launch_arguments={
@@ -143,7 +162,8 @@ def generate_launch_description():
     return LaunchDescription(
         launch_args + [
             rviz_node,
-            ssd_ros_launch,
+            # ssd_ros_launch,
+            yolo_ros_launch,
             dr_spaam_launch,
             sobits_follower,
         ]

@@ -12,7 +12,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.hpp>
+// #include <tf2_sensor_msgs/tf2_sensor_msgs.hpp>
 
 #include <laser_geometry/laser_geometry.hpp>
 #include <pcl_conversions/pcl_conversions.h>
@@ -22,7 +22,7 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/voxel_grid.h>
-#include <cv_bridge/cv_bridge.h>
+#include <cv_bridge/cv_bridge.hpp>
 
 #include "vision_msgs/msg/detection2_d_array.hpp"
 #include "vision_msgs/msg/detection3_d_array.hpp"
@@ -251,8 +251,31 @@ int multiple_sensor_person_tracking::PersonTracker::findTwoObservationValue(
             exists_leg_pt = true;
         }
     }
+    
+    // min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
+    // for ( const auto& detection : body_poses ) {
+
+    //     double distance = std::hypotf( detection.bbox.center.position.x - search_pt.x, detection.bbox.center.position.y - search_pt.y );
+
+    //     if ( min_distance > distance ) {
+    //         min_distance = distance;
+    //         body_pt = detection.bbox.center.position;
+    //         exists_body_pt = true;
+    //     }
+    // }
+
     min_distance = ( exists_target_ ) ? body_tracking_range_ : target_range_;
     for ( const auto& detection : body_poses ) {
+        
+        // --- 追加: クラスIDを判定して「人」以外ならスキップする ---
+        if (detection.results.empty()) continue;
+        
+        std::string class_id = detection.results[0].hypothesis.class_id;
+        // MS COCOデータセットにおいて、人は "0" または "person" として出力されます
+        if (class_id != "0" && class_id != "person") {
+            continue; // 人以外（TVなど）の場合は以下の距離計算を行わず無視する
+        }
+        // ----------------------------------------------------
 
         double distance = std::hypotf( detection.bbox.center.position.x - search_pt.x, detection.bbox.center.position.y - search_pt.y );
 
@@ -339,7 +362,7 @@ geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::PersonTracker:
     geometry_msgs::msg::PointStamped pt_transformed;
     geometry_msgs::msg::PointStamped pt;
     pt.header.frame_id = org_frame;
-    pt.header.stamp = this->get_clock()->now();
+    pt.header.stamp = rclcpp::Time(0, 0, this->get_clock()->get_clock_type());
     pt.point = point;
     try{
         tfBuffer_.transform(pt, pt_transformed, target_frame);
@@ -356,6 +379,15 @@ void multiple_sensor_person_tracking::PersonTracker::scan_callback (const sensor
 
 void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& nontravelable_region_msg)
 {
+    if (nontravelable_region_msg->header.frame_id.empty()) {
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(),
+            *this->get_clock(),
+            2000,
+            "Skipping non-travelable region cloud with empty frame_id.");
+        return;
+    }
+
     PointCloud temp_cloud;
     try {
         pcl::fromROSMsg(*nontravelable_region_msg, temp_cloud);
@@ -559,7 +591,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     this->declare_parameter<std::string>("scan_topic_name", "/scan");
     this->declare_parameter<std::string>("pointcloud_nontravelable_region_topic_name", "/pointcloud_nontravelable_region");
     this->declare_parameter<std::string>("dr_spaam_topic_name", "/dr_spaam_detections");
-    this->declare_parameter<std::string>("ssd_topic_name", "/ssd_ros/object_3d_poses");
+    // this->declare_parameter<std::string>("ssd_topic_name", "/ssd_ros/object_3d_poses");
+    this->declare_parameter<std::string>("yolo_topic_name", "/yolo_ros/object_3d_poses");
     this->declare_parameter<std::string>("target_frame", "base_footprint");
     this->declare_parameter<std::string>("odom_frame_name", "odom");
     this->declare_parameter<bool>("merge_nontravelable_region", false);
@@ -574,7 +607,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     auto scan_topic_name = this->get_parameter("scan_topic_name").as_string();
     auto pointcloud_nontravelable_region_topic_name = this->get_parameter("pointcloud_nontravelable_region_topic_name").as_string();
     auto dr_spaam_topic_name = this->get_parameter("dr_spaam_topic_name").as_string();
-    auto ssd_topic_name = this->get_parameter("ssd_topic_name").as_string();
+    // auto ssd_topic_name = this->get_parameter("ssd_topic_name").as_string();
+    auto yolo_topic_name = this->get_parameter("yolo_topic_name").as_string();
     target_frame_ = this->get_parameter("target_frame").as_string();
     odom_frame_name_ = this->get_parameter("odom_frame_name").as_string();
     merge_nontravelable_region_ = this->get_parameter("merge_nontravelable_region").as_bool();
@@ -600,11 +634,14 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     sub_dr_spaam_ = create_subscription<geometry_msgs::msg::PoseArray>(
         dr_spaam_topic_name, 1, std::bind(&PersonTracker::dr_spaam_callback, this, std::placeholders::_1));
 
+    // sub_ssd_ = create_subscription<vision_msgs::msg::Detection3DArray>(
+    //     ssd_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
+
     sub_ssd_ = create_subscription<vision_msgs::msg::Detection3DArray>(
-        ssd_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
+        yolo_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
 
     // Create publishers
-    pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "following_position", 1 );
+    pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "/following_position", 1 );
     pub_marker_ = create_publisher< visualization_msgs::msg::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = create_publisher< sensor_msgs::msg::PointCloud2 >( "obstacles", 1 );
     pub_target_odom_ = create_publisher< geometry_msgs::msg::PointStamped >( "target_postion_odom", 1 );
