@@ -12,6 +12,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_type",
             default_value="sobit_edu",
+            # default_value="sobit_pro"
             description="Type of robot for selecting DR-SPAAM params",
         ),
         DeclareLaunchArgument(

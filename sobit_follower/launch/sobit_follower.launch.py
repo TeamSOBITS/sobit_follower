@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
@@ -16,6 +16,7 @@ def generate_launch_description():
     robot_type = LaunchConfiguration("robot_type")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_cfg = LaunchConfiguration("rviz_cfg")
+    use_ssd = LaunchConfiguration("use_ssd")
     person_tracker_params = LaunchConfiguration("person_tracker_params")
     sensor_rotator_params = LaunchConfiguration("sensor_rotator_params")
     person_following_control_params = LaunchConfiguration("person_following_control_params")
@@ -24,8 +25,8 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_type",
             description="Type of the robot",
-            # default_value="sobit_edu",
-            default_value="sobit_pro",
+            default_value="sobit_edu",
+            # default_value="sobit_pro",
             # default_value="hsrb",
         ), 
         DeclareLaunchArgument(
@@ -37,6 +38,11 @@ def generate_launch_description():
             "rviz_cfg", 
             description="Path to the RViz configuration file",
             default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower_hsrb.rviz"])
+        ),
+        DeclareLaunchArgument(
+            "use_ssd", 
+            default_value="True", 
+            description="True: SSD, False: YOLO"
         ),
         DeclareLaunchArgument(
             "person_tracker_params", 
@@ -86,21 +92,22 @@ def generate_launch_description():
     
 
     # SSD launch includes
-    # ssd_ros_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         PathJoinSubstitution([
-    #             sobit_follower_share,
-    #             "launch",
-    #             "include",
-    #             "ssd_pose_ros.launch.py",
-    #         ])
-    #     ),
-    #     launch_arguments={
-    #         'robot_type': robot_type,
-    #     }.items()
-    # )
+    ssd_ros_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                sobit_follower_share,
+                "launch",
+                "include",
+                "ssd_pose_ros.launch.py",
+            ])
+        ),
+        launch_arguments={
+            'robot_type': robot_type,
+        }.items(),
+        condition=IfCondition(use_ssd)
+    )
 
-    # # YOLO launch includes
+    # YOLO launch includes
     yolo_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -112,7 +119,8 @@ def generate_launch_description():
         ),
         launch_arguments={
             'robot_type': robot_type,
-        }.items()
+        }.items(),
+        condition=IfCondition(PythonExpression(['not ', use_ssd]))
     )
 
     # Component Container
@@ -129,7 +137,14 @@ def generate_launch_description():
                 plugin="multiple_sensor_person_tracking::PersonTracker",
                 name="person_tracker",
                 namespace="sobit_follower",
-                parameters=[person_tracker_params],
+                parameters=[
+                    person_tracker_params,
+                    {
+                        "detection_topic": PythonExpression([
+                            "'/ssd_ros/object_3d_poses' if '" , use_ssd , "'.lower() == 'true' else '/yolo_ros/object_3d_poses'"
+                        ])
+                    }
+                ],
             ),
             # Sensor Rotator Component
             ComposableNode(
@@ -162,7 +177,7 @@ def generate_launch_description():
     return LaunchDescription(
         launch_args + [
             rviz_node,
-            # ssd_ros_launch,
+            ssd_ros_launch,
             yolo_ros_launch,
             dr_spaam_launch,
             sobits_follower,

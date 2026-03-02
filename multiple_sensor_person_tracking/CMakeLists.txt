@@ -25,6 +25,18 @@ find_package(cv_bridge REQUIRED)
 find_package(multiple_observation_kalman_filter REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
+# NumPyのインクルードパスを取得
+execute_process(
+  COMMAND "${Python3_EXECUTABLE}" "-c" "import numpy; print(numpy.get_include())"
+  OUTPUT_VARIABLE NUMPY_INCLUDE_DIRS
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# 取得したNumPyのパスをインクルードディレクトリに追加
+include_directories(${NUMPY_INCLUDE_DIRS})
+
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/FollowingPosition.msg"
   "srv/LegDetectionService.srv"
