@@ -12,7 +12,7 @@ cd ~/catkin_ws/src
 # Dowload required packages for SOBIT Follower
 ros_packages=(
     "yolov10_ros" \
-    "bbox_to_tf" \
+    "image_to_position" \
     "monocular_person_following" \
     "ccf_person_identification" \
     "MPF_GRR_SLT"
