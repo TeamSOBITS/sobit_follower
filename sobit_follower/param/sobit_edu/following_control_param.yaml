@@ -3,6 +3,7 @@
   ros__parameters:
     command_velocity_topic_name : /sobit_edu/commands/velocity
     following_position_topic_name : /sobit_follower/following_position
+    obstacles_topic_name : /sobit_follower/obstacles
     odom_topic_name : /sobit_edu/odom
 
     base_footprint_name         : sobit_edu/base_footprint
