@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
@@ -25,8 +25,8 @@ def generate_launch_description():
             "robot_type",
             description="Type of the robot",
             # default_value="sobit_edu",
-            # default_value="sobit_pro",
-            default_value="hsrb",
+            default_value="sobit_pro",
+            # default_value="hsrb",
         ), 
         DeclareLaunchArgument(
             "use_rviz", 
@@ -36,7 +36,17 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "rviz_cfg", 
             description="Path to the RViz configuration file",
-            default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower_hsrb.rviz"])
+            # Auto-select RViz config by robot_type (still overridable via rviz_cfg:=...)
+            default_value=PathJoinSubstitution([
+                sobit_follower_share,
+                "config",
+                "rviz",
+                PythonExpression([
+                    "'sobit_follower_hsrb.rviz' if '",
+                    robot_type,
+                    "' == 'hsrb' else 'sobit_follower.rviz'"
+                ]),
+            ])
         ),
         DeclareLaunchArgument(
             "person_tracker_params", 
@@ -78,7 +88,16 @@ def generate_launch_description():
                 "launch", 
                 "include",
                 "dr_spaam_ros.launch.py"])
-        )
+        ),
+        launch_arguments={
+            "robot_type": robot_type,
+            "params_file": PathJoinSubstitution([
+                sobit_follower_share,
+                "param",
+                robot_type,
+                "dr_spaam_param.yaml",
+            ]),
+        }.items(),
     )
 
     # SSD launch includes
@@ -93,6 +112,12 @@ def generate_launch_description():
         ),
         launch_arguments={
             'robot_type': robot_type,
+            'params_file': PathJoinSubstitution([
+                sobit_follower_share,
+                "param",
+                robot_type,
+                "ssd_param.yaml",
+            ]),
         }.items()
     )
 

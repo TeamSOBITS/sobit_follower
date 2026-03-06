@@ -51,13 +51,17 @@ namespace person_following_control {
             std::string obstacles_topic_name_;
             std::string following_position_topic_name_;
             std::string odom_topic_name_;
+            double following_stale_timeout_sec_;
             rclcpp::Time pre_time_;
+            rclcpp::Time last_following_update_time_;
+            bool has_following_update_;
             bool use_pid_;
 
             void loadParametersFromServer( );
             void callbackData (
                 const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg
             );
+            void processControl();
             void virtualSpringModelDynamicWindowApproach ();
             void virtualSpringModel ();
             void dynamicWindowApproach ();
@@ -93,6 +97,7 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
     obstacles_topic_name_ = this->get_parameter("obstacles_topic_name").as_string();
     following_position_topic_name_ = this->get_parameter("following_position_topic_name").as_string();
     odom_topic_name_ = this->get_parameter("odom_topic_name").as_string();
+    following_stale_timeout_sec_ = this->get_parameter("following_stale_timeout_sec").as_double();
 
     vsm_->setFollowParamater(
         this->get_parameter("following_angle_deg").as_double(),
@@ -168,9 +173,17 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
 void person_following_control::PersonFollowing::callbackData (
     const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg
 ) {
-
     following_position_msg_ = following_position_msg;
+    last_following_update_time_ = this->get_clock()->now();
+    has_following_update_ = true;
+    processControl();
+}
 
+void person_following_control::PersonFollowing::processControl() {
+
+    if (!following_position_msg_) {
+        return;
+    }
     // Guard against async startup ordering: odom/obstacles may not be received yet.
     if (!odom_msg_) {
         RCLCPP_WARN_THROTTLE(
@@ -186,9 +199,25 @@ void person_following_control::PersonFollowing::callbackData (
         return;
     }
 
-    if ( following_position_msg_->pose.position.x == 0.0 && following_position_msg_->pose.position.y == 0.0 ) {
+    // Safety stop if tracker stream is stale.
+    if (has_following_update_ &&
+        (this->get_clock()->now() - last_following_update_time_).seconds() > following_stale_timeout_sec_) {
         velocity_.linear.x = 0.0;
         velocity_.angular.z = 0.0;
+        use_pid_ = false;
+        pub_vel_->publish(velocity_);
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(), *this->get_clock(), 2000,
+            "Stopping robot because following_position is stale.");
+        return;
+    }
+
+    constexpr int64_t kStatusNoExists = 0;
+    if (following_position_msg_->status == kStatusNoExists ||
+        (following_position_msg_->pose.position.x == 0.0 && following_position_msg_->pose.position.y == 0.0)) {
+        velocity_.linear.x = 0.0;
+        velocity_.angular.z = 0.0;
+        use_pid_ = false;
         pub_vel_->publish(velocity_);
         return;
     }
@@ -221,9 +250,12 @@ void person_following_control::PersonFollowing::virtualSpringModelDynamicWindowA
             velocity_.angular.z = 0.0;
             RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         } else {
-            pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+            pid_.generatePIRotate( this->get_clock()->now() - pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
             RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         }
+        // Keep close-range stop/rotate behavior deterministic.
+        // Do not overwrite with DWA when target is already near.
+        return;
     }
 
     if ( dwa_->generatePath2TargetVSMDWA( following_position_msg_->pose.position, cloud_obstacles_, velocity_ ) ) {
@@ -234,7 +266,7 @@ void person_following_control::PersonFollowing::virtualSpringModelDynamicWindowA
             velocity_.angular.z = 0.0;
             RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         } else {
-            pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+            pid_.generatePIRotate( this->get_clock()->now() - pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
             RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         }
     }
@@ -262,7 +294,7 @@ void person_following_control::PersonFollowing::dynamicWindowApproach ()
             velocity_.linear.x = odom_msg_->twist.twist.linear.x * 0.5;
             RCLCPP_INFO( this->get_logger(), "\033[1;34mSTOP\033[m   = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
         } else {
-            pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+            pid_.generatePIRotate( this->get_clock()->now() - pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
             RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
             if ( std::fabs( target_angle ) < 0.174533 ) use_pid_ = false;
         }
@@ -272,7 +304,7 @@ void person_following_control::PersonFollowing::dynamicWindowApproach ()
     if( dwa_->generatePath2TargetDWA( following_position_msg_->pose.position, cloud_obstacles_, velocity_ ) ) {
         RCLCPP_INFO( this->get_logger(), "\033[1;36mDWA\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     } else {
-        pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+        pid_.generatePIRotate( this->get_clock()->now() - pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
         RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     }
     return;
@@ -281,7 +313,7 @@ void person_following_control::PersonFollowing::dynamicWindowApproach ()
 void person_following_control::PersonFollowing::rotatePID ()
 {
     double target_angle = std::atan2(  following_position_msg_->pose.position.y,  following_position_msg_->pose.position.x );
-    pid_.generatePIRotate( pre_time_ - this->get_clock()->now(), odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
+    pid_.generatePIRotate( this->get_clock()->now() - pre_time_, odom_msg_->twist.twist.angular.z, target_angle, velocity_ );
     RCLCPP_INFO( this->get_logger(), "\033[1;32mPID\033[m    = %5.3f [m/s]\t%5.3f [deg/s]", velocity_.linear.x, velocity_.angular.z*180/M_PI );
     return;
 }
@@ -294,9 +326,7 @@ void person_following_control::PersonFollowing::obstacles_callback (const std::s
 void person_following_control::PersonFollowing::odom_callback (const std::shared_ptr<const nav_msgs::msg::Odometry> &odom_msg)
 {
     odom_msg_ = odom_msg;
-    if (following_position_msg_) {
-        callbackData(following_position_msg_);
-    }
+    processControl();
 }
 
 void person_following_control::PersonFollowing::onInit() {
@@ -308,6 +338,7 @@ void person_following_control::PersonFollowing::onInit() {
     this->declare_parameter<std::string>("odom_topic_name", "/odom");
     this->declare_parameter<int>("following_method", FollowingMethod::VSM_DWA);
     this->declare_parameter<double>("following_distance", 1.0);
+    this->declare_parameter<double>("following_stale_timeout_sec", 1.0);
 
     // VSM
     this->declare_parameter<std::string>("base_footprint_name", "base_footprint");
@@ -377,6 +408,7 @@ void person_following_control::PersonFollowing::onInit() {
 
     // Initialize PID usage flag and previous time
     use_pid_ = false;
+    has_following_update_ = false;
     pre_time_ = this->get_clock()->now();
 }
 

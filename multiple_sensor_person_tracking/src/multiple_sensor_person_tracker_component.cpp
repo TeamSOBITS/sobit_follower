@@ -339,7 +339,9 @@ geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::PersonTracker:
     geometry_msgs::msg::PointStamped pt_transformed;
     geometry_msgs::msg::PointStamped pt;
     pt.header.frame_id = org_frame;
-    pt.header.stamp = this->get_clock()->now();
+    // Use latest available TF to avoid tiny "future extrapolation" races
+    // between incoming sensor timestamps and tf publication timing.
+    pt.header.stamp = rclcpp::Time(0, 0, this->get_clock()->get_clock_type());
     pt.point = point;
     try{
         tfBuffer_.transform(pt, pt_transformed, target_frame);
@@ -448,13 +450,15 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
             leg_poses.begin(),
             leg_poses.end(),
             []( const auto & a, const auto & b)
-            { return std::hypotf(a.position.x, a.position.y) > std::hypotf(b.position.x, b.position.y); } );
+            { return std::hypotf(a.position.x, a.position.y) < std::hypotf(b.position.x, b.position.y); } );
         // set the position of attention_leg_idx_ -> (if attention_leg_idx_ is larger than the array, modify)
         // change attention_leg_idx_ in 2 seconds
         if ( this->get_clock()->now().seconds() - attention_leg_time_ >= 2.0 ) {
-            attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ + 1 : 0;
+            attention_leg_idx_ = (attention_leg_idx_ + 1) % leg_poses.size();
             attention_leg_time_ = this->get_clock()->now().seconds();
-        } else attention_leg_idx_ = ( attention_leg_idx_ <= leg_poses.size() ) ? attention_leg_idx_ : leg_poses.size()-1;
+        } else if (attention_leg_idx_ >= leg_poses.size()) {
+            attention_leg_idx_ = leg_poses.size() - 1;
+        }
         following_position_->rotation_position.x = leg_poses[attention_leg_idx_].position.x;
         following_position_->rotation_position.y = leg_poses[attention_leg_idx_].position.y;
         following_position_->pose.position.x = 0.0;
@@ -467,9 +471,25 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
         attention_leg_time_ = -1.0;
         attention_leg_idx_ = 0;
     }
+    // Transform SSD detections into tracker target frame so body/leg fusion
+    // is computed in one coordinate system.
+    std::vector<vision_msgs::msg::Detection3D> body_detections_in_target = ssd_msg->detections;
+    const std::string array_frame = ssd_msg->header.frame_id;
+    for (auto & detection : body_detections_in_target) {
+        std::string src_frame = detection.header.frame_id;
+        if (src_frame.empty()) {
+            src_frame = array_frame;
+        }
+        if (!src_frame.empty() && src_frame != target_frame_) {
+            const auto transformed = transformPoint(src_frame, target_frame_, detection.bbox.center.position);
+            detection.bbox.center.position = transformed.point;
+            detection.header.frame_id = target_frame_;
+        }
+    }
+
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
-    int result = findTwoObservationValue( dr_spaam_msg_->poses, ssd_msg->detections, &leg_observed_value, &body_observed_value );
+    int result = findTwoObservationValue( dr_spaam_msg_->poses, body_detections_in_target, &leg_observed_value, &body_observed_value );
     if ( result == Status::NO_EXISTS ) {
         if ( no_exists_time_ == -1.0 ) no_exists_time_ = this->get_clock()->now().seconds();
         else if ( this->get_clock()->now().seconds() - no_exists_time_ >= target_change_tolerance_ ){
@@ -547,7 +567,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     if ( display_marker_ ) {
         marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg_->poses) );
         marker_array_->markers.push_back( makeLegAreaMarker(dr_spaam_msg_->poses) );
-        marker_array_->markers.push_back( makeBodyPoseMarker(ssd_msg->detections) );
+        marker_array_->markers.push_back( makeBodyPoseMarker(body_detections_in_target) );
         marker_array_->markers.push_back( makeTargetPoseMarker(estimated_value) );
         pub_marker_->publish ( *marker_array_ );
     }
@@ -578,6 +598,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     this->declare_parameter<int>("outlier_min_pts", 2);
     this->declare_parameter<double>("leaf_size", 0.1);
     this->declare_parameter<double>("target_cloud_radius", 0.4);
+    this->declare_parameter<double>("target_change_tolerance", 2.0);
+    this->declare_parameter<bool>("display_marker", true);
 
     // Retrieve parameter values
     auto scan_topic_name = this->get_parameter("scan_topic_name").as_string();
@@ -589,6 +611,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     merge_nontravelable_region_ = this->get_parameter("merge_nontravelable_region").as_bool();
     leg_tracking_range_ = this->get_parameter("leg_tracking_range").as_double();
     body_tracking_range_ = this->get_parameter("body_tracking_range").as_double();
+    target_change_tolerance_ = this->get_parameter("target_change_tolerance").as_double();
+    display_marker_ = this->get_parameter("display_marker").as_bool();
 
     // Initialize class members
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
