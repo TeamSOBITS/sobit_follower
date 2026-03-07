@@ -6,8 +6,6 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Pyth
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
-from ament_index_python.packages import get_package_share_directory
-import os
 
 def generate_launch_description():
 
@@ -16,7 +14,7 @@ def generate_launch_description():
     robot_type = LaunchConfiguration("robot_type")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_cfg = LaunchConfiguration("rviz_cfg")
-    use_ssd = LaunchConfiguration("use_ssd")
+    body_detector = LaunchConfiguration("body_detector")
     person_tracker_params = LaunchConfiguration("person_tracker_params")
     sensor_rotator_params = LaunchConfiguration("sensor_rotator_params")
     person_following_control_params = LaunchConfiguration("person_following_control_params")
@@ -40,9 +38,9 @@ def generate_launch_description():
             default_value=PathJoinSubstitution([sobit_follower_share, "config", "rviz","sobit_follower_hsrb.rviz"])
         ),
         DeclareLaunchArgument(
-            "use_ssd", 
-            default_value="True", 
-            description="True: SSD, False: YOLO"
+            "body_detector", 
+            default_value="yolo", 
+            description="Select the body detector type: 'yolo', 'ssd'"
         ),
         DeclareLaunchArgument(
             "person_tracker_params", 
@@ -104,7 +102,9 @@ def generate_launch_description():
         launch_arguments={
             'robot_type': robot_type,
         }.items(),
-        condition=IfCondition(use_ssd)
+        condition=IfCondition(
+            PythonExpression(["'", body_detector, "'.lower() == 'ssd'"])
+        )
     )
 
     # YOLO launch includes
@@ -120,7 +120,9 @@ def generate_launch_description():
         launch_arguments={
             'robot_type': robot_type,
         }.items(),
-        condition=IfCondition(PythonExpression(['not ', use_ssd]))
+        condition=IfCondition(
+            PythonExpression(["'", body_detector, "'.lower() == 'yolo'"])
+        )
     )
 
     # Component Container
@@ -140,9 +142,7 @@ def generate_launch_description():
                 parameters=[
                     person_tracker_params,
                     {
-                        "detection_topic": PythonExpression([
-                            "'/ssd_ros/object_3d_poses' if '" , use_ssd , "'.lower() == 'true' else '/yolo_ros/object_3d_poses'"
-                        ])
+                        "body_detection_topic_name": "/sobit_follower/body_3d_poses"
                     }
                 ],
             ),
