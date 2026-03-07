@@ -152,9 +152,9 @@ def generate_launch_description():
                 "config",
                 "rviz",
                 PythonExpression([
-                    "'sobit_follower_hsrb.rviz' if '",
+                    "'sobit_follower_' + '",
                     robot_type,
-                    "' == 'hsrb' else 'sobit_follower.rviz'"
+                    "' + '.rviz'"
                 ]),
             ])
         ),
