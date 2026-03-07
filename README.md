@@ -59,8 +59,8 @@
 
 ## セットアップ
 ```
-$ cd ~/catkin_ws/src/
-$ git clone -b humble-devel https://github.com/TeamSOBITS/sobit_follower
+$ cd ~/colcon_ws/src/
+$ git clone -b jazzy-devel https://github.com/TeamSOBITS/sobit_follower
 $ cd sobit_follower
 # sobit_followerに必要なパッケージのインストールを行う
 $ bash install.sh

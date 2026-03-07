@@ -32,13 +32,14 @@ cd ~/colcon_ws/src
 # Dowload required packages for SOBIT Follower
 ros_packages=(
     "sobits_interfaces" \
-    "ssd_ros"
+    "ssd_ros" \
+    "yolo_ros"
 )
 
 # Clone all packages
 for ((i = 0; i < ${#ros_packages[@]}; i++)) {
     echo "Clonning: ${ros_packages[i]}"
-    git clone -b humble-devel https://github.com/TeamSOBITS/${ros_packages[i]}.git
+    git clone -b jazzy-devel https://github.com/TeamSOBITS/${ros_packages[i]}.git
 
     # Check if install.sh exists in each package
     if [ -f ${ros_packages[i]}/install.sh ]; then

@@ -56,6 +56,7 @@ def _launch_setup(context):
             ]),
         }.items(),
     )
+    
 
     ssd_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -63,7 +64,7 @@ def _launch_setup(context):
                 sobit_follower_share,
                 "launch",
                 "include",
-                "ssd_pose_ros.launch.py",
+                "yolo_pose_ros.launch.py",
             ])
         ),
         launch_arguments={

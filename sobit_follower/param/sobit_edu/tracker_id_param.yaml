@@ -1,11 +1,13 @@
 /**:
   ros__parameters:
     # Topic & Frame
-    scan_topic_name : sobit_edu/scan
+    scan_topic_name : /sobit_edu/scan
     dr_spaam_topic_name : /dr_spaam_detections
     # ssd_topic_name : /ssd_ros/object_3d_poses
-    yolo_topic_name : /yolov10_bbox_to_tf/object_poses
+    # yolo_topic_name : /yolov10_bbox_to_tf/object_poses
+    yolo_topic_name : /yolo_ros/object_3d_poses
     target_frame : sobit_edu/base_footprint
+    odom_frame_name : sobit_edu/odom
     # Tracking
     target_range : 3.0
     # leg_tracking_range : 0.70

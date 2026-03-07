@@ -11,7 +11,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             "robot_type",
-            default_value="hsrb",
+            default_value="sobit_edu",
             description="Type of robot for selecting DR-SPAAM params",
         ),
         DeclareLaunchArgument(
