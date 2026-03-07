@@ -484,8 +484,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
         following_position_->pose.position.y = 0.0;
         following_position_->status = Status::NO_EXISTS;
         pub_following_position_->publish( *following_position_ );
-        // RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (SSD) attention_leg_idx = %d",attention_leg_idx_ );
-        RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (Object) attention_leg_idx = %d",attention_leg_idx_ );
+        RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (SSD) attention_leg_idx = %d",attention_leg_idx_ );
         return;
     } else {
         attention_leg_time_ = -1.0;
@@ -593,8 +592,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     this->declare_parameter<std::string>("pointcloud_nontravelable_region_topic_name", "/pointcloud_nontravelable_region");
     this->declare_parameter<std::string>("dr_spaam_topic_name", "/dr_spaam_detections");
     // this->declare_parameter<std::string>("ssd_topic_name", "/ssd_ros/object_3d_poses");
-    // this->declare_parameter<std::string>("yolo_topic_name", "/yolo_ros/object_3d_poses");
-    this->declare_parameter<std::string>("detection_topic", "/yolo_ros/object_3d_poses");
+    this->declare_parameter<std::string>("yolo_topic_name", "/yolo_ros/object_3d_poses");
     this->declare_parameter<std::string>("target_frame", "base_footprint");
     this->declare_parameter<std::string>("odom_frame_name", "odom");
     this->declare_parameter<bool>("merge_nontravelable_region", false);
@@ -609,9 +607,8 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     auto scan_topic_name = this->get_parameter("scan_topic_name").as_string();
     auto pointcloud_nontravelable_region_topic_name = this->get_parameter("pointcloud_nontravelable_region_topic_name").as_string();
     auto dr_spaam_topic_name = this->get_parameter("dr_spaam_topic_name").as_string();
-    auto detection_topic = this->get_parameter("detection_topic").as_string();
     // auto ssd_topic_name = this->get_parameter("ssd_topic_name").as_string();
-    // auto yolo_topic_name = this->get_parameter("yolo_topic_name").as_string();
+    auto yolo_topic_name = this->get_parameter("yolo_topic_name").as_string();
     target_frame_ = this->get_parameter("target_frame").as_string();
     odom_frame_name_ = this->get_parameter("odom_frame_name").as_string();
     merge_nontravelable_region_ = this->get_parameter("merge_nontravelable_region").as_bool();
@@ -636,15 +633,12 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
 
     sub_dr_spaam_ = create_subscription<geometry_msgs::msg::PoseArray>(
         dr_spaam_topic_name, 1, std::bind(&PersonTracker::dr_spaam_callback, this, std::placeholders::_1));
-    
-    sub_ssd_ = create_subscription<vision_msgs::msg::Detection3DArray>(
-        detection_topic, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
-    
+
     // sub_ssd_ = create_subscription<vision_msgs::msg::Detection3DArray>(
     //     ssd_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
 
-    // sub_ssd_ = create_subscription<vision_msgs::msg::Detection3DArray>(
-    //     yolo_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
+    sub_ssd_ = create_subscription<vision_msgs::msg::Detection3DArray>(
+        yolo_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
 
     // Create publishers
     pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "/following_position", 1 );
