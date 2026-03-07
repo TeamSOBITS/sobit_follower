@@ -98,6 +98,15 @@ $ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_recon
 ```
 ※SOBIT PRO，RGB-Dセンサ，2D LiDARの起動をすること
 
+### [sobit_follower.launch.py](launch/sobit_follower.launch.py) (ROS2)
+- ROS2用の統合Launch
+- path：`sobit_follower/launch/sobit_follower.launch.py`
+```bash
+$ ros2 launch sobit_follower sobit_follower.launch.py robot_type:=hsrb
+# 引数
+# robot_type : hsrb / sobit_pro / sobit_edu
+```
+
 
 ## 構成
 ### tracker.launch.xml
@@ -129,6 +138,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_recon
 |/scan_topic_name|string|Scanのトピック名|
 |/dr_spaam_topic_name|string|DR-SPAAMのトピック名|
 |/ssd_topic_name|string|SSDのトピック名|
+|/detection_mode|string|検出モード (`body` / `leg` / `body_leg`)|
 |/target_frame|string|基準フレーム名|
 |/merge_nontravelable_region|bool|セグメンテーションによる小さな障害物回避機能を有効するか|
 |/target_range|double|追跡対象を決定するときの最大範囲[m]|
@@ -361,6 +371,8 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * an
 - [x] OSS
     - [x] ドキュメンテーションの充実
     - [x] コーディングスタイルの統一
+- [x] `detection_mode`（`body` / `leg` / `body_leg`）に対応
+    - [x] `tracker_param.yaml` の `detection_mode` に応じた検出器の条件起動（SSD / DR-SPAAM）
 
 現時点のバッグや新規機能の依頼を確認するために[Issueページ][license-url] をご覧ください．
 

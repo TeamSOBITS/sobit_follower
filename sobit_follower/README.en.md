@@ -98,6 +98,15 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 ```
 ※To activate SOBIT PRO, RGB-D sensor, and 2D LiDAR
 
+### [sobit_follower.launch.py](launch/sobit_follower.launch.py) (ROS2)
+- Integrated launch file for ROS2
+- path：`sobit_follower/launch/sobit_follower.launch.py`
+```bash
+$ ros2 launch sobit_follower sobit_follower.launch.py robot_type:=hsrb
+# Arguments
+# robot_type : hsrb / sobit_pro / sobit_edu
+```
+
 ## Configuration
 ### tracker.launch.xml
 - #### [sobit_edu_tracker.launch.xml](launch/include/sobit_edu/sobit_edu_tracker.launch.xml)
@@ -128,6 +137,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me.launch rviz:=false rqt_reconfig
 |/scan_topic_name|string|Scan Topic Name|
 |/dr_spaam_topic_name|string|DR-SPAAM Topic Name|
 |/ssd_topic_name|string|SSD Topic Name|
+|/detection_mode|string|Detection mode (`body` / `leg` / `body_leg`)|
 |/target_frame|string|Reference Frame Name|
 |/merge_nontravelable_region|bool|Enables or disables the functionality for avoiding small obstacles by segmentation|
 |/target_range|double|Maximum range when determining the tracking target[m]|
@@ -360,6 +370,8 @@ G(v,ω) = α * heading(v,ω) + β * obstacle(v,ω) + γ * linear(v,ω) + δ * an
 - [x] OSS
     - [x] Improved documentation
     - [x] Unified coding style
+- [x] Added `detection_mode` support (`body` / `leg` / `body_leg`)
+    - [x] Conditional detector launch (SSD / DR-SPAAM) based on `detection_mode` in `tracker_param.yaml`
 
 
 See the [open issues ][license-url] for a full list of proposed features (and known issues).
