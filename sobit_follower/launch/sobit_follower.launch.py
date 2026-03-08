@@ -37,6 +37,7 @@ def _launch_setup(context):
 
     tracker_params_path = person_tracker_params.perform(context)
     detection_mode = _load_detection_mode(tracker_params_path)
+    body_detector_value = body_detector.perform(context).strip().lower()
 
     dr_spaam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -71,9 +72,6 @@ def _launch_setup(context):
         launch_arguments={
             'robot_type': robot_type,
         }.items(),
-        condition=IfCondition(
-            PythonExpression(["'", body_detector, "'.lower() == 'ssd'"])
-        )
     )
 
     # YOLO launch includes
@@ -89,9 +87,6 @@ def _launch_setup(context):
         launch_arguments={
             'robot_type': robot_type,
         }.items(),
-        condition=IfCondition(
-            PythonExpression(["'", body_detector, "'.lower() == 'yolo'"])
-        )
     )
 
     sobits_follower = ComposableNodeContainer(
@@ -146,7 +141,10 @@ def _launch_setup(context):
     if detection_mode != "body":
         actions.append(dr_spaam_launch)
     if detection_mode != "leg":
-        actions.append(ssd_ros_launch)
+        if body_detector_value == "ssd":
+            actions.append(ssd_ros_launch)
+        elif body_detector_value == "yolo":
+            actions.append(yolo_ros_launch)
     actions.append(sobits_follower)
     return actions
 
