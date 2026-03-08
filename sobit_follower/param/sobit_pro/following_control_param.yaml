@@ -46,7 +46,6 @@
     # Dynamic Window Approach : VSM-DWA Weight
 
     # FIXME
-    # weight_vsm_heading : 3.0
     weight_vsm_heading : 3.0 #1.5
     weight_vsm_obstacle : 1.7 #2.5
     # FIXME
