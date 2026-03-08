@@ -124,7 +124,7 @@ namespace multiple_sensor_person_tracking {
             );
 
             void callbackPoseArray (
-                const vision_msgs::msg::Detection3DArray::ConstSharedPtr &ssd_msg );
+                const vision_msgs::msg::Detection3DArray::ConstSharedPtr &body_msg );
         public:
             explicit PersonTracker(const rclcpp::NodeOptions & options)
             : Node("person_tracker", options),
@@ -416,14 +416,14 @@ void multiple_sensor_person_tracking::PersonTracker::dr_spaam_callback(const geo
 {
     dr_spaam_msg_ = dr_spaam_msg;
     if (detection_mode_ == DetectionMode::LEG) {
-        auto empty_ssd_msg = std::make_shared<vision_msgs::msg::Detection3DArray>();
-        empty_ssd_msg->header.stamp = dr_spaam_msg->header.stamp;
-        empty_ssd_msg->header.frame_id = target_frame_;
-        callbackPoseArray(empty_ssd_msg);
+        auto empty_body_msg = std::make_shared<vision_msgs::msg::Detection3DArray>();
+        empty_body_msg->header.stamp = dr_spaam_msg->header.stamp;
+        empty_body_msg->header.frame_id = target_frame_;
+        callbackPoseArray(empty_body_msg);
     }
 }
 
-void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const vision_msgs::msg::Detection3DArray::ConstSharedPtr &ssd_msg ) {
+void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const vision_msgs::msg::Detection3DArray::ConstSharedPtr &body_msg ) {
     
     std::cout << "\n====================================" << std::endl;
     // variable initialization
@@ -452,7 +452,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
         return;
     }
 
-    if ( !exists_target_ && use_body_detection && ssd_msg->detections.size() == 0) {
+    if ( !exists_target_ && use_body_detection && body_msg->detections.size() == 0) {
         if ( !use_leg_detection || dr_spaam_msg_->poses.size() == 0 ) {
             RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (DR-SPAAM)" );
             exists_target_ = false;
@@ -493,10 +493,10 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
         attention_leg_time_ = -1.0;
         attention_leg_idx_ = 0;
     }
-    // Transform SSD detections into tracker target frame so body/leg fusion
+    // Transform body detections into tracker target frame so body/leg fusion
     // is computed in one coordinate system.
-    std::vector<vision_msgs::msg::Detection3D> body_detections_in_target = ssd_msg->detections;
-    const std::string array_frame = ssd_msg->header.frame_id;
+    std::vector<vision_msgs::msg::Detection3D> body_detections_in_target = body_msg->detections;
+    const std::string array_frame = body_msg->header.frame_id;
     for (auto & detection : body_detections_in_target) {
         std::string src_frame = detection.header.frame_id;
         if (src_frame.empty()) {
