@@ -50,7 +50,7 @@ def _launch_setup(context):
         ),
         launch_arguments={
             "robot_type": robot_type,
-            "params_file": PathJoinSubstitution([
+            "dr_spaam_params_file": PathJoinSubstitution([
                 sobit_follower_share,
                 "param",
                 robot_type,
@@ -169,7 +169,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "rviz_cfg", 
             description="Path to the RViz configuration file",
-            # Auto-select RViz config by robot_type (still overridable via rviz_cfg:=...)
             default_value=PathJoinSubstitution([
                 sobit_follower_share,
                 "config",

@@ -23,12 +23,12 @@ def generate_launch_description():
     )
 
     params_file_arg = DeclareLaunchArgument(
-        'params_file',
+        'ssd_params_file',
         default_value=default_param_file,
         description='Full path to the body detection parameter file.'
     )
 
-    params_file = LaunchConfiguration('params_file')
+    params_file = LaunchConfiguration('ssd_params_file')
 
     ssd_node = Node(
         package='ssd_ros',

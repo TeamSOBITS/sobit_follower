@@ -18,12 +18,12 @@ def generate_launch_description():
         description='Robot type for selecting YOLO param file.'
     )
     params_file_arg = DeclareLaunchArgument(
-        'params_file',
+        'yolo_params_file',
         default_value=default_param_file,
         description='Full path to the YOLO parameter file.'
     )
 
-    params_file = LaunchConfiguration('params_file')
+    params_file = LaunchConfiguration('yolo_params_file')
 
     yolo_node = Node(
         package='yolo_ros',
