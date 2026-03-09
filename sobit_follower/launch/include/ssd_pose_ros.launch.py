@@ -19,13 +19,13 @@ def generate_launch_description():
     robot_type_arg = DeclareLaunchArgument(
         'robot_type',
         default_value='sobit_edu',
-        description='Robot type for selecting SSD param file.',
+        description='Robot type for selecting body detection param file.',
     )
 
     params_file_arg = DeclareLaunchArgument(
         'params_file',
         default_value=default_param_file,
-        description='Full path to the SSD parameter file.'
+        description='Full path to the body detection parameter file.'
     )
 
     params_file = LaunchConfiguration('params_file')

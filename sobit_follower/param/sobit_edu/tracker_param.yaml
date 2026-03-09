@@ -4,6 +4,7 @@
     scan_topic_name : /sobit_edu/scan
     dr_spaam_topic_name : /dr_spaam_detections
     body_detection_topic_name : /sobit_follower/body_3d_poses
+    detection_mode : body_leg                   # body_leg or body or leg 
     target_frame : sobit_edu/base_footprint
     odom_frame_name : sobit_edu/odom
 
@@ -14,8 +15,8 @@
     target_range : 3.0
     # leg_tracking_range : 0.70
     # body_tracking_range : 0.35
-    leg_tracking_range : 1.50
-    body_tracking_range : 1.50
+    leg_tracking_range : 0.70
+    body_tracking_range : 0.35
     target_cloud_radius : 0.4
     outlier_radius : 0.1
     outlier_min_pts : 2
