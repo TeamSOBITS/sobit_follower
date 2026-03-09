@@ -159,7 +159,8 @@ def generate_launch_description():
             description="Type of the robot",
             # default_value="sobit_edu",
             # default_value="sobit_pro",
-            default_value="hsrb",
+            default_value="sobit_home",
+            # default_value="hsrb",
         ), 
         DeclareLaunchArgument(
             "use_rviz", 

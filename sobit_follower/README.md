@@ -104,7 +104,7 @@ $ roslaunch sobit_follower sobit_pro_follower_me_id.launch rviz:=false rqt_recon
 ```bash
 $ ros2 launch sobit_follower sobit_follower.launch.py robot_type:=hsrb
 # 引数
-# robot_type : hsrb / sobit_pro / sobit_edu
+# robot_type : hsrb / sobit_pro / sobit_edu / sobit_home
 ```
 
 

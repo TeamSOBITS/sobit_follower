@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    weight_file : "ckpt_jrdb_ann_ft_dr_spaam_e20.pth"
+    detector_model : "DR-SPAAM"
+    use_gpu : False
+    conf_thresh : 0.9
+    stride : 1
+    panoramic_scan : false
+    execute_default : true
+    queue_size : 1
+    scan_topic_name : /sobit_home/lidar_front/scan
