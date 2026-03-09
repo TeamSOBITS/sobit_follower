@@ -437,6 +437,16 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     const bool use_leg_detection = detection_mode_ != DetectionMode::BODY;
     const bool use_body_detection = detection_mode_ != DetectionMode::LEG;
 
+    // Wait until a valid scan frame is available.
+    if (!scan_msg_ || scan_msg_->header.frame_id.empty()) {
+        RCLCPP_WARN_THROTTLE(
+            this->get_logger(),
+            *this->get_clock(),
+            2000,
+            "Waiting for a valid LaserScan frame on scan_topic_name.");
+        return;
+    }
+
     // Sensor data to TF2 conversion
     try {
         projector_.transformLaserScanToPointCloud( target_frame, *scan_msg_, cloud_scan_msg, tfBuffer_ );
@@ -677,21 +687,22 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     cloud_nontravelable_region_.reset( new PointCloud() );
     dr_spaam_msg_.reset( new geometry_msgs::msg::PoseArray() );
 
-    // Create subscribers
+    // Create subscribers with sensor QoS to interoperate with Gazebo/bridge topics.
+    auto sensor_qos = rclcpp::SensorDataQoS();
     sub_scan_ = create_subscription<sensor_msgs::msg::LaserScan>(
-        scan_topic_name, 1, std::bind(&PersonTracker::scan_callback, this, std::placeholders::_1));
+        scan_topic_name, sensor_qos, std::bind(&PersonTracker::scan_callback, this, std::placeholders::_1));
 
     sub_nontravelable_region_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-        pointcloud_nontravelable_region_topic_name, 1, std::bind(&PersonTracker::nontravelableRegionCallback, this, std::placeholders::_1));
+        pointcloud_nontravelable_region_topic_name, sensor_qos, std::bind(&PersonTracker::nontravelableRegionCallback, this, std::placeholders::_1));
 
     sub_dr_spaam_ = create_subscription<geometry_msgs::msg::PoseArray>(
-        dr_spaam_topic_name, 1, std::bind(&PersonTracker::dr_spaam_callback, this, std::placeholders::_1));
+        dr_spaam_topic_name, sensor_qos, std::bind(&PersonTracker::dr_spaam_callback, this, std::placeholders::_1));
     
     sub_image_ = create_subscription<vision_msgs::msg::Detection3DArray>(
-        body_detection_topic_name, 1, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
+        body_detection_topic_name, sensor_qos, std::bind(&PersonTracker::callbackPoseArray, this, std::placeholders::_1));
     
     // Create publishers
-    pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "/following_position", 1 );
+    pub_following_position_ = create_publisher< multiple_sensor_person_tracking::msg::FollowingPosition >( "following_position", 1 );
     pub_marker_ = create_publisher< visualization_msgs::msg::MarkerArray >( "tracker_marker", 1 );
     pub_obstacles_ = create_publisher< sensor_msgs::msg::PointCloud2 >( "obstacles", 1 );
     pub_target_odom_ = create_publisher< geometry_msgs::msg::PointStamped >( "target_postion_odom", 1 );
