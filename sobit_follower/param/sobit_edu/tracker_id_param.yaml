@@ -6,10 +6,9 @@
     body_detection_topic_name : /sobit_follower/body_3d_poses
     target_frame : sobit_edu/base_footprint
     odom_frame_name : sobit_edu/odom
+
     # Tracking
     target_range : 3.0
-    # leg_tracking_range : 0.70
-    # body_tracking_range : 0.35
     leg_tracking_range : 0.40
     body_tracking_range : 0.40
     target_cloud_radius : 0.4

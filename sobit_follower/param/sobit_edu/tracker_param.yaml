@@ -13,8 +13,6 @@
 
     # Tracking
     target_range : 3.0
-    # leg_tracking_range : 0.70
-    # body_tracking_range : 0.35
     leg_tracking_range : 0.70
     body_tracking_range : 0.35
     target_cloud_radius : 0.4
