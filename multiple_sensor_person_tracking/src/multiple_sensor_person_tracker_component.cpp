@@ -621,6 +621,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     } 
 
     if ( display_marker_ ) {
+        marker_array_->markers.clear();
         marker_array_->markers.push_back( makeLegPoseMarker(leg_detections_in_target) );
         marker_array_->markers.push_back( makeLegAreaMarker(leg_detections_in_target) );
         marker_array_->markers.push_back( makeBodyPoseMarker(body_detections_in_target) );
