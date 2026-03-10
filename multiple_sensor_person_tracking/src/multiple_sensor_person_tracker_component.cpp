@@ -462,8 +462,17 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
         return;
     }
 
+    std::vector<geometry_msgs::msg::Pose> leg_detections_in_target = dr_spaam_msg_->poses;
+    const std::string leg_array_frame = dr_spaam_msg_->header.frame_id;
+    if (use_leg_detection && !leg_array_frame.empty() && leg_array_frame != target_frame_) {
+        for (auto & pose : leg_detections_in_target) {
+            const auto transformed = transformPoint(leg_array_frame, target_frame_, pose.position);
+            pose.position = transformed.point;
+        }
+    }
+
     if ( !exists_target_ && use_body_detection && body_msg->detections.size() == 0) {
-        if ( !use_leg_detection || dr_spaam_msg_->poses.size() == 0 ) {
+        if ( !use_leg_detection || leg_detections_in_target.size() == 0 ) {
             RCLCPP_ERROR(this->get_logger(), "Result :          NO_EXISTS (DR-SPAAM)" );
             exists_target_ = false;
             following_position_->pose.position.x = 0.0;
@@ -475,7 +484,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
         }
         if( attention_leg_time_ == -1.0 ) attention_leg_time_ = this->get_clock()->now().seconds();
         exists_target_ = false;
-        std::vector<geometry_msgs::msg::Pose> leg_poses = dr_spaam_msg_->poses;
+        std::vector<geometry_msgs::msg::Pose> leg_poses = leg_detections_in_target;
         // Rotate the RGB-D sensor in the direction in which the leg_poses
         // Sort by proximity
         std::sort(
@@ -522,7 +531,7 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     // Searching for observables to input to the Kalman filter
     Eigen::Vector2f leg_observed_value, body_observed_value;
     const std::vector<geometry_msgs::msg::Pose> leg_observations =
-        use_leg_detection ? dr_spaam_msg_->poses : std::vector<geometry_msgs::msg::Pose>{};
+        use_leg_detection ? leg_detections_in_target : std::vector<geometry_msgs::msg::Pose>{};
     const std::vector<vision_msgs::msg::Detection3D> body_observations =
         use_body_detection ? body_detections_in_target : std::vector<vision_msgs::msg::Detection3D>{};
     int result = findTwoObservationValue( leg_observations, body_observations, &leg_observed_value, &body_observed_value );
@@ -612,8 +621,8 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     } 
 
     if ( display_marker_ ) {
-        marker_array_->markers.push_back( makeLegPoseMarker(dr_spaam_msg_->poses) );
-        marker_array_->markers.push_back( makeLegAreaMarker(dr_spaam_msg_->poses) );
+        marker_array_->markers.push_back( makeLegPoseMarker(leg_detections_in_target) );
+        marker_array_->markers.push_back( makeLegAreaMarker(leg_detections_in_target) );
         marker_array_->markers.push_back( makeBodyPoseMarker(body_detections_in_target) );
         marker_array_->markers.push_back( makeTargetPoseMarker(estimated_value) );
         pub_marker_->publish ( *marker_array_ );
