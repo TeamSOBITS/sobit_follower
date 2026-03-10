@@ -9,7 +9,7 @@
 
     base_footprint_name : sobit_home/base_footprint
     odom_frame_name : sobit_home/odom
-    following_distance : 0.90
+    following_distance : 2.00
 
     following_method : 0
       # 0 : VirtualSpringModel-DynamicWindowApproach
