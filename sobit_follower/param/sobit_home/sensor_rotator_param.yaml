@@ -2,9 +2,9 @@
   ros__parameters:
     use_rotate : true
     following_position_topic_name : /sobit_follower/following_position
-    pan_angle_min_deg : -50.0
-    pan_angle_max_deg : 50.0
-    tilt_angle_min_deg : -45.0
+    pan_angle_min_deg : -60.0
+    pan_angle_max_deg : 60.0
+    tilt_angle_min_deg : -30.0
     tilt_angle_max_deg : 30.0
     camera2person_height : 0.0
     use_smoothing : true
