@@ -4,7 +4,7 @@
     scan_topic_name : /sobit_home/lidar_scan
     dr_spaam_topic_name : /dr_spaam/dr_spaam_detections
     body_detection_topic_name : /sobit_follower/body_3d_poses
-    detection_mode : body                       # body_leg or body or leg
+    detection_mode : body_leg                       # body_leg or body or leg
     target_frame : sobit_home/base_footprint
     odom_frame_name : sobit_home/odom
 
