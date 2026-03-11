@@ -30,12 +30,14 @@ def _launch_setup(context):
     robot_type = LaunchConfiguration("robot_type")
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_cfg = LaunchConfiguration("rviz_cfg")
+    body_detector = LaunchConfiguration("body_detector")
     person_tracker_params = LaunchConfiguration("person_tracker_params")
     sensor_rotator_params = LaunchConfiguration("sensor_rotator_params")
     person_following_control_params = LaunchConfiguration("person_following_control_params")
 
     tracker_params_path = person_tracker_params.perform(context)
     detection_mode = _load_detection_mode(tracker_params_path)
+    body_detector_value = body_detector.perform(context).strip().lower()
 
     dr_spaam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -48,7 +50,7 @@ def _launch_setup(context):
         ),
         launch_arguments={
             "robot_type": robot_type,
-            "params_file": PathJoinSubstitution([
+            "dr_spaam_params_file": PathJoinSubstitution([
                 sobit_follower_share,
                 "param",
                 robot_type,
@@ -56,9 +58,24 @@ def _launch_setup(context):
             ]),
         }.items(),
     )
-    
 
+    # SSD launch includes
     ssd_ros_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                sobit_follower_share,
+                "launch",
+                "include",
+                "ssd_pose_ros.launch.py",
+            ])
+        ),
+        launch_arguments={
+            'robot_type': robot_type,
+        }.items(),
+    )
+
+    # YOLO launch includes
+    yolo_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
                 sobit_follower_share,
@@ -68,13 +85,7 @@ def _launch_setup(context):
             ])
         ),
         launch_arguments={
-            "robot_type": robot_type,
-            "params_file": PathJoinSubstitution([
-                sobit_follower_share,
-                "param",
-                robot_type,
-                "ssd_param.yaml",
-            ]),
+            'robot_type': robot_type,
         }.items(),
     )
 
@@ -85,13 +96,20 @@ def _launch_setup(context):
         executable="component_container_mt",
         output="screen",
         composable_node_descriptions=[
+            # Tracker Component
             ComposableNode(
                 package="multiple_sensor_person_tracking",
                 plugin="multiple_sensor_person_tracking::PersonTracker",
                 name="person_tracker",
                 namespace="sobit_follower",
-                parameters=[person_tracker_params],
+                parameters=[
+                    person_tracker_params,
+                    {
+                        "body_detection_topic_name": "/sobit_follower/body_3d_poses"
+                    }
+                ],
             ),
+            # Sensor Rotator Component
             ComposableNode(
                 package="multiple_sensor_person_tracking",
                 plugin="multiple_sensor_person_tracking::PersonAimSensorRotator",
@@ -99,6 +117,7 @@ def _launch_setup(context):
                 namespace="sobit_follower",
                 parameters=[sensor_rotator_params],
             ),
+            # Following Control Component
             ComposableNode(
                 package="person_following_control",
                 plugin="person_following_control::PersonFollowing",
@@ -122,7 +141,10 @@ def _launch_setup(context):
     if detection_mode != "body":
         actions.append(dr_spaam_launch)
     if detection_mode != "leg":
-        actions.append(ssd_ros_launch)
+        if body_detector_value == "ssd":
+            actions.append(ssd_ros_launch)
+        elif body_detector_value == "yolo":
+            actions.append(yolo_ros_launch)
     actions.append(sobits_follower)
     return actions
 
@@ -137,7 +159,8 @@ def generate_launch_description():
             description="Type of the robot",
             # default_value="sobit_edu",
             # default_value="sobit_pro",
-            default_value="hsrb",
+            default_value="sobit_home",
+            # default_value="hsrb",
         ), 
         DeclareLaunchArgument(
             "use_rviz", 
@@ -147,7 +170,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "rviz_cfg", 
             description="Path to the RViz configuration file",
-            # Auto-select RViz config by robot_type (still overridable via rviz_cfg:=...)
             default_value=PathJoinSubstitution([
                 sobit_follower_share,
                 "config",
@@ -158,6 +180,12 @@ def generate_launch_description():
                     "' + '.rviz'"
                 ]),
             ])
+        ),
+        DeclareLaunchArgument(
+            "body_detector", 
+            default_value="yolo", 
+            description="Select the body detector type: 'yolo', 'ssd'"
+
         ),
         DeclareLaunchArgument(
             "person_tracker_params", 

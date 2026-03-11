@@ -1,0 +1,32 @@
+# Body detector + 3D positioning
+/**:
+  ros__parameters:
+    image_topic_name : /sobit_home/head_camera/color
+    cloud_topic_name : /sobit_home/head_camera/depth/points
+    depth_image_topic_name : /sobit_home/head_camera/depth
+    base_frame_name : sobit_home/base_footprint
+    info_topic_name : /sobit_home/head_camera/camera_info
+
+    weight_file: yolo26n.pt # yolo weight file
+
+    image_show_flag : false
+    execute_default : true
+    ssd_pub_result_image : true
+    rqt_image_view_flag : false
+    use_tf : false
+
+    in_scale_factor : 0.007843
+    confidence_threshold : 0.5
+
+    object_specified_enabled : true
+    specified_object_name : person
+
+    # image_to_position
+    use_3d : true
+    bbox_topic_name : /object_boxes   # /ssd_ros/objects_rect or /object_boxes
+    cluster_tolerance : 0.01
+    min_clusterSize : 200
+    max_clusterSize : 20000
+    noise_point_cloud_range : 0.1
+    enable_id: false
+    positioning_detection_mode : 'fast_point' # point_cloud, depth_image, fast_point

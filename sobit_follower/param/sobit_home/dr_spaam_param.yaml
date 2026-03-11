@@ -7,5 +7,5 @@
     stride : 1                                        # Downsample scans for faster inference
     panoramic_scan : false                            # Set to True if the scan covers 360 degrees
     queue_size : 1                                    # Subscriber queue size for LaserScan
-    scan_topic_name : /scan                           # Input LaserScan topic
     execute_default : true                            # Start detection immediately
+    scan_topic_name : /sobit_home/lidar_front/scan    # Input LaserScan topic

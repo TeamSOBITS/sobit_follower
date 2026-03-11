@@ -1,24 +1,11 @@
 /**:
   ros__parameters:
-    weight_file : "ckpt_jrdb_ann_ft_dr_spaam_e20.pth" # name of the weight file
-    detector_model : "DR-SPAAM"                       # Set model name: DROW3 or DR-SPAAM
+    weight_file : "ckpt_jrdb_ann_ft_dr_spaam_e20.pth" # Name of the weight file
+    detector_model : "DR-SPAAM"                       # Model name: DROW3 or DR-SPAAM
     use_gpu : True                                    # Set to True to use GPU
-    conf_thresh : 0.9                                 # Set confidence threshold
+    conf_thresh : 0.9                                 # Confidence threshold
     stride : 1                                        # Downsample scans for faster inference
-    panoramic_scan : false                            # Set to True if the scan covers 360 degree
-    detect_mode: true                                 # Set to True to enable detection
-    publisher:
-        detections:
-            topic: /dr_spaam_detections
-            queue_size: 1
-            latch: false
-
-        rviz:
-            topic: /dr_spaam_rviz
-            queue_size: 1
-            latch: false
-
-    subscriber:
-        scan:
-            topic: /sobit_edu/scan
-            queue_size: 1
+    panoramic_scan : false                            # Set to True if the scan covers 360 degrees
+    queue_size : 1                                    # Subscriber queue size for LaserScan
+    scan_topic_name : /sobit_edu/scan                 # Input LaserScan topic
+    execute_default : true                            # Start detection immediately

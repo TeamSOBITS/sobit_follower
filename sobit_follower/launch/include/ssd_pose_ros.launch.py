@@ -1,5 +1,6 @@
 import os
 from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
@@ -13,21 +14,21 @@ def generate_launch_description():
         FindPackageShare('sobit_follower'),
         'param',
         robot_type,
-        'ssd_param.yaml',
+        'body_detection_param.yaml',
     ])
     robot_type_arg = DeclareLaunchArgument(
         'robot_type',
-        default_value='hsrb',
-        description='Robot type for selecting SSD param file.',
+        default_value='sobit_edu',
+        description='Robot type for selecting body detection param file.',
     )
 
     params_file_arg = DeclareLaunchArgument(
-        'params_file',
+        'ssd_params_file',
         default_value=default_param_file,
-        description='Full path to the SSD parameter file.'
+        description='Full path to the body detection parameter file.'
     )
 
-    params_file = LaunchConfiguration('params_file')
+    params_file = LaunchConfiguration('ssd_params_file')
 
     ssd_node = Node(
         package='ssd_ros',
@@ -51,6 +52,9 @@ def generate_launch_description():
         output='screen',
         parameters=[
             params_file
+        ],
+        remappings=[
+            ('object_3d_poses', '/sobit_follower/body_3d_poses') 
         ]
     )
 

@@ -7,9 +7,14 @@
     odom_topic_name : /sobit_edu/odom
 
     base_footprint_name         : sobit_edu/base_footprint
-    # following_distance          : 1.10, 1.80
     following_distance          : 1.0
 
+    following_method            : 0                     
+      # 0 : VirtualSpringModel-DynamicWindowApproach
+      # 1 : VirtualSpringModel
+      # 2 : DynamicWindowApproach
+      # 3 : PIDController
+      
     # Virtual Spring Model
     following_angle_deg         : 0.0       # theta_sh [deg]
     spring_constant_linear      : 30.0      # k_1 [N/m]

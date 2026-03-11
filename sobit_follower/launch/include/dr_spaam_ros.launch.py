@@ -6,7 +6,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     robot_type = LaunchConfiguration("robot_type")
-    params_file = LaunchConfiguration("params_file")
+    dr_spaam_params_file = LaunchConfiguration("dr_spaam_params_file")
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -15,7 +15,7 @@ def generate_launch_description():
             description="Type of robot for selecting DR-SPAAM params",
         ),
         DeclareLaunchArgument(
-            "params_file",
+            "dr_spaam_params_file",
             default_value=PathJoinSubstitution([
                 FindPackageShare("sobit_follower"),
                 "param",
@@ -30,6 +30,6 @@ def generate_launch_description():
             name="dr_spaam_ros",
             namespace="dr_spaam",
             output="screen",
-            parameters=[params_file],
+            parameters=[dr_spaam_params_file],
         ),
     ])

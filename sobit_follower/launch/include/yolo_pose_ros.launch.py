@@ -1,56 +1,60 @@
-import os
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     robot_type = LaunchConfiguration('robot_type')
-    
+    default_param_file = PathJoinSubstitution([
+        FindPackageShare('sobit_follower'), 
+        'param',
+        robot_type,
+        'body_detection_param.yaml',
+    ])
     robot_type_arg = DeclareLaunchArgument(
         'robot_type',
         default_value='sobit_edu',
-        description='Robot type for selecting YOLO config.'
+        description='Robot type for selecting YOLO param file.'
+    )
+    params_file_arg = DeclareLaunchArgument(
+        'yolo_params_file',
+        default_value=default_param_file,
+        description='Full path to the YOLO parameter file.'
     )
 
-    # YOLOのコアとなる launch ファイルを呼び出し、引数でトピック名などを上書きする
-    yolo_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory('yolo_ros'),
-                'launch',
-                'yolo.launch.py' # yolo_ros パッケージ内の yolo.launch.py へのパス
-            )
-        ),
-        launch_arguments={
-            # SOBIT PRO用のカメラトピック設定 (元のssd_param.yamlの値を参照)
-            'image_topic_name': '/sobit_pro/head_camera/rgb/image_raw',
-            'point_cloud_topic': '/sobit_pro/head_camera/depth_registered/points',
-            'depth_image_topic_name': '/sobit_pro/head_camera/depth/image_raw',
-            'info_topic_name': '/sobit_pro/head_camera/rgb/camera_info',
-            'base_frame_name': 'sobit_pro/base_footprint',
+    params_file = LaunchConfiguration('yolo_params_file')
 
-        # launch_arguments={
-        #     # SOBIT EDU用のカメラトピック設定に変更
-        #     'image_topic_name': '/sobit_edu/head_camera/rgb/image_raw',
-        #     'point_cloud_topic': '/sobit_edu/head_camera/depth_registered/points',
-        #     'depth_image_topic_name': '/sobit_edu/head_camera/depth/image_raw',
-        #     'info_topic_name': '/sobit_edu/head_camera/rgb/camera_info',
-        #     'base_frame_name': 'sobit_edu/base_footprint',
+    yolo_node = Node(
+        package='yolo_ros',
+        executable='yolo_node',
+        name='yolo_ros',
+        output='screen',
+        parameters=[
+            params_file, 
+        ],
+        remappings=[
+            ('object_3d_poses', '/sobit_follower/body_3d_poses')
+        ]
+    )
 
-            # YOLOと3D変換の設定
-            'use_3d': 'True',
-            'execute_default': 'True',
-            'positioning_detection_mode_object': 'fast_point',
-            'namespace': 'yolo_ros',
-            'threshold': '0.50',
-            # 使用するモデルに合わせて適宜変更してください (例: yolo11n.pt)
-            'weight_file': 'yolo11n.pt'
-        }.items()
+    bbox_to_3d_cmd = Node(
+        package='image_to_position',
+        executable='bbox_to_3d',
+        name='bbox_to_3d',
+        namespace='yolo_ros',
+        output='screen',
+        parameters=[
+            params_file
+        ],
+        remappings=[
+            ('object_3d_poses', '/sobit_follower/body_3d_poses')
+        ]
     )
 
     return LaunchDescription([
         robot_type_arg,
-        yolo_launch
+        params_file_arg,
+        yolo_node,
+        bbox_to_3d_cmd,
     ])

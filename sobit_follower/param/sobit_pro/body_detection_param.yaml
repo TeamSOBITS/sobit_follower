@@ -1,11 +1,13 @@
 # Single Shot Multibox Detector
 /**:
   ros__parameters:
-    image_topic_name : /head_rgbd_sensor/rgb/image_rect_color
-    cloud_topic_name : /head_rgbd_sensor/depth_registered/rectified_points
-    depth_image_topic_name : /head_rgbd_sensor/depth_registered/image_rect_raw
-    base_frame_name : base_footprint
-    info_topic_name : /head_rgbd_sensor/rgb/camera_info
+    image_topic_name : /sobit_pro/head_camera/rgb/image_raw
+    cloud_topic_name : /sobit_pro/head_camera/depth_registered/points
+    depth_image_topic_name : /sobit_edu/head_camera/depth/image_raw
+    base_frame_name : sobit_pro/base_footprint
+    info_topic_name : /sobit_pro/head_camera/rgb/camera_info
+
+    weight_file: yolo11n.pt # yolo weight file
 
     image_show_flag : false
     execute_default : true
@@ -21,7 +23,7 @@
 
     # image_to_position
     use_3d : true
-    bbox_topic_name : /ssd_ros/objects_rect
+    bbox_topic_name : /object_boxes   # /ssd_ros/objects_rect or /object_boxes
     cluster_tolerance : 0.01
     min_clusterSize : 200
     max_clusterSize : 20000
