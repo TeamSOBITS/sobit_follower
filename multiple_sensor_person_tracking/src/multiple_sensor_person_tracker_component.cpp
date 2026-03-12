@@ -315,8 +315,7 @@ bool multiple_sensor_person_tracking::PersonTracker::searchObstacles( const geom
     PointT p_q;
     p_q.x = search_pt.x;
     p_q.y = search_pt.y;
-    // p_q.z = merged_cloud->points[0].z;
-    p_q.z = 0.0;
+    p_q.z = merged_cloud->points[0].z;
     std::vector<int> k_indices;
     std::vector<float> k_sqr_distances;
 
