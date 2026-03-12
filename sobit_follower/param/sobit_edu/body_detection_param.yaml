@@ -7,6 +7,7 @@
     base_frame_name : sobit_edu/base_footprint
     info_topic_name : /sobit_edu/head_camera/rgb/camera_info
 
+    image_show: true
     weight_file: yolo11n.pt # yolo weight file
 
     image_show_flag : false

@@ -2,7 +2,7 @@
   ros__parameters:
     # Topic & Frame
     scan_topic_name : /sobit_pro/scan
-    dr_spaam_topic_name : /dr_spaam_detections
+    dr_spaam_topic_name : /dr_spaam/dr_spaam_detections
     body_detection_topic_name : /sobit_follower/body_3d_poses
     detection_mode : body_leg                   # body_leg or body or leg 
     target_frame : sobit_pro/base_footprint
