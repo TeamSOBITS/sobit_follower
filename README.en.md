@@ -162,6 +162,10 @@ $ ros2 launch sobit_follower sobit_follower.launch.py
 > [!CAUTION]
 > Download the weight file from [thi Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W), and move it to `sobit_follower/dr_spaam_ros/weights/` if you encounter the following error: `FileNotFoundError: [Errno 2] No such file or directory: '/home/username/colcon_ws/install/dr_spaam_ros/share/dr_spaam_ros/weights/ckpt_jrdb_ann_ft_dr_spaam_e20.pth'` and rebuild the package.
 
+> [!CAUTION]
+> If you use `body_detector:=yolo`, download the YOLO weight file in advance, place it in `yolo_ros/weights/`, and rebuild the package before launching.  
+> Example: `yolo11n.pt`, `yolo26n.pt`
+
 <!-- ### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
 - Person-following run that enables SOBIT_EDU to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
 - path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`

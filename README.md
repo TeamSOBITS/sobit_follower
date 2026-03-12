@@ -164,6 +164,10 @@ $ ros2 launch sobit_follower sobit_follower.launch.py
 > 以下のエラーが発生した場合は、[この Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W) から重みファイルをダウンロードし、`sobit_follower/dr_spaam_ros/weights/` に配置したうえで、パッケージを再ビルドしてください。  
 > `FileNotFoundError: [Errno 2] No such file or directory: '/home/username/colcon_ws/install/dr_spaam_ros/share/dr_spaam_ros/weights/ckpt_jrdb_ann_ft_dr_spaam_e20.pth'`
 
+> [!CAUTION]
+> `body_detector:=yolo` を使用する場合は、事前に YOLO の重みファイルをダウンロードし、`yolo_ros/weights/` に配置してからパッケージを再ビルドしてください。  
+> 例: `yolo11n.pt`, `yolo26n.pt`
+
 <!-- 
 ### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
 - SOBIT_EDUでOSNetとリッジ回帰モデルからなる(GRR_SLT)対象者識別手法を組み合わせて追従対象者を識別することを可能とした人追従走行
