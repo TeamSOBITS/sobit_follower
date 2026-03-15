@@ -7,8 +7,9 @@
     base_frame_name : sobit_edu/base_footprint
     info_topic_name : /sobit_edu/head_camera/rgb/camera_info
 
-    image_show: true
-    weight_file: yolo11n.pt # yolo weight file
+    image_show: false
+    weight_file: yolo26n.pt # yolo weight file
+    # weight_file: yolo11n.pt
 
     image_show_flag : false
     execute_default : true
@@ -17,7 +18,7 @@
     use_tf : false
 
     in_scale_factor : 0.007843
-    confidence_threshold : 0.5
+    confidence_threshold : 0.7
 
     object_specified_enabled : true
     specified_object_name : person
