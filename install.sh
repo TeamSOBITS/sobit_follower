@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "╔══╣ Setup: SOBIT Follower (STARTING) ╠══╗"
+echo "╔══╣ Setup: SOBITS Follower (STARTING) ╠══╗"
 
 
 # Keep track of the current directory
@@ -29,7 +29,7 @@ sudo python3 setup.py install
 # Return to the colcon_ws/src directory
 cd ~/colcon_ws/src
 
-# Dowload required packages for SOBIT Follower
+# Dowload required packages for SOBITS Follower
 ros_packages=(
     "sobits_interfaces" \
     "ssd_ros" \
@@ -57,4 +57,4 @@ sudo apt-get install -y \
     ros-$ROS_DISTRO-vision-msgs \
     ros-$ROS_DISTRO-pcl-ros
 
-echo "╚══╣ Setup: SOBIT Follower (FINISHED) ╠══╝"
+echo "╚══╣ Setup: SOBITS Follower (FINISHED) ╠══╝"

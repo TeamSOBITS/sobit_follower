@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "╔══╣ Setup: SOBIT Follower(Target Identification) (STARTING) ╠══╗"
+echo "╔══╣ Setup: SOBITS Follower(Target Identification) (STARTING) ╠══╗"
 
 
 # Keep track of the current directory
@@ -9,7 +9,7 @@ DIR=`pwd`
 # Return to the catkin_ws/src directory
 cd ~/catkin_ws/src
 
-# Dowload required packages for SOBIT Follower
+# Dowload required packages for SOBITS Follower
 ros_packages=(
     "yolov10_ros" \
     "image_to_position" \
@@ -60,4 +60,4 @@ echo "Installation completed."
 # Download ROS packages
 sudo apt-get update
 
-echo "╚══╣ Setup: SOBIT Follower(Target Identification) (FINISHED) ╠══╝"
+echo "╚══╣ Setup: SOBITS Follower(Target Identification) (FINISHED) ╠══╝"
