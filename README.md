@@ -8,7 +8,7 @@
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
 
-# SOBIT Follower
+# SOBITS Follower
 
 <!-- 目次 -->
 <details>
@@ -30,7 +30,7 @@
         <li><a href="#02-multiple-observation-kalman-filter">02. Multiple Observation Kalman Filter</a></li>
         <li><a href="#03-multiple-sensor-person-tracking">03. Multiple Sensor Person Tracking</a></li>
         <li><a href="#04-person-following-control">04. Person Following Control</a></li>
-        <li><a href="#05-sobit-follower">05. SOBIT Follower</a></li>
+        <li><a href="#05-sobit-follower">05. SOBITS Follower</a></li>
         <li><a href="#06-target-identification-method">06. Target Identification Method</a></li>
       </ul>
     </li>
@@ -53,16 +53,16 @@
 - [LRFとパン・チルト回転機構上のRGB-Dセンサを用いた人追従走行ロボットの開発](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)
 
 <div align="center">
-    <img src="sobit_follower/doc/img/system_overview.jpg" width="800">
-    <img src="sobit_follower/doc/img/move_control.jpg" width="1080">
+    <img src="sobits_follower/doc/img/system_overview.jpg" width="800">
+    <img src="sobits_follower/doc/img/move_control.jpg" width="1080">
 </div>
 
 ## セットアップ
 ```
 $ cd ~/colcon_ws/src/
-$ git clone -b jazzy-devel https://github.com/TeamSOBITS/sobit_follower
-$ cd sobit_follower
-# sobit_followerに必要なパッケージのインストールを行う
+$ git clone -b jazzy-devel https://github.com/TeamSOBITS/sobits_follower
+$ cd sobits_follower
+# sobits_followerに必要なパッケージのインストールを行う
 $ bash install.sh
 # インストールしたパッケージのセットアップを行った後、colcon build
 $ cd ~/colcon_ws/
@@ -72,7 +72,7 @@ $ source ~/colcon_ws/install/setup.sh
 
 ## 対象者識別用の追加セットアップ
 ```
-$ cd sobit_follower
+$ cd sobits_follower
 # 対象者識別に必要な追加パッケージのインストールを行う
 $ bash install_target_identification.sh
 # インストールしたパッケージのセットアップを行った後、colcon build
@@ -112,11 +112,11 @@ $ source ~/colcon_ws/install/setup.sh
     <img src="person_following_control/doc/img/person_following_control.png" width="1080">
 </div> -->
 
-### 05. SOBIT Follower
+### 05. SOBITS Follower
 - Multiple Sensor Person TrackingとPerson Following Controlを用いた人追従走行
 - ユーザはこのパッケージのLaunchを起動することで人追従走行を動作させることが可能
 - 実験用のrosbag取得や取得したデータのplotも可能なシェルスクリプトも完備
-- 詳細は[こちら](sobit_follower)
+- 詳細は[こちら](sobits_follower)
 
 ### 06. Target Identification Method
 - 対象者識別手法を加えた人追従走行
@@ -149,19 +149,19 @@ $ source ~/colcon_ws/install/setup.sh
 ### Robot Library Action Server
 - パン・チルト回転機構を制御用のロボットライブラリーアクションサーバの起動
 
-### [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
+### [sobits_follower.launch](sobits_follower/launch/sobits_follower.launch)
 - Multiple Sensor Person TrackingとPerson Following Controlによる人追従走行
-- path：`sobit_follower/launch/sobit_follower.launch`
-- 詳細は[こちら](sobit_follower)
+- path：`sobits_follower/launch/sobits_follower.launch`
+- 詳細は[こちら](sobits_follower)
 ```
-$ ros2 launch sobit_follower sobit_follower.launch.py
+$ ros2 launch sobits_follower sobits_follower.launch.py
 ```
 
 > [!IMPORTANT]
-> 使用しているロボットに合わせて、`sobit_follower/launch/sobit_follower.launch` 内の `robot_type` を変更してください。
+> 使用しているロボットに合わせて、`sobits_follower/launch/sobits_follower.launch` 内の `robot_type` を変更してください。
 
 > [!CAUTION]
-> 以下のエラーが発生した場合は、[この Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W) から重みファイルをダウンロードし、`sobit_follower/dr_spaam_ros/weights/` に配置したうえで、パッケージを再ビルドしてください。  
+> 以下のエラーが発生した場合は、[この Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W) から重みファイルをダウンロードし、`sobits_follower/dr_spaam_ros/weights/` に配置したうえで、パッケージを再ビルドしてください。  
 > `FileNotFoundError: [Errno 2] No such file or directory: '/home/username/colcon_ws/install/dr_spaam_ros/share/dr_spaam_ros/weights/ckpt_jrdb_ann_ft_dr_spaam_e20.pth'`
 
 > [!CAUTION]
@@ -169,60 +169,60 @@ $ ros2 launch sobit_follower sobit_follower.launch.py
 > 例: `yolo11n.pt`, `yolo26n.pt`
 
 <!-- 
-### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
+### [sobit_edu_follower_me_GRRSLT.launch](sobits_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
 - SOBIT_EDUでOSNetとリッジ回帰モデルからなる(GRR_SLT)対象者識別手法を組み合わせて追従対象者を識別することを可能とした人追従走行
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
+- path：`sobits_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
 - ここでは人物検出としてSSDの代わりにYOLOv10を用いている
 ```
-$ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobits_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ```
 
-### [sobit_edu_follower_me_KoideModel.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
+### [sobit_edu_follower_me_KoideModel.launch](sobits_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
 - SOBIT_EDUで対象者識別手法(KoideModel)を組み合わせて追従対象者を識別することを可能とした人追従走行
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
+- path：`sobits_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
 - ここでは人物検出としてSSDの代わりにYOLOv10を用いている
 ```
-$ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobits_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ``` -->
 
 #### Launch構成
-- [ssd_pose_ros.launch.py](sobit_follower/launch/include/ssd_pose_ros.launch.py)
+- [ssd_pose_ros.launch.py](sobits_follower/launch/include/ssd_pose_ros.launch.py)
     - RGB画像ベースの人物検出器
-    - path：`sobit_follower/launch/include/ssd_pose_ros.launch.py`
-    - 詳細は[こちら](sobit_follower#ssd_pose_roslaunchxml)
-- [dr_spaam_ros.launch.py](sobit_follower/launch/include/dr_spaam_ros.launch.py)
+    - path：`sobits_follower/launch/include/ssd_pose_ros.launch.py`
+    - 詳細は[こちら](sobits_follower#ssd_pose_roslaunchxml)
+- [dr_spaam_ros.launch.py](sobits_follower/launch/include/dr_spaam_ros.launch.py)
     - 2D LiDARベースの人物検出器
-    - path：`sobit_follower/launch/include/dr_spaam_ros.launch.py`
-    - 詳細は[こちら](sobit_follower#dr_spaam_roslaunchxml)
-- [person_id.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
+    - path：`sobits_follower/launch/include/dr_spaam_ros.launch.py`
+    - 詳細は[こちら](sobits_follower#dr_spaam_roslaunchxml)
+- [person_id.launch.xml](sobits_follower/launch/include/dr_spaam_ros.launch.xml)
     - RGB-Dセンサを用いた対象者同定手法
-    - path：`sobit_follower/launch/include/person_id.launch.xml`
-    - 詳細は[こちら](sobit_follower#peson_idlaunchxml)
+    - path：`sobits_follower/launch/include/person_id.launch.xml`
+    - 詳細は[こちら](sobits_follower#peson_idlaunchxml)
 
 #### Parameterファイル
-- [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
+- [tracker_param.yaml](sobits_follower/param/tracker_param.yaml)
     - 人物追跡に関するパラメータ
-    - path：`sobit_follower/param/<robot_type>/tracker_param.yaml`
-    - パラメータの詳細は[こちら](sobit_follower#parametersperson_tracker)
-- [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/tracker_param.yaml`
+    - パラメータの詳細は[こちら](sobits_follower#parametersperson_tracker)
+- [ssd_param.yaml](sobits_follower/param/ssd_param.yaml)
     - RGB画像ベースの人物検出器に関するパラメータ
-    - path：`sobit_follower/param/<robot_type>/ssd_param.yaml`
-    - パラメータの詳細は[こちら](sobit_follower#parameters)
-- [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/ssd_param.yaml`
+    - パラメータの詳細は[こちら](sobits_follower#parameters)
+- [dr_spaam_param.yaml](sobits_follower/param/dr_spaam_param.yaml)
     - 2D LiDARベースの人物検出器に関するパラメータ
-    - path：`sobit_follower/param/<robot_type>/dr_spaam_param.yaml`
-    - パラメータの詳細は[こちら](sobit_follower#parameters-1)
-- [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/dr_spaam_param.yaml`
+    - パラメータの詳細は[こちら](sobits_follower#parameters-1)
+- [sensor_rotator_param.yaml](sobits_follower/param/sensor_rotator_param.yaml)
     - RGB-Dセンサのパンチルト回転制御に関するパラメータ
-    - path：`sobit_follower/param/<robot_type>/sensor_rotator_param.yaml`
-- [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/sensor_rotator_param.yaml`
+- [following_control_param.yaml](sobits_follower/param/following_control_param.yaml)
     - 走行制御に関するパラメータ
-    - path：`sobit_follower/param/<robot_type>/following_control_param.yaml`
-    - パラメータの詳細は[こちら](sobit_follower##parameterfollowing-control)
-- [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/following_control_param.yaml`
+    - パラメータの詳細は[こちら](sobits_follower##parameterfollowing-control)
+- [velocity_smoother_param.yaml](sobits_follower/param/velocity_smoother_param.yaml)
     - 速度平滑化に関するパラメータ
-    - path：`sobit_follower/param/<robot_type>/velocity_smoother_param.yaml`
-    - パラメータの詳細は[こちら](sobit_follower##velocity_smoother_param)
+    - path：`sobits_follower/param/<robot_type>/velocity_smoother_param.yaml`
+    - パラメータの詳細は[こちら](sobits_follower##velocity_smoother_param)
 
 <!-- マイルストーン -->
 ## マイルストーン
@@ -236,13 +236,13 @@ $ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false r
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[forks-url]: https://github.com/TeamSOBITS/sobit_follower/network/members
-[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[stars-url]: https://github.com/TeamSOBITS/sobit_follower/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[issues-url]: https://github.com/TeamSOBITS/sobit_follower/issues
-[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[contributors-url]: https://github.com/TeamSOBITS/sobits_follower/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[forks-url]: https://github.com/TeamSOBITS/sobits_follower/network/members
+[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[stars-url]: https://github.com/TeamSOBITS/sobits_follower/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[issues-url]: https://github.com/TeamSOBITS/sobits_follower/issues
+[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobits_follower.svg?style=for-the-badge
 [license-url]: LICENSE

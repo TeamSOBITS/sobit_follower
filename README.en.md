@@ -8,7 +8,7 @@
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
 
-# SOBIT Follower
+# SOBITS Follower
 
 <!-- Table of Contents -->
 <details>
@@ -30,7 +30,7 @@
         <li><a href="#02-multiple-observation-kalman-filter">02. Multiple Observation Kalman Filter</a></li>
         <li><a href="#03-multiple-sensor-person-tracking">03. Multiple Sensor Person Tracking</a></li>
         <li><a href="#04-person-following-control">04. Person Following Control</a></li>
-        <li><a href="#05-sobit-follower">05. SOBIT Follower</a></li>
+        <li><a href="#05-sobit-follower">05. SOBITS Follower</a></li>
         <li><a href="#06-target-identification-method">06. Target Identification Method</a></li>
       </ul>
     </li>
@@ -53,16 +53,16 @@
 - [Development of a person-following  robot using LRF and RGB-D sensor on the pan-tilt-rotate mechanism](https://www.jstage.jst.go.jp/article/jsmermd/2021/0/2021_1P2-G07/_article/-char/ja/)
 
 <div align="center">
-    <img src="sobit_follower/doc/img/system_overview.jpg" width="800">
-    <img src="sobit_follower/doc/img/move_control.jpg" width="1080">
+    <img src="sobits_follower/doc/img/system_overview.jpg" width="800">
+    <img src="sobits_follower/doc/img/move_control.jpg" width="1080">
 </div>
 
 ## Setup
 ```
 $ cd ~/colcon_ws/src/
-$ git clone -b jazzy-devel https://github.com/TeamSOBITS/sobit_follower
-$ cd sobit_follower
-# Install the necessary packages for sobit_follower
+$ git clone -b jazzy-devel https://github.com/TeamSOBITS/sobits_follower
+$ cd sobits_follower
+# Install the necessary packages for sobits_follower
 $ bash install.sh
 # Setup the installed package, then colcon build
 $ cd ~/colcon_ws/
@@ -72,7 +72,7 @@ $ source ~/colcon_ws/install/setup.sh
 
 ## Additional setup for target identification
 ```
-$ cd sobit_follower
+$ cd sobits_follower
 # Installing additional packages required for target identification
 $ bash install_target_identification.sh
 # Setup the installed package, then colcon build
@@ -112,11 +112,11 @@ $ source ~/colcon_ws/install/setup.sh
     <img src="person_following_control/doc/img/person_following_control.png" width="1080">
 </div> -->
 
-### 05. SOBIT Follower
+### 05. SOBITS Follower
 - Person-following control using Multiple Sensor Person Tracking and Person Following Control
 - Users can activate person-following by launching this package's Launch
 - Shell scripts are also available to acquire rosbags for experiments and plot the acquired data
-- [For more information](sobit_follower)
+- [For more information](sobits_follower)
 
 ### 06. Target Identification Method
 - Person-following run with additional target identification methods
@@ -148,78 +148,78 @@ Target Identification Method
 ### Robot Library Action Server
 - Launch robot library action server for pan-tilt rotation control.
 
-### [sobit_follower.launch](sobit_follower/launch/sobit_follower.launch)
+### [sobits_follower.launch](sobits_follower/launch/sobits_follower.launch)
 - Person-following control by Multiple Sensor Person Tracking and Person Following Control
-- path：`sobit_follower/launch/sobit_follower.launch`
-- [For more information](sobit_follower)
+- path：`sobits_follower/launch/sobits_follower.launch`
+- [For more information](sobits_follower)
 ```
-$ ros2 launch sobit_follower sobit_follower.launch.py
+$ ros2 launch sobits_follower sobits_follower.launch.py
 ```
 
 > [!IMPORTANT]
-> Change the `robot_type` in `sobit_follower/launch/sobit_follower.launch` to match the robot you are using.
+> Change the `robot_type` in `sobits_follower/launch/sobits_follower.launch` to match the robot you are using.
 
 > [!CAUTION]
-> Download the weight file from [thi Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W), and move it to `sobit_follower/dr_spaam_ros/weights/` if you encounter the following error: `FileNotFoundError: [Errno 2] No such file or directory: '/home/username/colcon_ws/install/dr_spaam_ros/share/dr_spaam_ros/weights/ckpt_jrdb_ann_ft_dr_spaam_e20.pth'` and rebuild the package.
+> Download the weight file from [thi Google Drive](https://drive.google.com/drive/folders/1Wl2nC8lJ6s9NI1xtWwmxeAUnuxDiiM4W), and move it to `sobits_follower/dr_spaam_ros/weights/` if you encounter the following error: `FileNotFoundError: [Errno 2] No such file or directory: '/home/username/colcon_ws/install/dr_spaam_ros/share/dr_spaam_ros/weights/ckpt_jrdb_ann_ft_dr_spaam_e20.pth'` and rebuild the package.
 
 > [!CAUTION]
 > If you use `body_detector:=yolo`, download the YOLO weight file in advance, place it in `yolo_ros/weights/`, and rebuild the package before launching.  
 > Example: `yolo11n.pt`, `yolo26n.pt`
 
-<!-- ### [sobit_edu_follower_me_GRRSLT.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
+<!-- ### [sobit_edu_follower_me_GRRSLT.launch](sobits_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch)
 - Person-following run that enables SOBIT_EDU to combine two methods of target identification(GRR_SLT) using OSNet and ridge regression model to identify the target to be followed
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
+- path：`sobits_follower/launch/sobit_edu/sobit_edu_follower_me_GRRSLT.launch`
 - YOLOv10 is used here instead of SSD for person detection
 ```
-$ roslaunch sobit_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobits_follower sobit_edu_follower_me_GRRSLT.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ```
 
-### [sobit_edu_follower_me_KoideModel.launch](sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
+### [sobit_edu_follower_me_KoideModel.launch](sobits_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch)
 - Person-following run that enables SOBIT_EDU to identify the target person to be followed by combining the target person identification method(KoideModel)
-- path：`sobit_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
+- path：`sobits_follower/launch/sobit_edu/sobit_edu_follower_me_KoideModel.launch`
 - YOLOv10 is used here instead of SSD for person detection
 ```
-$ roslaunch sobit_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
+$ roslaunch sobits_follower sobit_edu_follower_me_KoideModel.launch rviz:=false rqt_reconfigure:=false use_rotate:=true use_smoother:=true
 ``` -->
 
 #### Launch Configuration
-- [ssd_pose_ros.launch.py](sobit_follower/launch/include/ssd_pose_ros.launch.py)
+- [ssd_pose_ros.launch.py](sobits_follower/launch/include/ssd_pose_ros.launch.py)
     - RGB image-based person detector
-    - path：`sobit_follower/launch/include/ssd_pose_ros.launch.py`
-    - [For more information](sobit_follower#ssd_pose_roslaunchxml)
-- [dr_spaam_ros.launch.py](sobit_follower/launch/include/dr_spaam_ros.launch.py)
+    - path：`sobits_follower/launch/include/ssd_pose_ros.launch.py`
+    - [For more information](sobits_follower#ssd_pose_roslaunchxml)
+- [dr_spaam_ros.launch.py](sobits_follower/launch/include/dr_spaam_ros.launch.py)
     - 2D LiDAR-based person detector
-    - path：`sobit_follower/launch/include/dr_spaam_ros.launch.py`
-    - [For more information](sobit_follower#dr_spaam_roslaunchxml)
-- [person_id.launch.xml](sobit_follower/launch/include/dr_spaam_ros.launch.xml)
+    - path：`sobits_follower/launch/include/dr_spaam_ros.launch.py`
+    - [For more information](sobits_follower#dr_spaam_roslaunchxml)
+- [person_id.launch.xml](sobits_follower/launch/include/dr_spaam_ros.launch.xml)
     - Target identification method using RGB-D sensors
-    - path：`sobit_follower/launch/include/person_id.launch.xml`
-    - [For more information](sobit_follower#peson_idlaunchxml)
+    - path：`sobits_follower/launch/include/person_id.launch.xml`
+    - [For more information](sobits_follower#peson_idlaunchxml)
 
 #### Parameter file
-- [tracker_param.yaml](sobit_follower/param/tracker_param.yaml)
+- [tracker_param.yaml](sobits_follower/param/tracker_param.yaml)
     - Parameters for person tracking
-    - path：`sobit_follower/param/<robot_type>/tracker_param.yaml`
-    - [For more information](sobit_follower#parametersperson_tracker)
-- [ssd_param.yaml](sobit_follower/param/ssd_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/tracker_param.yaml`
+    - [For more information](sobits_follower#parametersperson_tracker)
+- [ssd_param.yaml](sobits_follower/param/ssd_param.yaml)
     - Parameters for RGB image-based person detector
-    - path：`sobit_follower/param/<robot_type>/ssd_param.yaml`
-    - [For more information](sobit_follower#parameters)
-- [dr_spaam_param.yaml](sobit_follower/param/dr_spaam_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/ssd_param.yaml`
+    - [For more information](sobits_follower#parameters)
+- [dr_spaam_param.yaml](sobits_follower/param/dr_spaam_param.yaml)
     - Parameters for 2D LiDAR-based person detector
-    - path：`sobit_follower/param/<robot_type>/dr_spaam_param.yaml`
-    - [For more information](sobit_follower#parameters-1)
-- [sensor_rotator_param.yaml](sobit_follower/param/sensor_rotator_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/dr_spaam_param.yaml`
+    - [For more information](sobits_follower#parameters-1)
+- [sensor_rotator_param.yaml](sobits_follower/param/sensor_rotator_param.yaml)
     - Parameters for pan-tilt rotation control of RGB-D sensor
-    - path：`sobit_follower/param/<robot_type>/sensor_rotator_param.yaml`
-- [following_control_param.yaml](sobit_follower/param/following_control_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/sensor_rotator_param.yaml`
+- [following_control_param.yaml](sobits_follower/param/following_control_param.yaml)
     - Parameters for driving control
-    - path：`sobit_follower/param/<robot_type>/following_control_param.yaml`
-    - [For more information](sobit_follower##parameterfollowing-control)
-- [velocity_smoother_param.yaml](sobit_follower/param/velocity_smoother_param.yaml)
+    - path：`sobits_follower/param/<robot_type>/following_control_param.yaml`
+    - [For more information](sobits_follower##parameterfollowing-control)
+- [velocity_smoother_param.yaml](sobits_follower/param/velocity_smoother_param.yaml)
     - Parameters for speed smoothing
-    - path：`sobit_follower/param/<robot_type>/velocity_smoother_param.yaml`
-    - [For more information](sobit_follower##velocity_smoother_param)
+    - path：`sobits_follower/param/<robot_type>/velocity_smoother_param.yaml`
+    - [For more information](sobits_follower##velocity_smoother_param)
 
 <!-- Milestone -->
 ## Milestone
@@ -232,13 +232,13 @@ See the [open issues][license-url]  for a full list of proposed features (and kn
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[forks-url]: https://github.com/TeamSOBITS/sobit_follower/network/members
-[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[stars-url]: https://github.com/TeamSOBITS/sobit_follower/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[issues-url]: https://github.com/TeamSOBITS/sobit_follower/issues
-[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[contributors-url]: https://github.com/TeamSOBITS/sobits_follower/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[forks-url]: https://github.com/TeamSOBITS/sobits_follower/network/members
+[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[stars-url]: https://github.com/TeamSOBITS/sobits_follower/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[issues-url]: https://github.com/TeamSOBITS/sobits_follower/issues
+[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobits_follower.svg?style=for-the-badge
 [license-url]: LICENSE

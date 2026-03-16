@@ -1,0 +1,27 @@
+/**:
+  ros__parameters:
+    # Topic & Frame
+    scan_topic_name : /sobit_edu/scan
+    dr_spaam_topic_name : /dr_spaam/dr_spaam_detections
+    body_detection_topic_name : /sobits_follower/body_3d_poses
+    detection_mode : body_leg                   # body_leg or body or leg 
+    target_frame : sobit_edu/base_footprint
+    odom_frame_name : sobit_edu/odom
+
+    # Merging Point Cloud Non-travelable region (true) or Not merging (false)
+    merge_nontravelable_region : false
+
+    # Tracking
+    target_range : 3.0
+    leg_tracking_range : 0.7
+    body_tracking_range : 0.35
+    target_cloud_radius : 0.4
+    outlier_radius : 0.1
+    outlier_min_pts : 2
+    leaf_size : 0.14
+    target_change_tolerance : 1.0
+    display_marker : true
+
+    # Kalman Filter
+    process_noise : 50.0
+    system_noise : 1.0

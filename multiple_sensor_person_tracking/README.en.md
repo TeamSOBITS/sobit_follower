@@ -125,13 +125,13 @@ See the open issues for a full list of proposed features (and known issues).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[forks-url]: https://github.com/TeamSOBITS/sobit_follower/network/members
-[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[stars-url]: https://github.com/TeamSOBITS/sobit_follower/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[issues-url]: https://github.com/TeamSOBITS/sobit_follower/issues
-[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[contributors-url]: https://github.com/TeamSOBITS/sobits_follower/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[forks-url]: https://github.com/TeamSOBITS/sobits_follower/network/members
+[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[stars-url]: https://github.com/TeamSOBITS/sobits_follower/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[issues-url]: https://github.com/TeamSOBITS/sobits_follower/issues
+[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobits_follower.svg?style=for-the-badge
 [license-url]: LICENSE

@@ -1,0 +1,61 @@
+# Following Control
+/**:
+  ros__parameters:
+    command_velocity_topic_name : /sobit_home/cmd_vel
+    following_position_topic_name : /sobits_follower/following_position
+    obstacles_topic_name : /sobits_follower/obstacles
+    odom_topic_name : /sobit_home/odom
+    following_stale_timeout_sec : 2.50
+
+    base_footprint_name : sobit_home/base_footprint
+    odom_frame_name : sobit_home/odom
+    following_distance : 2.00
+
+    following_method : 0
+      # 0 : VirtualSpringModel-DynamicWindowApproach
+      # 1 : VirtualSpringModel
+      # 2 : DynamicWindowApproach
+      # 3 : PIDController
+
+    # Virtual Spring Model
+    following_angle_deg : 0.0       # theta_sh [deg]
+    spring_constant_linear : 30.0   # k_1 [N/m]
+    spring_constant_angular : 1.0   # k_2 [N・m/rad]
+    weight_robot : 30.0             # M [Kg]
+    moment_inertia : 15.0           # I [Kg・m^2]
+    viscous_friction_linear : 1.00  # k_3 [N・s/m]
+    viscous_friction_angular : 1.00 # k_4 [N・s/rad]
+    radius_robot : 0.4              # L [m]
+    display_vsm_target : false
+
+    # Dynamic Window Approach :Velocity Limit
+    min_linear : 0.05
+    max_linear : 0.45
+    min_angular_deg : -35.0
+    max_angular_deg : 35.0
+
+    # Dynamic Window Approach : Step Value
+    predict_step : 20
+    sampling_time : 0.1             # Predicted time[s] = predict_step[step] * sampling_time[s]
+    velocity_step : 7.0
+    angle_velocity_step : 30.0
+
+    # Dynamic Window Approach : Weight
+    weight_heading : 3.2
+    weight_obstacle : 1.4
+    weight_velocity : 1.2
+
+    # Dynamic Window Approach : VSM-DWA Weight
+    weight_vsm_heading : 3.0
+    weight_vsm_obstacle : 1.7
+    weight_vsm_linear : 2.0
+    weight_vsm_angular : 0.5
+
+    # Dynamic Window Approach : Cost Distance
+    obstacle_cost_radius : 0.45
+
+    # PID Controller
+    p_gain : 0.6
+    i_gain : 0.4
+    d_gain : 0.0
+    max_pid_angular_deg : 36.0

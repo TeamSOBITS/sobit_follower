@@ -21,7 +21,7 @@
 
 ## 概要
 - 仮想ばねモデルによる人追従走行シミュレータ
-- [走行制御手法の詳細](https://github.com/TeamSOBITS/sobit_follower/tree/hotfix/OSS/person_following_control)
+- [走行制御手法の詳細](https://github.com/TeamSOBITS/sobits_follower/tree/hotfix/OSS/person_following_control)
 ## 実行方法
 ### [multiple_observation_tracing_simulator.launch](launch/multiple_observation_tracing_simulator.launch)
 - シミュレータを用いた仮想ばねモデルによる人追従走行
@@ -41,13 +41,13 @@ $ roslaunch multiple_observation_tracing_simulator multiple_observation_tracing_
 
 <p align="right">(<a href="#readme-top">上に戻る</a>)</p>
 
-[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[contributors-url]: https://github.com/TeamSOBITS/sobit_follower/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[forks-url]: https://github.com/TeamSOBITS/sobit_follower/network/members
-[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[stars-url]: https://github.com/TeamSOBITS/sobit_follower/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobit_follower.svg?style=for-the-badge
-[issues-url]: https://github.com/TeamSOBITS/sobit_follower/issues
-[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobit_follower.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[contributors-url]: https://github.com/TeamSOBITS/sobits_follower/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[forks-url]: https://github.com/TeamSOBITS/sobits_follower/network/members
+[stars-shield]: https://img.shields.io/github/stars/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[stars-url]: https://github.com/TeamSOBITS/sobits_follower/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TeamSOBITS/sobits_follower.svg?style=for-the-badge
+[issues-url]: https://github.com/TeamSOBITS/sobits_follower/issues
+[license-shield]: https://img.shields.io/github/license/TeamSOBITS/sobits_follower.svg?style=for-the-badge
 [license-url]: LICENSE

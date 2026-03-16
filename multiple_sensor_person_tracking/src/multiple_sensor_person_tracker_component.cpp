@@ -644,7 +644,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     this->declare_parameter<std::string>("scan_topic_name", "/scan");
     this->declare_parameter<std::string>("pointcloud_nontravelable_region_topic_name", "/pointcloud_nontravelable_region");
     this->declare_parameter<std::string>("dr_spaam_topic_name", "/dr_spaam_detections");
-    this->declare_parameter<std::string>("body_detection_topic_name", "/sobit_follower/object_3d_poses");
+    this->declare_parameter<std::string>("body_detection_topic_name", "/sobits_follower/object_3d_poses");
     this->declare_parameter<std::string>("target_frame", "base_footprint");
     this->declare_parameter<std::string>("odom_frame_name", "odom");
     this->declare_parameter<std::string>("detection_mode", "body_leg");
