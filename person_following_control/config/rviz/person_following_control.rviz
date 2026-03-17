@@ -123,7 +123,7 @@ Visualization Manager:
       Value: false
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /dwa_path_marker
+      Marker Topic: /sobits_follower/person_following_control/dwa_path_marker
       Name: dwa_path_marker
       Namespaces:
         optimal_path: true
@@ -131,7 +131,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /dwa_path_marker_all
+      Marker Topic: /sobits_follower/person_following_control/dwa_path_marker_all
       Name: dwa_path_marker_all
       Namespaces:
         all_path: true
@@ -139,7 +139,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /vsm_path_marker
+      Marker Topic: /sobits_follower/person_following_control/vsm_path_marker
       Name: vsm_path_marker
       Namespaces:
         virtual_spring_path: true
@@ -147,7 +147,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: false
-      Marker Topic: /vsm_target_marker
+      Marker Topic: /sobits_follower/person_following_control/vsm_target_marker
       Name: vsm_target_marker
       Namespaces:
         {}

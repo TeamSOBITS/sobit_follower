@@ -76,9 +76,9 @@
 #### Publications
 |Topic Name|Type|Meaning|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
-|/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|障害物点群|
-|/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|検出結果のマーカ|
+|/sobits_follower/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
+|/sobits_follower/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|障害物点群|
+|/sobits_follower/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|検出結果のマーカ|
 
 #### Parameters(person_tracker)
 |Parameter Name|Type|Meaning|

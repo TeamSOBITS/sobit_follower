@@ -124,7 +124,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /ssd_object_detect/detect_result
+      Image Topic: /ssd_ros/detect_result
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -192,7 +192,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /sobits_follower/tracker_marker
+      Marker Topic: /sobits_follower/multiple_sensor_person_tracking/tracker_marker
       Name: Tracker
       Namespaces:
         {}
@@ -200,7 +200,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /dwa_path_marker
+      Marker Topic: /sobits_follower/person_following_control/dwa_path_marker
       Name: DWA
       Namespaces:
         {}
@@ -208,7 +208,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /dwa_path_marker_all
+      Marker Topic: /sobits_follower/person_following_control/dwa_path_marker_all
       Name: DWA(ALL)
       Namespaces:
         {}
@@ -216,7 +216,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /vsm_path_marker
+      Marker Topic: /sobits_follower/person_following_control/vsm_path_marker
       Name: VSM
       Namespaces:
         {}
@@ -232,7 +232,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /sobits_follower/rotator_marker
+      Marker Topic: /sobits_follower/multiple_sensor_person_tracking/rotator_marker
       Name: RotateSensor
       Namespaces:
         {}

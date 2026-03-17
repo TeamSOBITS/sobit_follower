@@ -10,8 +10,8 @@ else
 fi
 
 cd ~/catkin_ws/src/sobits_follower/sobits_follower/rosbag
-rosbag record   /sobits_follower/following_position  \
-                /sobits_follower/target_postion_odom  \
+rosbag record   /sobits_follower/multiple_sensor_person_tracking/following_position  \
+                /sobits_follower/multiple_sensor_person_tracking/target_postion_odom  \
                 /odom \
                 /mobile_base/commands/velocity \
                 /plate_top_camera/color/image_raw \

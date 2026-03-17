@@ -127,9 +127,9 @@ $ ros2 launch sobits_follower sobits_follower.launch.py robot_type:=hsrb
 #### Publications
 |Topic|Type|Meaning|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|Tracking position and obstacles|
-|/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|obstacle point cloud|
-|/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|Marker for detection results|
+|/sobits_follower/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|Tracking position and obstacles|
+|/sobits_follower/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|obstacle point cloud|
+|/sobits_follower/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|Marker for detection results|
 
 #### Parameters(person_tracker)
 |Parameter|Type|Meaning|
@@ -192,7 +192,7 @@ $ ros2 launch sobits_follower sobits_follower.launch.py robot_type:=hsrb
 #### Publications
 |Topic|Type|Meaning|
 |---|---|---|
-|/ssd_object_detect/detect_result|sensor_msgs/Image|Detection results(Image)|
+|/ssd_ros/detect_result|sensor_msgs/Image|Detection results(Image)|
 |/ssd_object_detect/object_name|sobits_interfaces/StringArray|Detection results(Object Name)|
 |/ssd_object_detect/object_rect|sobits_interfaces/BoundingBoxes|Detection results(bounding box)|
 |/ssd_ros/object_3d_poses|vision_msgs/msg/Detection3DArray|Detection results(3D Position)|
@@ -271,7 +271,7 @@ $ ros2 launch sobits_follower sobits_follower.launch.py robot_type:=hsrb
 #### Subscriptions
 |Topic|Type|Meaning|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|Tracking position and obstacles|
+|/sobits_follower/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|Tracking position and obstacles|
 
 #### Publications
 |Topic|Type|Meaning|

@@ -956,7 +956,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/tracker_marker
+            Value: /sobits_follower/multiple_sensor_person_tracking/tracker_marker
           Value: true
         - Class: rviz_default_plugins/Marker
           Enabled: true
@@ -969,7 +969,7 @@ Visualization Manager:
             Filter size: 10
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/rotator_marker
+            Value: /sobits_follower/multiple_sensor_person_tracking/rotator_marker
           Value: true
         - Alpha: 1
           Class: rviz_default_plugins/PointStamped
@@ -984,7 +984,7 @@ Visualization Manager:
             Filter size: 10
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/target_postion_odom
+            Value: /sobits_follower/multiple_sensor_person_tracking/target_postion_odom
           Value: true
       Enabled: true
       Name: Multiple Sensor Person Tracking
@@ -1000,7 +1000,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /vsm_path_marker
+            Value: /sobits_follower/person_following_control/vsm_path_marker
           Value: true
         - Class: rviz_default_plugins/MarkerArray
           Enabled: true
@@ -1012,7 +1012,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /vsm_target_marker
+            Value: /sobits_follower/person_following_control/vsm_target_marker
           Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -1043,7 +1043,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/obstacles
+            Value: /sobits_follower/multiple_sensor_person_tracking/obstacles
           Use Fixed Frame: true
           Use rainbow: true
           Value: true

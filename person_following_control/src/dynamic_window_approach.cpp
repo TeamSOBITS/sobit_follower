@@ -89,8 +89,8 @@ void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedP
 
 DynamicWindowApproach::DynamicWindowApproach ( rclcpp::Node* node ) : node_( node ) {
     dwap_ = std::make_shared<DWAParameters>();
-    pub_path_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/dwa_path_marker", 1);
-    pub_path_marker_all_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/dwa_path_marker_all", 1);
+    pub_path_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/dwa_path_marker", 1);
+    pub_path_marker_all_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/dwa_path_marker_all", 1);
     dwap_ = std::make_shared<DWAParameters>();
     display_optimal_path_ = false;
     display_all_path_ = false;

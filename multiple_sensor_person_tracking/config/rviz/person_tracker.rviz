@@ -156,7 +156,7 @@ Visualization Manager:
       Value: false
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /ssd_object_detect/detect_result
+      Image Topic: /ssd_ros/detect_result
       Max Value: 1
       Median window: 5
       Min Value: 0

@@ -124,7 +124,7 @@ $ roslaunch person_following_control sobit_pro_following_control.launch
 #### Subscriptions
 |トピック名|型|意味|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
+|/sobits_follower/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
 
 #### Publications
 |トピック名|型|意味|

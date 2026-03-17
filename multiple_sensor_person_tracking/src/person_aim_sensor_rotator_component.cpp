@@ -225,7 +225,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     
     // Declare parameters
-    this->declare_parameter<std::string>("following_position_topic_name", "/following_position");
+    this->declare_parameter<std::string>("following_position_topic_name", "/sobits_follower/multiple_sensor_person_tracking/following_position");
     this->declare_parameter<bool>("use_rotate", true);
     this->declare_parameter<bool>("use_smoothing", true);
     this->declare_parameter<double>("pan_angle_min_deg", -90.0);
@@ -298,7 +298,7 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     // Initialize class members
     tf_sub_.reset(new tf2_ros::TransformListener(tfBuffer_));
 
-    pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "rotator_marker", 1 );
+    pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "sobits_follower/multiple_sensor_person_tracking/rotator_marker", 1 );
 
     head_pantilt_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>( this, head_pantilt_action_name_ );
     
