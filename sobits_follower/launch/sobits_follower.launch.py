@@ -101,7 +101,7 @@ def _launch_setup(context):
                 package="multiple_sensor_person_tracking",
                 plugin="multiple_sensor_person_tracking::PersonTracker",
                 name="person_tracker",
-                namespace="sobits_follower",
+                namespace="",
                 parameters=[
                     person_tracker_params,
                     {
@@ -114,7 +114,7 @@ def _launch_setup(context):
                 package="multiple_sensor_person_tracking",
                 plugin="multiple_sensor_person_tracking::PersonAimSensorRotator",
                 name="person_aim_sensor_rotator",
-                namespace="sobits_follower",
+                namespace="",
                 parameters=[sensor_rotator_params],
             ),
             # Following Control Component
@@ -122,7 +122,7 @@ def _launch_setup(context):
                 package="person_following_control",
                 plugin="person_following_control::PersonFollowing",
                 name="person_following_control",
-                namespace="sobits_follower",
+                namespace="",
                 parameters=[person_following_control_params],
             ),
         ],
@@ -157,9 +157,9 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_type",
             description="Type of the robot",
-            default_value="sobit_edu",
+            # default_value="sobit_edu",
             # default_value="sobit_pro",
-            # default_value="sobit_home",
+            default_value="sobit_home",
             # default_value="hsrb",
         ), 
         DeclareLaunchArgument(

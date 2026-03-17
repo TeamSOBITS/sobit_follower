@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Multiple Sensor Person Tracking1/Tracker Marker1/Topic1
-        - /Person Following Control1/VSM Path Marker1/Status1
       Splitter Ratio: 0.7176470756530762
     Tree Height: 332
   - Class: rviz_common/Selection
@@ -26,7 +25,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Obstacles Cloud
+    SyncSource: SOBIT HOME merged lidar scan
 Visualization Manager:
   Class: ""
   Displays:
@@ -457,10 +456,6 @@ Visualization Manager:
           Frame Timeout: 15
           Frames:
             All Enabled: true
-            chair:
-              Value: true
-            person:
-              Value: true
             sobit_home/arm_left_base_link:
               Value: true
             sobit_home/arm_left_elbow_link:
@@ -623,10 +618,6 @@ Visualization Manager:
           Tree:
             sobit_home/odom:
               sobit_home/base_footprint:
-                chair:
-                  {}
-                person:
-                  {}
                 sobit_home/base_link:
                   sobit_home/plate_middle_link:
                     sobit_home/lidar_back_base_link:
@@ -840,7 +831,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Best Effort
-            Value: /detect_image
+            Value: /yolo_ros/detected_image
           Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -887,7 +878,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Best Effort
-            Value: /ssd_object_detect/detect_result
+            Value: /ssd_ros/detect_result
           Value: false
         - Alpha: 1
           Autocompute Intensity Bounds: true
@@ -998,16 +989,13 @@ Visualization Manager:
           Enabled: true
           Name: Tracker Marker
           Namespaces:
-            body_marker: true
-            leg_area_marker: true
-            leg_marker: true
-            target_marker: true
+            {}
           Topic:
             Depth: 5
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/tracker_marker
+            Value: /sobits_follower/multiple_sensor_person_tracking/tracker_marker
           Value: true
         - Class: rviz_default_plugins/Marker
           Enabled: true
@@ -1020,7 +1008,7 @@ Visualization Manager:
             Filter size: 10
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/rotator_marker
+            Value: /sobits_follower/multiple_sensor_person_tracking/rotator_marker
           Value: true
         - Alpha: 1
           Class: rviz_default_plugins/PointStamped
@@ -1035,7 +1023,7 @@ Visualization Manager:
             Filter size: 10
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/target_postion_odom
+            Value: /sobits_follower/multiple_sensor_person_tracking/target_postion_odom
           Value: true
       Enabled: true
       Name: Multiple Sensor Person Tracking
@@ -1070,7 +1058,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /sobits_follower/obstacles
+            Value: /sobits_follower/multiple_sensor_person_tracking/obstacles
           Use Fixed Frame: true
           Use rainbow: true
           Value: true
@@ -1103,7 +1091,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /pointcloud_nontravelable_region
+            Value: /sobits_follower/multiple_sensor_person_tracking/pointcloud_nontravelable_region
           Use Fixed Frame: true
           Use rainbow: true
           Value: false
@@ -1145,7 +1133,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /dwa_path_marker
+            Value: /sobits_follower/person_following_control/dwa_path_marker
           Value: true
         - Class: rviz_default_plugins/MarkerArray
           Enabled: true
@@ -1157,7 +1145,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /dwa_path_marker_all
+            Value: /sobits_follower/person_following_control/dwa_path_marker_all
           Value: true
         - Class: rviz_default_plugins/MarkerArray
           Enabled: false
@@ -1169,7 +1157,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /vsm_path_marker
+            Value: /sobits_follower/person_following_control/vsm_path_marker
           Value: false
         - Class: rviz_default_plugins/MarkerArray
           Enabled: true
@@ -1181,7 +1169,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Reliable
-            Value: /vsm_target_marker
+            Value: /sobits_follower/person_following_control/vsm_target_marker
           Value: true
       Enabled: true
       Name: Person Following Control

@@ -128,9 +128,9 @@ $ ros2 launch sobits_follower sobits_follower.launch.py robot_type:=hsrb
 #### Publications
 |トピック名|型|意味|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
-|/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|障害物点群|
-|/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|検出結果のマーカ|
+|/sobits_follower/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
+|/sobits_follower/multiple_sensor_person_tracking/obstacles|sensor_msgs/PointCloud2|障害物点群|
+|/sobits_follower/multiple_sensor_person_tracking/tracker_marker|visualization_msgs/MarkerArray|検出結果のマーカ|
 
 #### Parameters(person_tracker)
 |パラメータ名|型|意味|
@@ -193,7 +193,7 @@ $ ros2 launch sobits_follower sobits_follower.launch.py robot_type:=hsrb
 #### Publications
 |トピック名|型|意味|
 |---|---|---|
-|/ssd_object_detect/detect_result|sensor_msgs/Image|検出結果(画像)|
+|/ssd_ros/detect_result|sensor_msgs/Image|検出結果(画像)|
 |/ssd_object_detect/object_name|sobits_interfaces/StringArray|検出結果(物体名)|
 |/ssd_object_detect/object_rect|sobits_interfaces/BoundingBoxes|検出結果(バウンディングボックス)|
 |/ssd_ros/object_3d_poses|vision_msgs/msg/Detection3DArray|検出結果(３次元位置)|
@@ -272,7 +272,7 @@ $ ros2 launch sobits_follower sobits_follower.launch.py robot_type:=hsrb
 #### Subscriptions
 |トピック名|型|意味|
 |---|---|---|
-|/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
+|/sobits_follower/multiple_sensor_person_tracking/following_position|multiple_sensor_person_tracking/FollowingPosition|追従位置と障害物|
 
 #### Publications
 |トピック名|型|意味|

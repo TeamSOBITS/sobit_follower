@@ -2,8 +2,8 @@
 /**:
   ros__parameters:
     command_velocity_topic_name : /sobit_pro/cmd_vel
-    following_position_topic_name : /sobits_follower/following_position
-    obstacles_topic_name : /sobits_follower/obstacles
+    following_position_topic_name : /sobits_follower/multiple_sensor_person_tracking/following_position
+    obstacles_topic_name : /sobits_follower/multiple_sensor_person_tracking/obstacles
     odom_topic_name : /sobit_pro/odom
     following_stale_timeout_sec   : 1.20
 

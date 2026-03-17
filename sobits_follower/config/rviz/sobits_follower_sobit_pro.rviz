@@ -808,7 +808,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /sobits_follower/tracker_marker
+        Value: /sobits_follower/multiple_sensor_person_tracking/tracker_marker
       Value: true
   Enabled: true
   Global Options:

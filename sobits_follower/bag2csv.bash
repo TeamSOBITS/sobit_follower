@@ -25,8 +25,8 @@ for ((i = 0; i < ${#rosbag_files[@]}; i++)) {
     
     # Export data from each rosbag
     echo "Export data from ${rosbag_files[i]}"
-    rostopic echo -b ${rosbag_files[i]}.bag -p /sobits_follower/following_position/pose/position > following_position_${rosbag_files[i]}.csv
-    rostopic echo -b ${rosbag_files[i]}.bag -p /sobits_follower/target_postion_odom/point > target_postion_odom_${rosbag_files[i]}.csv
+    rostopic echo -b ${rosbag_files[i]}.bag -p /sobits_follower/multiple_sensor_person_tracking/following_position/pose/position > following_position_${rosbag_files[i]}.csv
+    rostopic echo -b ${rosbag_files[i]}.bag -p /sobits_follower/multiple_sensor_person_tracking/target_postion_odom/point > target_postion_odom_${rosbag_files[i]}.csv
     rostopic echo -b ${rosbag_files[i]}.bag -p /odom/pose/pose/position > odom_${rosbag_files[i]}.csv
     rostopic echo -b ${rosbag_files[i]}.bag -p /mobile_base/commands/velocity > raw_cmd_vel_${rosbag_files[i]}.csv
     rostopic echo -b ${rosbag_files[i]}.bag -p /odom/twist/twist> odom_velocity_${rosbag_files[i]}.csv

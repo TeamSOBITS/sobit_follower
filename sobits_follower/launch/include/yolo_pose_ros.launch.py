@@ -33,7 +33,7 @@ def _launch_setup(context):
         output='screen',
         parameters=[ros_params],
         remappings=[
-            ('object_3d_poses', '/sobits_follower/body_3d_poses')
+            ('/yolo_ros/bbox_to_3d/object_3d_poses', '/sobits_follower/body_3d_poses')
         ]
     )
 
@@ -45,11 +45,14 @@ def _launch_setup(context):
         output='screen',
         parameters=[ros_params],
         remappings=[
-            ('object_3d_poses', '/sobits_follower/body_3d_poses')
+            ('/yolo_ros/bbox_to_3d/object_3d_poses', '/sobits_follower/body_3d_poses')
         ]
     )
 
-    return [yolo_node, bbox_to_3d_cmd]
+    return [
+        yolo_node, 
+        bbox_to_3d_cmd,
+    ]
 
 
 def generate_launch_description():

@@ -74,8 +74,8 @@ visualization_msgs::msg::Marker VirtualSpringModel::displayTargetMarker ( const 
 }
 
 VirtualSpringModel::VirtualSpringModel ( rclcpp::Node* node ) : node_( node ) {
-    pub_mrk_tgt_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/vsm_target_marker", 1);
-    pub_mrk_path_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("/vsm_path_marker", 1);
+    pub_mrk_tgt_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/vsm_target_marker", 1);
+    pub_mrk_path_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/vsm_path_marker", 1);
 
     ang_follow_ = 0.0;
     dist_follow_ = 0.7;
