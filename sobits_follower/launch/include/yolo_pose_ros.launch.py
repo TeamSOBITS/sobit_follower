@@ -3,7 +3,7 @@ import yaml
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, ExecuteProcess, TimerAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
@@ -49,9 +49,33 @@ def _launch_setup(context):
         ]
     )
 
+    node_full_path = '/yolo_ros/bbox_to_3d'
+
+    configure_node = ExecuteProcess(
+        cmd=[
+            'bash',
+            '-lc',
+            f'until ros2 lifecycle get "{node_full_path}" >/dev/null 2>&1; do sleep 0.2; done; '
+            f'ros2 lifecycle set "{node_full_path}" configure',
+        ],
+        output='screen'
+    )
+
+    activate_node = ExecuteProcess(
+        cmd=[
+            'bash',
+            '-lc',
+            f'until ros2 lifecycle get "{node_full_path}" 2>/dev/null | grep -q "inactive"; do sleep 0.2; done; '
+            f'ros2 lifecycle set "{node_full_path}" activate',
+        ],
+        output='screen'
+    )
+
     return [
         yolo_node, 
         bbox_to_3d_cmd,
+        TimerAction(period=0.5, actions=[configure_node]),
+        TimerAction(period=1.0, actions=[activate_node])
     ]
 
 
