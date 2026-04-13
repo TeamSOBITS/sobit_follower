@@ -199,18 +199,18 @@ void person_following_control::PersonFollowing::processControl() {
         return;
     }
 
-    // Safety stop if tracker stream is stale.
-    if (has_following_update_ &&
-        (this->get_clock()->now() - last_following_update_time_).seconds() > following_stale_timeout_sec_) {
-        velocity_.linear.x = 0.0;
-        velocity_.angular.z = 0.0;
-        use_pid_ = false;
-        pub_vel_->publish(velocity_);
-        RCLCPP_WARN_THROTTLE(
-            this->get_logger(), *this->get_clock(), 2000,
-            "Stopping robot because following_position is stale.");
-        return;
-    }
+    // // Safety stop if tracker stream is stale.
+    // if (has_following_update_ &&
+    //     (this->get_clock()->now() - last_following_update_time_).seconds() > following_stale_timeout_sec_) {
+    //     velocity_.linear.x = 0.0;
+    //     velocity_.angular.z = 0.0;
+    //     use_pid_ = false;
+    //     pub_vel_->publish(velocity_);
+    //     RCLCPP_WARN_THROTTLE(
+    //         this->get_logger(), *this->get_clock(), 2000,
+    //         "Stopping robot because following_position is stale.");
+    //     return;
+    // }
 
     constexpr int64_t kStatusNoExists = 0;
     if (following_position_msg_->status == kStatusNoExists ||
