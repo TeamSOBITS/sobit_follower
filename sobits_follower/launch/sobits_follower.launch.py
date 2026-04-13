@@ -3,18 +3,26 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, Opaq
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
-from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import ComposableNodeContainer, Node
 from launch_ros.descriptions import ComposableNode
+from launch_ros.substitutions import FindPackageShare
 import yaml
+
+
+def _load_ros_parameters(params_path: str) -> dict:
+    try:
+        with open(params_path, "r", encoding="utf-8") as f:
+            params = yaml.safe_load(f) or {}
+    except Exception:
+        return {}
+
+    return params.get("/**", {}).get("ros__parameters", {}) or {}
 
 
 def _load_detection_mode(params_path: str) -> str:
     detection_mode = "body_leg"
     try:
-        with open(params_path, "r", encoding="utf-8") as f:
-            params = yaml.safe_load(f) or {}
-        detection_mode = params.get("/**", {}).get("ros__parameters", {}).get("detection_mode", detection_mode)
+        detection_mode = _load_ros_parameters(params_path).get("detection_mode", detection_mode)
     except Exception:
         return detection_mode
 
@@ -34,10 +42,21 @@ def _launch_setup(context):
     person_tracker_params = LaunchConfiguration("person_tracker_params")
     sensor_rotator_params = LaunchConfiguration("sensor_rotator_params")
     person_following_control_params = LaunchConfiguration("person_following_control_params")
+    velocity_smoother_params = LaunchConfiguration("velocity_smoother_params")
 
     tracker_params_path = person_tracker_params.perform(context)
     detection_mode = _load_detection_mode(tracker_params_path)
     body_detector_value = body_detector.perform(context).strip().lower()
+
+    velocity_smoother_config = _load_ros_parameters(velocity_smoother_params.perform(context))
+    use_velocity_smoother = str(
+        velocity_smoother_config.get("use_velocity_smoother", True)
+    ).strip().lower() in ("true", "1", "yes", "on")
+    raw_cmd_vel_topic = str(velocity_smoother_config.get("raw_cmd_vel_topic", "/sobits_follower/velocity_smoother/raw_cmd_vel")).strip()
+
+    person_following_control_overrides = {}
+    if use_velocity_smoother:
+        person_following_control_overrides["command_velocity_topic_name"] = raw_cmd_vel_topic
 
     dr_spaam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -59,7 +78,6 @@ def _launch_setup(context):
         }.items(),
     )
 
-    # SSD launch includes
     ssd_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -69,12 +87,9 @@ def _launch_setup(context):
                 "ssd_pose_ros.launch.py",
             ])
         ),
-        launch_arguments={
-            'robot_type': robot_type,
-        }.items(),
+        launch_arguments={"robot_type": robot_type}.items(),
     )
 
-    # YOLO launch includes
     yolo_ros_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
@@ -84,8 +99,20 @@ def _launch_setup(context):
                 "yolo_pose_ros.launch.py",
             ])
         ),
+        launch_arguments={"robot_type": robot_type}.items(),
+    )
+
+    velocity_smoother_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare("person_following_control"),
+                "launch",
+                "velocity_smoother.launch.py",
+            ])
+        ),
         launch_arguments={
-            'robot_type': robot_type,
+            "use_velocity_smoother": "true" if use_velocity_smoother else "false",
+            "velocity_smoother_params": velocity_smoother_params,
         }.items(),
     )
 
@@ -123,7 +150,7 @@ def _launch_setup(context):
                 plugin="person_following_control::PersonFollowing",
                 name="person_following_control",
                 namespace="",
-                parameters=[person_following_control_params],
+                parameters=[person_following_control_params, person_following_control_overrides],
             ),
         ],
     )
@@ -146,7 +173,9 @@ def _launch_setup(context):
         elif body_detector_value == "yolo":
             actions.append(yolo_ros_launch)
     actions.append(sobits_follower)
+    actions.append(velocity_smoother_launch)
     return actions
+
 
 def generate_launch_description():
     sobits_follower_share = FindPackageShare("sobits_follower")
@@ -163,12 +192,12 @@ def generate_launch_description():
             # default_value="hsrb",
         ), 
         DeclareLaunchArgument(
-            "use_rviz", 
+            "use_rviz",
             description="Whether to launch RViz",
-            default_value="true"
+            default_value="true",
         ),
         DeclareLaunchArgument(
-            "rviz_cfg", 
+            "rviz_cfg",
             description="Path to the RViz configuration file",
             default_value=PathJoinSubstitution([
                 sobits_follower_share,
@@ -177,45 +206,54 @@ def generate_launch_description():
                 PythonExpression([
                     "'sobits_follower_' + '",
                     robot_type,
-                    "' + '.rviz'"
+                    "' + '.rviz'",
                 ]),
-            ])
+            ]),
         ),
         DeclareLaunchArgument(
-            "body_detector", 
-            default_value="yolo", 
-            description="Select the body detector type: 'yolo', 'ssd'"
-
+            "body_detector",
+            default_value="yolo",
+            description="Select the body detector type: 'yolo', 'ssd'",
         ),
         DeclareLaunchArgument(
-            "person_tracker_params", 
+            "person_tracker_params",
             description="Path to the person tracker parameter file",
             default_value=PathJoinSubstitution([
-                sobits_follower_share, 
-                "param", 
-                robot_type, 
-                "tracker_param.yaml"
-            ])
+                sobits_follower_share,
+                "param",
+                robot_type,
+                "tracker_param.yaml",
+            ]),
         ),
         DeclareLaunchArgument(
-            "sensor_rotator_params", 
+            "sensor_rotator_params",
             description="Path to the sensor rotator parameter file",
             default_value=PathJoinSubstitution([
-                sobits_follower_share, 
-                "param", 
-                robot_type, 
-                "sensor_rotator_param.yaml"
-            ])
+                sobits_follower_share,
+                "param",
+                robot_type,
+                "sensor_rotator_param.yaml",
+            ]),
         ),
         DeclareLaunchArgument(
-            "person_following_control_params", 
+            "person_following_control_params",
             description="Path to the person following control parameter file",
             default_value=PathJoinSubstitution([
-                sobits_follower_share, 
-                "param", 
-                robot_type, 
-                "following_control_param.yaml"
-            ])
+                sobits_follower_share,
+                "param",
+                robot_type,
+                "following_control_param.yaml",
+            ]),
+        ),
+        DeclareLaunchArgument(
+            "velocity_smoother_params",
+            description="Path to the velocity smoother parameter file",
+            default_value=PathJoinSubstitution([
+                sobits_follower_share,
+                "param",
+                robot_type,
+                "velocity_smoother_param.yaml",
+            ]),
         ),
     ]
     return LaunchDescription(launch_args + [OpaqueFunction(function=_launch_setup)])
