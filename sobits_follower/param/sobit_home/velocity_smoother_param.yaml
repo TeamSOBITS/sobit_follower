@@ -12,14 +12,14 @@
     velocity_timeout: 2.5
 
     # Mandatory parameters
-    speed_lim_v: 1.0
+    speed_lim_v: 0.4
     speed_lim_w: 5.4
 
     accel_lim_v: 1.0 # raised so the follower can reach cruise speed faster without being abrupt
     accel_lim_w: 2.0
 
     # Optional parameters
-    frequency: 50.0       # Frequency of the output velocity. Regardless of the frequency of the input data, the velocity smoother maintains this frequency and releases the data
+    frequency: 20.0       # Frequency of the output velocity. Regardless of the frequency of the input data, the velocity smoother maintains this frequency and releases the data
     decel_factor: 10.0    # Deceleration/acceleration ratio (can be increased for large moments of inertia)
 
     # Robot velocity feedback type:
