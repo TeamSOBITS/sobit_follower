@@ -199,6 +199,7 @@ void person_following_control::PersonFollowing::processControl() {
         return;
     }
 
+    // TODO: Check if this stale following_position check is necessary after ensuring synchronized callbacks. If callbacks are properly synchronized, this check may be redundant and could be removed to simplify the code.
     // // Safety stop if tracker stream is stale.
     // if (has_following_update_ &&
     //     (this->get_clock()->now() - last_following_update_time_).seconds() > following_stale_timeout_sec_) {
