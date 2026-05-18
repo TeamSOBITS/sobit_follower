@@ -17,6 +17,10 @@ def _load_ros_parameters(params_path: str) -> dict:
 
 
 def _launch_setup(context):
+    use_velocity_smoother = str(LaunchConfiguration("use_velocity_smoother").perform(context)).strip().lower() in ("true", "1", "yes", "on")
+    if not use_velocity_smoother:
+        return []
+
     config = _load_ros_parameters(LaunchConfiguration("velocity_smoother_params").perform(context))
 
     speed_lim_v = float(config.get("speed_lim_v", 0.8))
@@ -88,6 +92,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "velocity_smoother_params",
+            default_value="",
             description="Path to the velocity smoother parameter file",
         ),
         OpaqueFunction(function=_launch_setup),
