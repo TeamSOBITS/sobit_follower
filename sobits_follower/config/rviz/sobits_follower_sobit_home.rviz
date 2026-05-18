@@ -273,7 +273,7 @@ Visualization Manager:
             Inertia: false
             Mass: false
           Name: RobotModel
-          TF Prefix: /sobit_home
+          TF Prefix: ""
           Update Interval: 0
           Value: true
           Visual Enabled: true
