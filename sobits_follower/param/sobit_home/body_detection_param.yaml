@@ -1,13 +1,13 @@
 # Body detector + 3D positioning
 /**:
   ros__parameters:
-    image_topic_name : /sobit_home/head_camera/color
+    image_topic_name : /sobit_home/head_camera/color/image_raw
     cloud_topic_name : /sobit_home/head_camera/depth/points
-    depth_image_topic_name : /sobit_home/head_camera/depth
-    base_frame_name : sobit_home/base_footprint
-    info_topic_name : /sobit_home/head_camera/camera_info
+    depth_image_topic_name : /sobit_home/head_camera/depth/image_raw
+    base_frame_name : base_footprint
+    info_topic_name : /sobit_home/head_camera/color/camera_info
 
-    weight_file: yolo26n.pt # yolo weight file
+    weight_file: yolo26n-pose.pt # yolo weight file
 
     image_show_flag : false
     execute_default : true

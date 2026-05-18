@@ -92,6 +92,12 @@ install(DIRECTORY include/
 install(DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config)
 
+install(DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch)
+
+install(DIRECTORY param/
+  DESTINATION share/${PROJECT_NAME}/param)
+
 install(FILES
   component_description.xml
   DESTINATION share/${PROJECT_NAME}

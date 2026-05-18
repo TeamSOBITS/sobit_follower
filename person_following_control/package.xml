@@ -23,6 +23,8 @@
   <depend>visualization_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>message_filters</depend>
+  <depend>nav2_lifecycle_manager</depend>
+  <depend>nav2_velocity_smoother</depend>
   <depend>rviz2</depend>
   <depend>qtbase5-dev</depend>
   <depend>multiple_observation_kalman_filter</depend>
