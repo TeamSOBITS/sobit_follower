@@ -43,6 +43,9 @@ def _launch_setup(context):
     sensor_rotator_params = LaunchConfiguration("sensor_rotator_params")
     person_following_control_params = LaunchConfiguration("person_following_control_params")
     velocity_smoother_params = LaunchConfiguration("velocity_smoother_params")
+    autostart_lifecycle = str(
+        LaunchConfiguration("autostart_lifecycle").perform(context)
+    ).strip().lower() in ("true")
 
     tracker_params_path = person_tracker_params.perform(context)
     detection_mode = _load_detection_mode(tracker_params_path)
@@ -52,7 +55,7 @@ def _launch_setup(context):
     use_velocity_smoother = str(
         velocity_smoother_config.get("use_velocity_smoother", True)
     ).strip().lower() in ("true", "1", "yes", "on")
-    raw_cmd_vel_topic = str(velocity_smoother_config.get("raw_cmd_vel_topic", "/sobits_follower/velocity_smoother/raw_cmd_vel")).strip()
+    raw_cmd_vel_topic = str(velocity_smoother_config.get("raw_cmd_vel_topic", "sobits_follower/velocity_smoother/raw_cmd_vel")).strip()
 
     person_following_control_overrides = {}
     if use_velocity_smoother:
@@ -118,7 +121,7 @@ def _launch_setup(context):
 
     sobits_follower = ComposableNodeContainer(
         name="sobits_follower_container",
-        namespace="sobits_follower",
+        namespace="",
         package="rclcpp_components",
         executable="component_container_mt",
         output="screen",
@@ -132,7 +135,7 @@ def _launch_setup(context):
                 parameters=[
                     person_tracker_params,
                     {
-                        "body_detection_topic_name": "/sobits_follower/body_3d_poses"
+                        "body_detection_topic_name": "sobits_follower/body_3d_poses"
                     }
                 ],
             ),
@@ -164,7 +167,25 @@ def _launch_setup(context):
         condition=IfCondition(use_rviz),
     )
 
-    actions = [rviz_node]
+    lifecycle_manager = Node(
+        package="nav2_lifecycle_manager",
+        executable="lifecycle_manager",
+        name="sobits_follower_lifecycle_manager",
+        namespace="",
+        output="screen",
+        parameters=[{
+            "autostart": autostart_lifecycle,
+            "bond_timeout": 0.0,
+            "node_names": [
+                "person_tracker",
+                "person_aim_sensor_rotator",
+                "person_following_control",
+            ],
+        }],
+    )
+
+    actions = []
+    actions.append(rviz_node)
     if detection_mode != "body":
         actions.append(dr_spaam_launch)
     if detection_mode != "leg":
@@ -173,6 +194,7 @@ def _launch_setup(context):
         elif body_detector_value == "yolo":
             actions.append(yolo_ros_launch)
     actions.append(sobits_follower)
+    actions.append(lifecycle_manager)
     actions.append(velocity_smoother_launch)
     return actions
 
@@ -254,6 +276,11 @@ def generate_launch_description():
                 robot_type,
                 "velocity_smoother_param.yaml",
             ]),
+        ),
+        DeclareLaunchArgument(
+            "autostart_lifecycle",
+            description="Whether to automatically configure and activate sobits_follower lifecycle nodes",
+            default_value="true",
         ),
     ]
     return LaunchDescription(launch_args + [OpaqueFunction(function=_launch_setup)])
