@@ -73,7 +73,7 @@ visualization_msgs::msg::Marker VirtualSpringModel::displayTargetMarker ( const 
     return marker;
 }
 
-VirtualSpringModel::VirtualSpringModel ( rclcpp::Node* node ) : node_( node ) {
+VirtualSpringModel::VirtualSpringModel ( rclcpp_lifecycle::LifecycleNode* node ) : node_( node ) {
     pub_mrk_tgt_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/vsm_target_marker", 1);
     pub_mrk_path_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/vsm_path_marker", 1);
 
@@ -95,6 +95,16 @@ VirtualSpringModel::VirtualSpringModel ( rclcpp::Node* node ) : node_( node ) {
     setRobotParamater( 30.0, 0.3 );
     setMomentParamater( 15.0 );
 	setDisplayFlag( false, false );
+}
+
+void VirtualSpringModel::activatePublishers() {
+    pub_mrk_tgt_->on_activate();
+    pub_mrk_path_->on_activate();
+}
+
+void VirtualSpringModel::deactivatePublishers() {
+    pub_mrk_tgt_->on_deactivate();
+    pub_mrk_path_->on_deactivate();
 }
 
 void VirtualSpringModel::compute ( const geometry_msgs::msg::Pose &pose_msg, const float curt_vel_linear, const float curt_vel_angular, geometry_msgs::msg::Twist& output_vel ) {

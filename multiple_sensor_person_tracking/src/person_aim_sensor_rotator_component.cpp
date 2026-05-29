@@ -1,4 +1,5 @@
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <algorithm>
 #include <cmath>
@@ -19,9 +20,11 @@
 using multiple_sensor_person_tracking::msg::FollowingPosition;
 
 namespace multiple_sensor_person_tracking {
-    class PersonAimSensorRotator : public rclcpp::Node {
+    using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
+    class PersonAimSensorRotator : public rclcpp_lifecycle::LifecycleNode {
         private:
-            rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_marker_;
+            rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::Marker>::SharedPtr pub_marker_;
             rclcpp::Subscription<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr sub_following_position_;
 
 			tf2_ros::Buffer tfBuffer_;
@@ -51,6 +54,7 @@ namespace multiple_sensor_person_tracking {
             std::string head_pan_joint_name_;
             std::string head_tilt_joint_name_;
             bool goal_in_flight_;
+            bool active_;
 
 			void makeMarker( const double pan_angle, const double tilt_angle, const double distance );
             void callbackData (
@@ -59,14 +63,18 @@ namespace multiple_sensor_person_tracking {
 
         public:
             explicit PersonAimSensorRotator(const rclcpp::NodeOptions & options)
-            : rclcpp::Node("person_aim_sensor_rotator", options),
+            : rclcpp_lifecycle::LifecycleNode("person_aim_sensor_rotator", options),
             tfBuffer_(this->get_clock()),
-            tf_sub_(std::make_shared<tf2_ros::TransformListener>(tfBuffer_))
-            {
-                onInit();
-            }
+            active_(false)
+            {}
 
-            void onInit();
+            CallbackReturn on_configure(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_shutdown(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_error(const rclcpp_lifecycle::State & state);
+            void resetInterfaces();
     };
 }
 
@@ -94,6 +102,9 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::makeMarker( const 
 
 void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
     const std::shared_ptr<const multiple_sensor_person_tracking::msg::FollowingPosition> &following_position_msg) {
+    if (!active_) {
+        return;
+    }
 		geometry_msgs::msg::Point pt;
     const double input_x = following_position_msg->rotation_position.x;
     const double input_y = following_position_msg->rotation_position.y;
@@ -222,29 +233,32 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::callbackData (
 	return;
 }
 
-void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonAimSensorRotator::on_configure(const rclcpp_lifecycle::State &) {
     
     // Declare parameters
-    this->declare_parameter<std::string>("following_position_topic_name", "/sobits_follower/multiple_sensor_person_tracking/following_position");
-    this->declare_parameter<bool>("use_rotate", true);
-    this->declare_parameter<bool>("use_smoothing", true);
-    this->declare_parameter<double>("pan_angle_min_deg", -90.0);
-    this->declare_parameter<double>("pan_angle_max_deg", 90.0);
-    this->declare_parameter<double>("tilt_angle_min_deg", -15.0);
-    this->declare_parameter<double>("tilt_angle_max_deg", 15.0);
-    this->declare_parameter<double>("person_height", 1.7);
-    this->declare_parameter<double>("camera2person_height", 0.2);
-    this->declare_parameter<double>("smoothing_gain", 0.5);
-    this->declare_parameter<double>("pan_command_deadband_deg", 0.8);
-    this->declare_parameter<double>("tilt_command_deadband_deg", 0.8);
-    this->declare_parameter<double>("pan_max_speed_deg_s", 120.0);
-    this->declare_parameter<double>("tilt_max_speed_deg_s", 90.0);
-    this->declare_parameter<double>("min_action_time_sec", 0.05);
-    this->declare_parameter<double>("max_action_time_sec", 0.60);
-    this->declare_parameter<bool>("display_marker", true);
-    this->declare_parameter<std::string>("head_pantilt_action_name", "move_joint");
-    this->declare_parameter<std::string>("head_pan_joint_name", "head_camera_pan_joint");
-    this->declare_parameter<std::string>("head_tilt_joint_name", "head_camera_tilt_joint");
+    try {
+        this->declare_parameter<std::string>("following_position_topic_name", "sobits_follower/multiple_sensor_person_tracking/following_position");
+        this->declare_parameter<bool>("use_rotate", true);
+        this->declare_parameter<bool>("use_smoothing", true);
+        this->declare_parameter<double>("pan_angle_min_deg", -90.0);
+        this->declare_parameter<double>("pan_angle_max_deg", 90.0);
+        this->declare_parameter<double>("tilt_angle_min_deg", -15.0);
+        this->declare_parameter<double>("tilt_angle_max_deg", 15.0);
+        this->declare_parameter<double>("person_height", 1.7);
+        this->declare_parameter<double>("camera2person_height", 0.2);
+        this->declare_parameter<double>("smoothing_gain", 0.5);
+        this->declare_parameter<double>("pan_command_deadband_deg", 0.8);
+        this->declare_parameter<double>("tilt_command_deadband_deg", 0.8);
+        this->declare_parameter<double>("pan_max_speed_deg_s", 120.0);
+        this->declare_parameter<double>("tilt_max_speed_deg_s", 90.0);
+        this->declare_parameter<double>("min_action_time_sec", 0.05);
+        this->declare_parameter<double>("max_action_time_sec", 0.60);
+        this->declare_parameter<bool>("display_marker", true);
+        this->declare_parameter<std::string>("head_pantilt_action_name", "move_joint");
+        this->declare_parameter<std::string>("head_pan_joint_name", "head_camera_pan_joint");
+        this->declare_parameter<std::string>("head_tilt_joint_name", "head_camera_tilt_joint");
+    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
+    }
 
     // Retrieve parameter values
     std::string following_position_topic_name;
@@ -301,18 +315,6 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
     pub_marker_ = create_publisher< visualization_msgs::msg::Marker >( "sobits_follower/multiple_sensor_person_tracking/rotator_marker", 1 );
 
     head_pantilt_ctr_ = rclcpp_action::create_client<sobits_interfaces::action::MoveJoint>( this, head_pantilt_action_name_ );
-    
-    while (rclcpp::ok() && !head_pantilt_ctr_->wait_for_action_server(std::chrono::milliseconds(500))) {
-        RCLCPP_WARN_THROTTLE(
-            this->get_logger(),
-            *this->get_clock(),
-            2000,
-            "Waiting for action server...");
-    }
-    if (!rclcpp::ok()) {
-        RCLCPP_INFO(this->get_logger(), "Shutdown requested while waiting for action server.");
-        return;
-    }
     goal_in_flight_ = false;
     tracking_position_ = std::make_shared<geometry_msgs::msg::Point>();
     pre_pan_ = std::numeric_limits<double>::quiet_NaN();
@@ -320,6 +322,49 @@ void multiple_sensor_person_tracking::PersonAimSensorRotator::onInit() {
 
     sub_following_position_ = this->create_subscription<FollowingPosition>(
         following_position_topic_name, 1, std::bind(&PersonAimSensorRotator::callbackData, this, std::placeholders::_1));
+
+    active_ = false;
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonAimSensorRotator::on_activate(const rclcpp_lifecycle::State &) {
+    active_ = true;
+    goal_in_flight_ = false;
+    pub_marker_->on_activate();
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonAimSensorRotator::on_deactivate(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    goal_in_flight_ = false;
+    if (pub_marker_) pub_marker_->on_deactivate();
+    return CallbackReturn::SUCCESS;
+}
+
+void multiple_sensor_person_tracking::PersonAimSensorRotator::resetInterfaces() {
+    sub_following_position_.reset();
+    pub_marker_.reset();
+    head_pantilt_ctr_.reset();
+    tf_sub_.reset();
+    tracking_position_.reset();
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonAimSensorRotator::on_cleanup(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonAimSensorRotator::on_shutdown(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonAimSensorRotator::on_error(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::PersonAimSensorRotator)
