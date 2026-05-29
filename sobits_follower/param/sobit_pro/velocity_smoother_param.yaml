@@ -6,7 +6,7 @@
   ros__parameters:
     use_velocity_smoother: true
     namespace: sobits_follower
-    raw_cmd_vel_topic: /sobits_follower/velocity_smoother/raw_cmd_vel
+    raw_cmd_vel_topic: sobits_follower/velocity_smoother/raw_cmd_vel
     output_cmd_vel_topic: /sobit_pro/cmd_vel
     odom_topic: /sobit_pro/odom
     velocity_timeout: 2.5
