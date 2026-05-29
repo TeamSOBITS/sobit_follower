@@ -14,6 +14,7 @@
   <!-- Build dependencies -->
   <depend>multiple_sensor_person_tracking</depend>
   <depend>person_following_control</depend>
+  <exec_depend>nav2_lifecycle_manager</exec_depend>
 
   <!-- Export build type -->
   <export>
