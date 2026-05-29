@@ -1,6 +1,7 @@
 # Single Shot Multibox Detector
 /**:
   ros__parameters:
+    namespace : sobits_follower
     image_topic_name : /sobit_edu/head_camera/rgb/image_raw
     cloud_topic_name : /sobit_edu/head_camera/depth_registered/points
     depth_image_topic_name : /sobit_edu/head_camera/depth/image_raw
@@ -13,6 +14,10 @@
 
     image_show_flag : false
     execute_default : true
+    auto_configure_2d : true
+    auto_activate_2d : true
+    auto_configure_3d : true
+    auto_activate_3d : true
     ssd_pub_result_image : true
     rqt_image_view_flag : false
     use_tf : false
