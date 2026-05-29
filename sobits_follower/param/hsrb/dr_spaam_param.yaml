@@ -9,3 +9,5 @@
     queue_size : 1                                    # Subscriber queue size for LaserScan
     scan_topic_name : /scan                           # Input LaserScan topic
     execute_default : true                            # Start detection immediately
+    auto_configure : true                             # Configure lifecycle node on startup
+    auto_activate : true                              # Activate lifecycle node on startup

@@ -4,6 +4,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
+
 def generate_launch_description():
     robot_type = LaunchConfiguration("robot_type")
     dr_spaam_params_file = LaunchConfiguration("dr_spaam_params_file")
