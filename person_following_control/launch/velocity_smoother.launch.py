@@ -30,6 +30,7 @@ def _launch_setup(context):
     use_velocity_smoother = str(LaunchConfiguration("use_velocity_smoother").perform(context)).strip().lower() in ("true", "1", "yes", "on")
     if not use_velocity_smoother:
         return []
+    autostart_lifecycle = str(LaunchConfiguration("autostart_lifecycle").perform(context)).strip().lower() in ("true", "1", "yes", "on")
 
     config = _load_ros_parameters(LaunchConfiguration("velocity_smoother_params").perform(context))
 
@@ -93,7 +94,8 @@ def _launch_setup(context):
             namespace=namespace,
             output="screen",
             parameters=[{
-                "autostart": True,
+                "autostart": autostart_lifecycle,
+                "bond_timeout": 0.0,
                 "node_names": ["velocity_smoother"],
             }],
             condition=IfCondition(LaunchConfiguration("use_velocity_smoother")),
@@ -112,6 +114,11 @@ def generate_launch_description():
             "velocity_smoother_params",
             default_value="",
             description="Path to the velocity smoother parameter file",
+        ),
+        DeclareLaunchArgument(
+            "autostart_lifecycle",
+            default_value="true",
+            description="Whether to automatically configure and activate velocity_smoother",
         ),
         OpaqueFunction(function=_launch_setup),
     ])
