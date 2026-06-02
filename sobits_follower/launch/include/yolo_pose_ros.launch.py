@@ -42,10 +42,13 @@ def _launch_setup(context):
     yolo_share_dir = FindPackageShare('yolo_ros').perform(context)
     ros_params = _load_ros_params(params_file, yolo_share_dir)
     namespace = str(ros_params.get('namespace', 'yolo_ros')).strip('/')
-    auto_configure_2d = _as_bool(ros_params.get('auto_configure_2d'), True)
-    auto_activate_2d = _as_bool(ros_params.get('auto_activate_2d'), True)
-    auto_configure_3d = _as_bool(ros_params.get('auto_configure_3d'), True)
-    auto_activate_3d = _as_bool(ros_params.get('auto_activate_3d'), True)
+    autostart_lifecycle = str(
+        LaunchConfiguration('autostart_lifecycle').perform(context)
+    ).strip().lower() in ('true',)
+    auto_configure_2d = autostart_lifecycle and _as_bool(ros_params.get('auto_configure_2d'), True)
+    auto_activate_2d  = autostart_lifecycle and _as_bool(ros_params.get('auto_activate_2d'),  True)
+    auto_configure_3d = autostart_lifecycle and _as_bool(ros_params.get('auto_configure_3d'), True)
+    auto_activate_3d  = autostart_lifecycle and _as_bool(ros_params.get('auto_activate_3d'),  True)
     object_3d_poses_topic = _join_namespace(namespace, 'bbox_to_3d/object_3d_poses')
 
     yolo_node = Node(
@@ -128,8 +131,14 @@ def generate_launch_description():
         default_value=default_param_file,
         description='Full path to the YOLO parameter file.'
     )
+    autostart_lifecycle_arg = DeclareLaunchArgument(
+        'autostart_lifecycle',
+        default_value='true',
+        description='Whether to automatically configure and activate yolo lifecycle nodes',
+    )
     return LaunchDescription([
         robot_type_arg,
         params_file_arg,
+        autostart_lifecycle_arg,
         OpaqueFunction(function=_launch_setup),
     ])
