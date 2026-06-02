@@ -78,6 +78,8 @@ def _launch_setup(context):
                 robot_type,
                 "dr_spaam_param.yaml",
             ]),
+            "auto_configure": "true" if autostart_lifecycle else "false",
+            "auto_activate":  "true" if autostart_lifecycle else "false",
         }.items(),
     )
 
@@ -102,7 +104,10 @@ def _launch_setup(context):
                 "yolo_pose_ros.launch.py",
             ])
         ),
-        launch_arguments={"robot_type": robot_type}.items(),
+        launch_arguments={
+            "robot_type": robot_type,
+            "autostart_lifecycle": "true" if autostart_lifecycle else "false",
+        }.items(),
     )
 
     velocity_smoother_launch = IncludeLaunchDescription(
@@ -116,6 +121,7 @@ def _launch_setup(context):
         launch_arguments={
             "use_velocity_smoother": "true" if use_velocity_smoother else "false",
             "velocity_smoother_params": velocity_smoother_params,
+            "autostart_lifecycle": "true" if autostart_lifecycle else "false",
         }.items(),
     )
 
