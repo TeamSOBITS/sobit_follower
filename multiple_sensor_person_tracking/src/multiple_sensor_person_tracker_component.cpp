@@ -1,4 +1,5 @@
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <sensor_msgs/msg/laser_scan.hpp>
@@ -38,6 +39,8 @@ typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
 
 namespace multiple_sensor_person_tracking {
+    using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
     enum Status {
         NO_EXISTS = 0, EXISTS_LEG, EXISTS_BODY, EXISTS_LEG_AND_BODY
     };
@@ -47,12 +50,12 @@ namespace multiple_sensor_person_tracking {
         BODY_LEG
     };
 
-    class PersonTracker : public rclcpp::Node {
+    class PersonTracker : public rclcpp_lifecycle::LifecycleNode {
         private:
-            rclcpp::Publisher<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr pub_following_position_;
-            rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_marker_;
-            rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_obstacles_;
-            rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr pub_target_odom_;
+            rclcpp_lifecycle::LifecyclePublisher<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr pub_following_position_;
+            rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_marker_;
+            rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_obstacles_;
+            rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PointStamped>::SharedPtr pub_target_odom_;
             rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr sub_scan_;
             rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_nontravelable_region_;
             rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr sub_dr_spaam_;
@@ -76,6 +79,7 @@ namespace multiple_sensor_person_tracking {
             std::shared_ptr<tf2_ros::TransformListener> tf_sub_;
             std::string target_frame_;
             std::string odom_frame_name_;
+            std::string scan_frame_name_;
 
             geometry_msgs::msg::Point previous_target_;
             rclcpp::Time previous_time_;
@@ -91,6 +95,7 @@ namespace multiple_sensor_person_tracking {
             unsigned int attention_leg_idx_;
             bool merge_nontravelable_region_;
             DetectionMode detection_mode_;
+            bool active_;
 
             visualization_msgs::msg::Marker makeLegPoseMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses );
             visualization_msgs::msg::Marker makeLegAreaMarker( const std::vector<geometry_msgs::msg::Pose>& leg_poses );
@@ -127,14 +132,18 @@ namespace multiple_sensor_person_tracking {
                 const vision_msgs::msg::Detection3DArray::ConstSharedPtr &body_msg );
         public:
             explicit PersonTracker(const rclcpp::NodeOptions & options)
-            : Node("person_tracker", options),
+            : rclcpp_lifecycle::LifecycleNode("person_tracker", options),
             tfBuffer_(this->get_clock()),
-            tf_sub_(std::make_shared<tf2_ros::TransformListener>(tfBuffer_))
-            {
-                onInit();
-            }
+            active_(false)
+            {}
 
-            void onInit();
+            CallbackReturn on_configure(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_shutdown(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_error(const rclcpp_lifecycle::State & state);
+            void resetInterfaces();
     };
 }
 
@@ -366,11 +375,17 @@ geometry_msgs::msg::PointStamped multiple_sensor_person_tracking::PersonTracker:
 
 void multiple_sensor_person_tracking::PersonTracker::scan_callback (const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg)
 {
+    if (!active_) {
+        return;
+    }
     scan_msg_ = scan_msg;
 }
 
 void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& nontravelable_region_msg)
 {
+    if (!active_) {
+        return;
+    }
     if (nontravelable_region_msg->header.frame_id.empty()) {
         RCLCPP_WARN_THROTTLE(
             this->get_logger(),
@@ -413,6 +428,9 @@ void multiple_sensor_person_tracking::PersonTracker::nontravelableRegionCallback
 
 void multiple_sensor_person_tracking::PersonTracker::dr_spaam_callback(const geometry_msgs::msg::PoseArray::ConstSharedPtr &dr_spaam_msg) 
 {
+    if (!active_) {
+        return;
+    }
     dr_spaam_msg_ = dr_spaam_msg;
     if (detection_mode_ == DetectionMode::LEG) {
         auto empty_body_msg = std::make_shared<vision_msgs::msg::Detection3DArray>();
@@ -423,6 +441,9 @@ void multiple_sensor_person_tracking::PersonTracker::dr_spaam_callback(const geo
 }
 
 void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const vision_msgs::msg::Detection3DArray::ConstSharedPtr &body_msg ) {
+    if (!active_) {
+        return;
+    }
     
     std::cout << "\n====================================" << std::endl;
     // variable initialization
@@ -448,7 +469,25 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
 
     // Sensor data to TF2 conversion
     try {
-        projector_.transformLaserScanToPointCloud( target_frame, *scan_msg_, cloud_scan_msg, tfBuffer_ );
+        sensor_msgs::msg::LaserScan scan_msg = *scan_msg_;
+        if (!scan_frame_name_.empty()) {
+            scan_msg.header.frame_id = scan_frame_name_;
+        }
+        if (!tfBuffer_.canTransform(
+                target_frame,
+                scan_msg.header.frame_id,
+                scan_msg.header.stamp,
+                tf2::durationFromSec(0.05))) {
+            RCLCPP_WARN_THROTTLE(
+                this->get_logger(),
+                *this->get_clock(),
+                2000,
+                "Waiting for transform from '%s' to '%s'.",
+                scan_msg.header.frame_id.c_str(),
+                target_frame.c_str());
+            return;
+        }
+        projector_.transformLaserScanToPointCloud( target_frame, scan_msg, cloud_scan_msg, tfBuffer_ );
         pcl::fromROSMsg<PointT>( cloud_scan_msg, *cloud_scan_);
         cloud_scan_->header.frame_id = target_frame;
     } catch ( const tf2::TransformException& ex ) {
@@ -462,7 +501,10 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     }
 
     std::vector<geometry_msgs::msg::Pose> leg_detections_in_target = dr_spaam_msg_->poses;
-    const std::string leg_array_frame = dr_spaam_msg_->header.frame_id;
+    std::string leg_array_frame = dr_spaam_msg_->header.frame_id;
+    if (!scan_frame_name_.empty() && scan_msg_ && leg_array_frame == scan_msg_->header.frame_id) {
+        leg_array_frame = scan_frame_name_;
+    }
     if (use_leg_detection && !leg_array_frame.empty() && leg_array_frame != target_frame_) {
         for (auto & pose : leg_detections_in_target) {
             const auto transformed = transformPoint(leg_array_frame, target_frame_, pose.position);
@@ -638,25 +680,29 @@ void multiple_sensor_person_tracking::PersonTracker::callbackPoseArray ( const v
     return;
 }
 
-void multiple_sensor_person_tracking::PersonTracker::onInit() {
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonTracker::on_configure(const rclcpp_lifecycle::State &) {
 
     // Declare parameters
-    this->declare_parameter<std::string>("scan_topic_name", "/scan");
-    this->declare_parameter<std::string>("pointcloud_nontravelable_region_topic_name", "sobits_follower/multiple_sensor_person_tracking/pointcloud_nontravelable_region");
-    this->declare_parameter<std::string>("dr_spaam_topic_name", "/dr_spaam_detections");
-    this->declare_parameter<std::string>("body_detection_topic_name", "/sobits_follower/object_3d_poses");
-    this->declare_parameter<std::string>("target_frame", "base_footprint");
-    this->declare_parameter<std::string>("odom_frame_name", "odom");
-    this->declare_parameter<std::string>("detection_mode", "body_leg");
-    this->declare_parameter<bool>("merge_nontravelable_region", false);
-    this->declare_parameter<double>("leg_tracking_range", 2.5);
-    this->declare_parameter<double>("body_tracking_range", 2.5);
-    this->declare_parameter<double>("outlier_radius", 0.1);
-    this->declare_parameter<int>("outlier_min_pts", 2);
-    this->declare_parameter<double>("leaf_size", 0.1);
-    this->declare_parameter<double>("target_cloud_radius", 0.4);
-    this->declare_parameter<double>("target_change_tolerance", 2.0);
-    this->declare_parameter<bool>("display_marker", true);
+    try {
+        this->declare_parameter<std::string>("scan_topic_name", "/scan");
+        this->declare_parameter<std::string>("pointcloud_nontravelable_region_topic_name", "sobits_follower/multiple_sensor_person_tracking/pointcloud_nontravelable_region");
+        this->declare_parameter<std::string>("dr_spaam_topic_name", "/dr_spaam_detections");
+        this->declare_parameter<std::string>("body_detection_topic_name", "/sobits_follower/object_3d_poses");
+        this->declare_parameter<std::string>("target_frame", "base_footprint");
+        this->declare_parameter<std::string>("odom_frame_name", "odom");
+        this->declare_parameter<std::string>("scan_frame_name", "");
+        this->declare_parameter<std::string>("detection_mode", "body_leg");
+        this->declare_parameter<bool>("merge_nontravelable_region", false);
+        this->declare_parameter<double>("leg_tracking_range", 2.5);
+        this->declare_parameter<double>("body_tracking_range", 2.5);
+        this->declare_parameter<double>("outlier_radius", 0.1);
+        this->declare_parameter<int>("outlier_min_pts", 2);
+        this->declare_parameter<double>("leaf_size", 0.1);
+        this->declare_parameter<double>("target_cloud_radius", 0.4);
+        this->declare_parameter<double>("target_change_tolerance", 2.0);
+        this->declare_parameter<bool>("display_marker", true);
+    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
+    }
 
     // Retrieve parameter values
     auto scan_topic_name = this->get_parameter("scan_topic_name").as_string();
@@ -665,6 +711,7 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     auto body_detection_topic_name = this->get_parameter("body_detection_topic_name").as_string();
     target_frame_ = this->get_parameter("target_frame").as_string();
     odom_frame_name_ = this->get_parameter("odom_frame_name").as_string();
+    scan_frame_name_ = this->get_parameter("scan_frame_name").as_string();
     auto detection_mode = this->get_parameter("detection_mode").as_string();
     merge_nontravelable_region_ = this->get_parameter("merge_nontravelable_region").as_bool();
     leg_tracking_range_ = this->get_parameter("leg_tracking_range").as_double();
@@ -735,6 +782,65 @@ void multiple_sensor_person_tracking::PersonTracker::onInit() {
     attention_leg_time_ = -1.0;
     attention_leg_idx_ = 0;
     target_range_ = 3.0;
+    active_ = false;
+
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonTracker::on_activate(const rclcpp_lifecycle::State &) {
+    active_ = true;
+    pub_following_position_->on_activate();
+    pub_marker_->on_activate();
+    pub_obstacles_->on_activate();
+    pub_target_odom_->on_activate();
+    previous_time_ = this->now();
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonTracker::on_deactivate(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    if (pub_following_position_) pub_following_position_->on_deactivate();
+    if (pub_marker_) pub_marker_->on_deactivate();
+    if (pub_obstacles_) pub_obstacles_->on_deactivate();
+    if (pub_target_odom_) pub_target_odom_->on_deactivate();
+    return CallbackReturn::SUCCESS;
+}
+
+void multiple_sensor_person_tracking::PersonTracker::resetInterfaces() {
+    sub_scan_.reset();
+    sub_nontravelable_region_.reset();
+    sub_dr_spaam_.reset();
+    sub_image_.reset();
+    pub_following_position_.reset();
+    pub_marker_.reset();
+    pub_obstacles_.reset();
+    pub_target_odom_.reset();
+    tf_sub_.reset();
+    cloud_nontravelable_region_.reset();
+    kf_.reset();
+    cloud_scan_.reset();
+    marker_array_.reset();
+    following_position_.reset();
+    scan_msg_.reset();
+    dr_spaam_msg_.reset();
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonTracker::on_cleanup(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonTracker::on_shutdown(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
+}
+
+multiple_sensor_person_tracking::CallbackReturn multiple_sensor_person_tracking::PersonTracker::on_error(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(multiple_sensor_person_tracking::PersonTracker)

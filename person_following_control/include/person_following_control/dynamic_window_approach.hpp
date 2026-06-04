@@ -2,6 +2,7 @@
 #define DYNAMIC_WINDOW_APPROACH
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <cmath>
 #include <cstring>
 #include <geometry_msgs/msg/twist.hpp>
@@ -79,9 +80,9 @@ class DWAParameters {
 namespace person_following_control {
     class DynamicWindowApproach {
 		protected :
-			std::shared_ptr<rclcpp::Node> node_;
-			rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_;
-			rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
+			rclcpp_lifecycle::LifecycleNode* node_;
+			rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_;
+			rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_path_marker_all_;
 
 			bool display_optimal_path_;
 			bool display_all_path_;
@@ -91,7 +92,9 @@ namespace person_following_control {
 			void displayOptimalPathMarker ( const EvaluatedPath& optimal_path );
 			void displayAllPathMarker ( const std::vector< EvaluatedPath >& path_list );
 		public :
-			DynamicWindowApproach( rclcpp::Node* node );
+			DynamicWindowApproach( rclcpp_lifecycle::LifecycleNode* node );
+			void activatePublishers();
+			void deactivatePublishers();
 
 			void setTargetFrame ( const std::string& target_frame );
 

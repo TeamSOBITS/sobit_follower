@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
     use_rotate : true
-    following_position_topic_name : /sobits_follower/multiple_sensor_person_tracking/following_position
+    following_position_topic_name : sobits_follower/multiple_sensor_person_tracking/following_position
     pan_angle_min_deg : -60.0
     pan_angle_max_deg : 60.0
     tilt_angle_min_deg : -30.0

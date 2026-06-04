@@ -1,4 +1,5 @@
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <message_filters/subscriber.h>
@@ -21,15 +22,16 @@ typedef pcl::PointCloud<PointT> PointCloud;
 // typedef message_filters::sync_policies::ApproximateTime<multiple_sensor_person_tracking::msg::FollowingPosition, nav_msgs::msg::Odometry> MySyncPolicy;
 
 namespace person_following_control {
+    using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
     enum FollowingMethod {
         VSM_DWA = 0, VSM, DWA, PID
     };
 
-    class PersonFollowing : public rclcpp::Node {
+    class PersonFollowing : public rclcpp_lifecycle::LifecycleNode {
         private:
 
-            rclcpp::TimerBase::SharedPtr init_timer_;
-            rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_vel_;
+            rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr pub_vel_;
             rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_obstacles_;
             rclcpp::Subscription<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr sub_following_position_;
             rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
@@ -56,8 +58,12 @@ namespace person_following_control {
             rclcpp::Time last_following_update_time_;
             bool has_following_update_;
             bool use_pid_;
+            bool active_;
 
             void loadParametersFromServer( );
+            void declareParameters();
+            void resetInterfaces();
+            void publishStop();
             void callbackData (
                 const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg
             );
@@ -75,18 +81,63 @@ namespace person_following_control {
 
         public:
             explicit PersonFollowing(const rclcpp::NodeOptions & options)
-            : Node("person_following_control", options)
-            {
-                auto timer_callback = [this]() -> void {
-                    this->onInit();
-                    init_timer_->cancel();
-                };
-            
-                init_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), timer_callback);
-            }
+            : rclcpp_lifecycle::LifecycleNode("person_following_control", options),
+              active_(false)
+            {}
 
-            void onInit();
+            CallbackReturn on_configure(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_shutdown(const rclcpp_lifecycle::State & state);
+            CallbackReturn on_error(const rclcpp_lifecycle::State & state);
     };
+}
+
+void person_following_control::PersonFollowing::declareParameters() {
+    this->declare_parameter<std::string>("command_velocity_topic_name", "/commands/velocity");
+    this->declare_parameter<std::string>("obstacles_topic_name", "sobits_follower/multiple_sensor_person_tracking/obstacles");
+    this->declare_parameter<std::string>("following_position_topic_name", "sobits_follower/multiple_sensor_person_tracking/following_position");
+    this->declare_parameter<std::string>("odom_topic_name", "/odom");
+    this->declare_parameter<int>("following_method", FollowingMethod::VSM_DWA);
+    this->declare_parameter<double>("following_distance", 1.0);
+    this->declare_parameter<double>("following_stale_timeout_sec", 1.0);
+
+    this->declare_parameter<std::string>("base_footprint_name", "base_footprint");
+    this->declare_parameter<double>("following_angle_deg", 0.0);
+    this->declare_parameter<double>("spring_constant_linear", 30.0);
+    this->declare_parameter<double>("spring_constant_angular", 1.0);
+    this->declare_parameter<double>("weight_robot", 30.0);
+    this->declare_parameter<double>("moment_inertia", 15.0);
+    this->declare_parameter<double>("viscous_friction_linear", 1.0);
+    this->declare_parameter<double>("viscous_friction_angular", 1.0);
+    this->declare_parameter<double>("radius_robot", 0.3);
+    this->declare_parameter<bool>("display_vsm_path", true);
+    this->declare_parameter<bool>("display_vsm_target", false);
+
+    this->declare_parameter<double>("min_linear", 0.10);
+    this->declare_parameter<double>("max_linear", 0.80);
+    this->declare_parameter<double>("min_angular_deg", -150.0);
+    this->declare_parameter<double>("max_angular_deg", 150.0);
+    this->declare_parameter<int>("predict_step", 10);
+    this->declare_parameter<double>("sampling_time", 0.2);
+    this->declare_parameter<double>("velocity_step", 7.0);
+    this->declare_parameter<double>("angle_velocity_step", 30.0);
+    this->declare_parameter<double>("weight_heading", 3.0);
+    this->declare_parameter<double>("weight_obstacle", 1.0);
+    this->declare_parameter<double>("weight_velocity", 1.5);
+    this->declare_parameter<double>("weight_vsm_heading", 3.0);
+    this->declare_parameter<double>("weight_vsm_obstacle", 1.2);
+    this->declare_parameter<double>("weight_vsm_linear", 2.0);
+    this->declare_parameter<double>("weight_vsm_angular", 0.5);
+    this->declare_parameter<double>("obstacle_cost_radius", 0.35);
+    this->declare_parameter<bool>("display_optimal_path", true);
+    this->declare_parameter<bool>("display_all_path", true);
+
+    this->declare_parameter<double>("p_gain", 1.2);
+    this->declare_parameter<double>("i_gain", 0.6);
+    this->declare_parameter<double>("d_gain", 0.0);
+    this->declare_parameter<double>("max_pid_angular_deg", 70.0);
 }
 
 void person_following_control::PersonFollowing::loadParametersFromServer() {
@@ -173,6 +224,9 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
 void person_following_control::PersonFollowing::callbackData (
     const multiple_sensor_person_tracking::msg::FollowingPosition::ConstSharedPtr &following_position_msg
 ) {
+    if (!active_) {
+        return;
+    }
     following_position_msg_ = following_position_msg;
     last_following_update_time_ = this->get_clock()->now();
     has_following_update_ = true;
@@ -181,6 +235,9 @@ void person_following_control::PersonFollowing::callbackData (
 
 void person_following_control::PersonFollowing::processControl() {
 
+    if (!active_) {
+        return;
+    }
     if (!following_position_msg_) {
         return;
     }
@@ -321,64 +378,47 @@ void person_following_control::PersonFollowing::rotatePID ()
 
 void person_following_control::PersonFollowing::obstacles_callback (const std::shared_ptr<const sensor_msgs::msg::PointCloud2> &obstacles_msg)
 {
+    if (!active_) {
+        return;
+    }
     obstacles_msg_ = obstacles_msg;
 }
 
 void person_following_control::PersonFollowing::odom_callback (const std::shared_ptr<const nav_msgs::msg::Odometry> &odom_msg)
 {
+    if (!active_) {
+        return;
+    }
     odom_msg_ = odom_msg;
     processControl();
 }
 
-void person_following_control::PersonFollowing::onInit() {
+void person_following_control::PersonFollowing::resetInterfaces() {
+    sub_obstacles_.reset();
+    sub_following_position_.reset();
+    sub_odom_.reset();
+    pub_vel_.reset();
+    vsm_.reset();
+    dwa_.reset();
+    cloud_obstacles_.reset();
+    obstacles_msg_.reset();
+    following_position_msg_.reset();
+    odom_msg_.reset();
+}
 
-    // Declare parameters
-    this->declare_parameter<std::string>("command_velocity_topic_name", "/commands/velocity");
-    this->declare_parameter<std::string>("obstacles_topic_name", "obstacles");
-    this->declare_parameter<std::string>("following_position_topic_name", "following_position");
-    this->declare_parameter<std::string>("odom_topic_name", "/odom");
-    this->declare_parameter<int>("following_method", FollowingMethod::VSM_DWA);
-    this->declare_parameter<double>("following_distance", 1.0);
-    this->declare_parameter<double>("following_stale_timeout_sec", 1.0);
+void person_following_control::PersonFollowing::publishStop() {
+    if (!pub_vel_ || !pub_vel_->is_activated()) {
+        return;
+    }
+    geometry_msgs::msg::Twist stop;
+    pub_vel_->publish(stop);
+}
 
-    // VSM
-    this->declare_parameter<std::string>("base_footprint_name", "base_footprint");
-    this->declare_parameter<double>("following_angle_deg", 0.0);
-    this->declare_parameter<double>("spring_constant_linear", 30.0);
-    this->declare_parameter<double>("spring_constant_angular", 1.0);
-    this->declare_parameter<double>("weight_robot", 30.0);
-    this->declare_parameter<double>("moment_inertia", 15.0);
-    this->declare_parameter<double>("viscous_friction_linear", 1.0);
-    this->declare_parameter<double>("viscous_friction_angular", 1.0);
-    this->declare_parameter<double>("radius_robot", 0.3);
-    this->declare_parameter<bool>("display_vsm_path", true);
-    this->declare_parameter<bool>("display_vsm_target", false);
-
-    // DWA
-    this->declare_parameter<double>("min_linear", 0.10);
-    this->declare_parameter<double>("max_linear", 0.80);
-    this->declare_parameter<double>("min_angular_deg", -150.0);
-    this->declare_parameter<double>("max_angular_deg", 150.0);
-    this->declare_parameter<int>("predict_step", 10);
-    this->declare_parameter<double>("sampling_time", 0.2);
-    this->declare_parameter<double>("velocity_step", 7.0);
-    this->declare_parameter<double>("angle_velocity_step", 30.0);
-    this->declare_parameter<double>("weight_heading", 3.0);
-    this->declare_parameter<double>("weight_obstacle", 1.0);
-    this->declare_parameter<double>("weight_velocity", 1.5);
-    this->declare_parameter<double>("weight_vsm_heading", 3.0);
-    this->declare_parameter<double>("weight_vsm_obstacle", 1.2);
-    this->declare_parameter<double>("weight_vsm_linear", 2.0);
-    this->declare_parameter<double>("weight_vsm_angular", 0.5);
-    this->declare_parameter<double>("obstacle_cost_radius", 0.35);
-    this->declare_parameter<bool>("display_optimal_path", true);
-    this->declare_parameter<bool>("display_all_path", true);
-
-    // PID
-    this->declare_parameter<double>("p_gain", 1.2);
-    this->declare_parameter<double>("i_gain", 0.6);
-    this->declare_parameter<double>("d_gain", 0.0);
-    this->declare_parameter<double>("max_pid_angular_deg", 70.0);
+person_following_control::CallbackReturn person_following_control::PersonFollowing::on_configure(const rclcpp_lifecycle::State &) {
+    try {
+        declareParameters();
+    } catch (const rclcpp::exceptions::ParameterAlreadyDeclaredException &) {
+    }
 
     // Instantiate class members
     vsm_ = std::make_unique<person_following_control::VirtualSpringModel>(this);
@@ -411,6 +451,49 @@ void person_following_control::PersonFollowing::onInit() {
     use_pid_ = false;
     has_following_update_ = false;
     pre_time_ = this->get_clock()->now();
+    active_ = false;
+
+    return CallbackReturn::SUCCESS;
+}
+
+person_following_control::CallbackReturn person_following_control::PersonFollowing::on_activate(const rclcpp_lifecycle::State &) {
+    active_ = true;
+    pub_vel_->on_activate();
+    vsm_->activatePublishers();
+    dwa_->activatePublishers();
+    use_pid_ = false;
+    has_following_update_ = false;
+    pre_time_ = this->get_clock()->now();
+    return CallbackReturn::SUCCESS;
+}
+
+person_following_control::CallbackReturn person_following_control::PersonFollowing::on_deactivate(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    publishStop();
+    if (vsm_) vsm_->deactivatePublishers();
+    if (dwa_) dwa_->deactivatePublishers();
+    if (pub_vel_) pub_vel_->on_deactivate();
+    return CallbackReturn::SUCCESS;
+}
+
+person_following_control::CallbackReturn person_following_control::PersonFollowing::on_cleanup(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
+}
+
+person_following_control::CallbackReturn person_following_control::PersonFollowing::on_shutdown(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    publishStop();
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
+}
+
+person_following_control::CallbackReturn person_following_control::PersonFollowing::on_error(const rclcpp_lifecycle::State &) {
+    active_ = false;
+    publishStop();
+    resetInterfaces();
+    return CallbackReturn::SUCCESS;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(person_following_control::PersonFollowing)

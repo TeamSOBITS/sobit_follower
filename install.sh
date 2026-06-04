@@ -7,7 +7,7 @@ echo "╔══╣ Setup: SOBITS Follower (STARTING) ╠══╗"
 DIR=`pwd`
 
 echo -e "\e[34m\n Git Clone 2d_lidar_person_detection \e[m"
-git clone -b humble-devel https://github.com/TeamSOBITS/2d_lidar_person_detection.git
+git clone -b jazzy-devel https://github.com/TeamSOBITS/2d_lidar_person_detection.git
 cd 2d_lidar_person_detection/dr_spaam/
 sudo python3 setup.py install
 

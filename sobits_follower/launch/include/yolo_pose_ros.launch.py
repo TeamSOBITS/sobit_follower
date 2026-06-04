@@ -4,6 +4,7 @@ import yaml
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, ExecuteProcess, TimerAction
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
@@ -21,19 +22,50 @@ def _load_ros_params(params_file_path: str, yolo_share_dir: str) -> dict:
     return ros_params
 
 
+def _as_bool(value, default: bool) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    return str(value).strip().lower() in ("true", "1", "yes", "on")
+
+
+def _join_namespace(namespace: str, node_name: str) -> str:
+    namespace = str(namespace).strip("/")
+    if namespace:
+        return "/" + namespace + "/" + node_name
+    return "/" + node_name
+
+
 def _launch_setup(context):
     params_file = LaunchConfiguration('yolo_params_file').perform(context)
     yolo_share_dir = FindPackageShare('yolo_ros').perform(context)
     ros_params = _load_ros_params(params_file, yolo_share_dir)
+    namespace = str(ros_params.get('namespace', 'yolo_ros')).strip('/')
+    autostart_lifecycle = str(
+        LaunchConfiguration('autostart_lifecycle').perform(context)
+    ).strip().lower() in ('true',)
+    auto_configure_2d = autostart_lifecycle and _as_bool(ros_params.get('auto_configure_2d'), True)
+    auto_activate_2d  = autostart_lifecycle and _as_bool(ros_params.get('auto_activate_2d'),  True)
+    auto_configure_3d = autostart_lifecycle and _as_bool(ros_params.get('auto_configure_3d'), True)
+    auto_activate_3d  = autostart_lifecycle and _as_bool(ros_params.get('auto_activate_3d'),  True)
+    object_3d_poses_topic = _join_namespace(namespace, 'bbox_to_3d/object_3d_poses')
 
     yolo_node = Node(
         package='yolo_ros',
         executable='yolo_node',
-        name='yolo_ros',
+        name='yolo_node',
+        namespace=namespace,
         output='screen',
-        parameters=[ros_params],
+        parameters=[
+            ros_params,
+            {
+                'auto_configure': auto_configure_2d,
+                'auto_activate': auto_activate_2d,
+            },
+        ],
         remappings=[
-            ('/yolo_ros/bbox_to_3d/object_3d_poses', '/sobits_follower/body_3d_poses')
+            (object_3d_poses_topic, '/sobits_follower/body_3d_poses')
         ]
     )
 
@@ -41,15 +73,15 @@ def _launch_setup(context):
         package='image_to_position',
         executable='bbox_to_3d',
         name='bbox_to_3d',
-        namespace='yolo_ros',
+        namespace=namespace,
         output='screen',
         parameters=[ros_params],
         remappings=[
-            ('/yolo_ros/bbox_to_3d/object_3d_poses', '/sobits_follower/body_3d_poses')
+            (object_3d_poses_topic, '/sobits_follower/body_3d_poses')
         ]
     )
 
-    node_full_path = '/yolo_ros/bbox_to_3d'
+    node_full_path = _join_namespace(namespace, 'bbox_to_3d')
 
     configure_node = ExecuteProcess(
         cmd=[
@@ -60,6 +92,8 @@ def _launch_setup(context):
         ],
         output='screen'
     )
+
+    configure_3d_condition = IfCondition("true" if auto_configure_3d or auto_activate_3d else "false")
 
     activate_node = ExecuteProcess(
         cmd=[
@@ -74,8 +108,8 @@ def _launch_setup(context):
     return [
         yolo_node, 
         bbox_to_3d_cmd,
-        TimerAction(period=0.5, actions=[configure_node]),
-        TimerAction(period=1.0, actions=[activate_node])
+        TimerAction(period=0.5, actions=[configure_node], condition=configure_3d_condition),
+        TimerAction(period=1.0, actions=[activate_node], condition=IfCondition("true" if auto_activate_3d else "false"))
     ]
 
 
@@ -97,9 +131,14 @@ def generate_launch_description():
         default_value=default_param_file,
         description='Full path to the YOLO parameter file.'
     )
-
+    autostart_lifecycle_arg = DeclareLaunchArgument(
+        'autostart_lifecycle',
+        default_value='true',
+        description='Whether to automatically configure and activate yolo lifecycle nodes',
+    )
     return LaunchDescription([
         robot_type_arg,
         params_file_arg,
+        autostart_lifecycle_arg,
         OpaqueFunction(function=_launch_setup),
     ])

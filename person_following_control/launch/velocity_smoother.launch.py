@@ -16,10 +16,21 @@ def _load_ros_parameters(params_path: str) -> dict:
     return params.get("/**", {}).get("ros__parameters", {}) or {}
 
 
+def _resolve_remap_topic(topic: str, namespace: str) -> str:
+    topic = str(topic).strip()
+    namespace = str(namespace).strip("/")
+    if not topic or topic.startswith("/"):
+        return topic
+    if namespace and (topic == namespace or topic.startswith(namespace + "/")):
+        return "/" + topic
+    return topic
+
+
 def _launch_setup(context):
     use_velocity_smoother = str(LaunchConfiguration("use_velocity_smoother").perform(context)).strip().lower() in ("true", "1", "yes", "on")
     if not use_velocity_smoother:
         return []
+    autostart_lifecycle = str(LaunchConfiguration("autostart_lifecycle").perform(context)).strip().lower() in ("true", "1", "yes", "on")
 
     config = _load_ros_parameters(LaunchConfiguration("velocity_smoother_params").perform(context))
 
@@ -53,6 +64,14 @@ def _launch_setup(context):
     }
 
     namespace = str(config.get("namespace", "sobits_follower"))
+    raw_cmd_vel_topic = _resolve_remap_topic(
+        config.get("raw_cmd_vel_topic", "sobits_follower/velocity_smoother/raw_cmd_vel"),
+        namespace,
+    )
+    output_cmd_vel_topic = _resolve_remap_topic(
+        config.get("output_cmd_vel_topic", "/cmd_vel"),
+        namespace,
+    )
 
     return [
         LifecycleNode(
@@ -63,8 +82,8 @@ def _launch_setup(context):
             output="screen",
             parameters=[nav2_velocity_smoother_params],
             remappings=[
-                ("cmd_vel", str(config.get("raw_cmd_vel_topic", "/sobits_follower/velocity_smoother/raw_cmd_vel"))),
-                ("cmd_vel_smoothed", str(config.get("output_cmd_vel_topic", "/cmd_vel"))),
+                ("cmd_vel", raw_cmd_vel_topic),
+                ("cmd_vel_smoothed", output_cmd_vel_topic),
             ],
             condition=IfCondition(LaunchConfiguration("use_velocity_smoother")),
         ),
@@ -75,7 +94,8 @@ def _launch_setup(context):
             namespace=namespace,
             output="screen",
             parameters=[{
-                "autostart": True,
+                "autostart": autostart_lifecycle,
+                "bond_timeout": 0.0,
                 "node_names": ["velocity_smoother"],
             }],
             condition=IfCondition(LaunchConfiguration("use_velocity_smoother")),
@@ -94,6 +114,11 @@ def generate_launch_description():
             "velocity_smoother_params",
             default_value="",
             description="Path to the velocity smoother parameter file",
+        ),
+        DeclareLaunchArgument(
+            "autostart_lifecycle",
+            default_value="true",
+            description="Whether to automatically configure and activate velocity_smoother",
         ),
         OpaqueFunction(function=_launch_setup),
     ])

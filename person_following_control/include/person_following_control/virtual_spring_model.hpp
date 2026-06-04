@@ -2,6 +2,7 @@
 #define VIRTUAL_SPRING_MODEL
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -14,9 +15,9 @@
 namespace person_following_control{
     class VirtualSpringModel {
         private :
-            std::shared_ptr<rclcpp::Node> node_;
-            rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_mrk_tgt_;
-            rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_mrk_path_;
+            rclcpp_lifecycle::LifecycleNode* node_;
+            rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_mrk_tgt_;
+            rclcpp_lifecycle::LifecyclePublisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_mrk_path_;
 
             float ang_follow_;                 // theta_sh [rad]
             float dist_follow_;                // l_0 [m]
@@ -36,7 +37,9 @@ namespace person_following_control{
             visualization_msgs::msg::Marker displayTargetMarker ( const Eigen::Vector3f& pt, const std::string& name, const float r, const float g, const float b);
 
         public :
-            VirtualSpringModel ( rclcpp::Node* node );
+            VirtualSpringModel ( rclcpp_lifecycle::LifecycleNode* node );
+            void activatePublishers();
+            void deactivatePublishers();
 
             void setFollowParamater( float ang_follow, float dist_follow );
             void setSpringParamater( float spring_constant_linear, float spring_constant_angular );

@@ -87,7 +87,7 @@ void DynamicWindowApproach::displayAllPathMarker ( const std::vector< EvaluatedP
     pub_path_marker_all_->publish( marker_array );
 }
 
-DynamicWindowApproach::DynamicWindowApproach ( rclcpp::Node* node ) : node_( node ) {
+DynamicWindowApproach::DynamicWindowApproach ( rclcpp_lifecycle::LifecycleNode* node ) : node_( node ) {
     dwap_ = std::make_shared<DWAParameters>();
     pub_path_marker_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/dwa_path_marker", 1);
     pub_path_marker_all_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>("sobits_follower/person_following_control/dwa_path_marker_all", 1);
@@ -102,6 +102,16 @@ DynamicWindowApproach::DynamicWindowApproach ( rclcpp::Node* node ) : node_( nod
 	setWeight( 1.0, 1.0, 2.0, 1.0, 1.0 );
 	setCostDistance ( 0.35 );
 	setDisplayFlag( false, false );
+}
+
+void DynamicWindowApproach::activatePublishers() {
+    pub_path_marker_->on_activate();
+    pub_path_marker_all_->on_activate();
+}
+
+void DynamicWindowApproach::deactivatePublishers() {
+    pub_path_marker_->on_deactivate();
+    pub_path_marker_all_->on_deactivate();
 }
 
 bool DynamicWindowApproach::generatePath2TargetDWA (
