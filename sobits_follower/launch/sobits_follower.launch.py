@@ -45,7 +45,7 @@ def _launch_setup(context):
     velocity_smoother_params = LaunchConfiguration("velocity_smoother_params")
     autostart_lifecycle = str(
         LaunchConfiguration("autostart_lifecycle").perform(context)
-    ).strip().lower() in ("true")
+    ).strip().lower() in ("true", "1", "yes", "on")
 
     tracker_params_path = person_tracker_params.perform(context)
     detection_mode = _load_detection_mode(tracker_params_path)
