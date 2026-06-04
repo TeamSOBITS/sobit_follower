@@ -54,7 +54,7 @@ def _launch_setup(context):
     yolo_node = Node(
         package='yolo_ros',
         executable='yolo_node',
-        name='yolo_ros',
+        name='yolo_node',
         namespace=namespace,
         output='screen',
         parameters=[
