@@ -892,7 +892,7 @@ Visualization Manager:
             Durability Policy: Volatile
             History Policy: Keep Last
             Reliability Policy: Best Effort
-            Value: /sobits_follower/yolo_ros/detected_image
+            Value: /sobits_follower/yolo_node/detected_image
           Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
