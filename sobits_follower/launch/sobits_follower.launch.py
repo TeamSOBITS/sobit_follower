@@ -56,10 +56,12 @@ def _launch_setup(context):
         velocity_smoother_config.get("use_velocity_smoother", True)
     ).strip().lower() in ("true", "1", "yes", "on")
     raw_cmd_vel_topic = str(velocity_smoother_config.get("raw_cmd_vel_topic", "sobits_follower/velocity_smoother/raw_cmd_vel")).strip()
+    output_cmd_vel_topic = str(velocity_smoother_config.get("output_cmd_vel_topic", "/cmd_vel")).strip()
 
     person_following_control_overrides = {}
     if use_velocity_smoother:
         person_following_control_overrides["command_velocity_topic_name"] = raw_cmd_vel_topic
+        person_following_control_overrides["stop_command_velocity_topic_name"] = output_cmd_vel_topic
 
     dr_spaam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(

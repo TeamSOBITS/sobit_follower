@@ -32,6 +32,7 @@ namespace person_following_control {
         private:
 
             rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::Twist>::SharedPtr pub_vel_;
+            rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_stop_vel_;
             rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_obstacles_;
             rclcpp::Subscription<multiple_sensor_person_tracking::msg::FollowingPosition>::SharedPtr sub_following_position_;
             rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
@@ -50,6 +51,7 @@ namespace person_following_control {
             int following_method_;
             double following_distance_;
             std::string  command_velocity_topic_name_;
+            std::string  stop_command_velocity_topic_name_;
             std::string obstacles_topic_name_;
             std::string following_position_topic_name_;
             std::string odom_topic_name_;
@@ -96,6 +98,7 @@ namespace person_following_control {
 
 void person_following_control::PersonFollowing::declareParameters() {
     this->declare_parameter<std::string>("command_velocity_topic_name", "/commands/velocity");
+    this->declare_parameter<std::string>("stop_command_velocity_topic_name", "");
     this->declare_parameter<std::string>("obstacles_topic_name", "sobits_follower/multiple_sensor_person_tracking/obstacles");
     this->declare_parameter<std::string>("following_position_topic_name", "sobits_follower/multiple_sensor_person_tracking/following_position");
     this->declare_parameter<std::string>("odom_topic_name", "/odom");
@@ -145,6 +148,7 @@ void person_following_control::PersonFollowing::loadParametersFromServer() {
     following_method_ = this->get_parameter("following_method").as_int();
     following_distance_ = this->get_parameter("following_distance").as_double();
     command_velocity_topic_name_ = this->get_parameter("command_velocity_topic_name").as_string();
+    stop_command_velocity_topic_name_ = this->get_parameter("stop_command_velocity_topic_name").as_string();
     obstacles_topic_name_ = this->get_parameter("obstacles_topic_name").as_string();
     following_position_topic_name_ = this->get_parameter("following_position_topic_name").as_string();
     odom_topic_name_ = this->get_parameter("odom_topic_name").as_string();
@@ -398,6 +402,7 @@ void person_following_control::PersonFollowing::resetInterfaces() {
     sub_following_position_.reset();
     sub_odom_.reset();
     pub_vel_.reset();
+    pub_stop_vel_.reset();
     vsm_.reset();
     dwa_.reset();
     cloud_obstacles_.reset();
@@ -407,11 +412,15 @@ void person_following_control::PersonFollowing::resetInterfaces() {
 }
 
 void person_following_control::PersonFollowing::publishStop() {
-    if (!pub_vel_ || !pub_vel_->is_activated()) {
-        return;
-    }
     geometry_msgs::msg::Twist stop;
-    pub_vel_->publish(stop);
+    velocity_ = stop;
+
+    if (pub_vel_ && pub_vel_->is_activated()) {
+        pub_vel_->publish(stop);
+    }
+    if (pub_stop_vel_) {
+        pub_stop_vel_->publish(stop);
+    }
 }
 
 person_following_control::CallbackReturn person_following_control::PersonFollowing::on_configure(const rclcpp_lifecycle::State &) {
@@ -432,6 +441,9 @@ person_following_control::CallbackReturn person_following_control::PersonFollowi
 
     // Publisher initialization
     pub_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(command_velocity_topic_name_, 10);
+    if (!stop_command_velocity_topic_name_.empty()) {
+        pub_stop_vel_ = this->create_publisher<geometry_msgs::msg::Twist>(stop_command_velocity_topic_name_, 10);
+    }
 
     // Subscriber initialization
     sub_obstacles_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
@@ -478,6 +490,7 @@ person_following_control::CallbackReturn person_following_control::PersonFollowi
 
 person_following_control::CallbackReturn person_following_control::PersonFollowing::on_cleanup(const rclcpp_lifecycle::State &) {
     active_ = false;
+    publishStop();
     resetInterfaces();
     return CallbackReturn::SUCCESS;
 }
