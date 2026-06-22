@@ -6,7 +6,7 @@
     cloud_topic_name : /sobit_home/head_camera/depth/points
     depth_image_topic_name : /sobit_home/head_camera/depth/image_raw
     base_frame_name : base_footprint
-    info_topic_name : /sobit_home/head_camera/color/camera_info
+    info_topic_name : /sobit_home/head_camera/camera_info
 
     weight_file: yolo26n-pose.pt # yolo weight file
 
