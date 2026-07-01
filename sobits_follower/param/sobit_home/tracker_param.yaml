@@ -1,13 +1,13 @@
 /**:
   ros__parameters:
     # Topic & Frame
-    scan_topic_name : /sobit_home/lidar_front/scan
+    scan_topic_name : /sobit_home/lidar_scan
     dr_spaam_topic_name : /dr_spaam/dr_spaam_detections
     body_detection_topic_name : sobits_follower/body_3d_poses
     detection_mode : body_leg                       # body_leg or body or leg
     target_frame : base_footprint
     odom_frame_name : odom
-    scan_frame_name : lidar_front_laser
+    scan_frame_name : lidar_merged_laser
 
     # Merging Point Cloud Non-travelable region (true) or Not merging (false)
     merge_nontravelable_region : false
