@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
     # Topic & Frame
-    scan_topic_name : /sobit_home/lidar_scan
+    scan_topic_name : /sobit_home/lidar_front/scan
     dr_spaam_topic_name : /dr_spaam_detections
     body_detection_topic_name : sobits_follower/body_3d_poses
     target_frame : sobit_home/base_footprint
