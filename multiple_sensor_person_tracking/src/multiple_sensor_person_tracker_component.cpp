@@ -347,8 +347,7 @@ bool multiple_sensor_person_tracking::PersonTracker::searchObstacles( const geom
         extract_.filter( *cloud_obstacles );
     }
     pcl::toROSMsg( *cloud_obstacles, *obstacles );
-    obstacles->header.frame_id = merged_cloud->header.frame_id;
-    obstacles->header.stamp = this->get_clock()->now();
+    pcl_conversions::fromPCL( merged_cloud->header, obstacles->header );
 
     return can_pub_obstacles;
 }
