@@ -13,6 +13,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_sensor_msgs/tf2_sensor_msgs.hpp>
 
 #include <laser_geometry/laser_geometry.hpp>
 #include <pcl_conversions/pcl_conversions.h>

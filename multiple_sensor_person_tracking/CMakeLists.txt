@@ -55,6 +55,7 @@ ament_target_dependencies(${PROJECT_NAME}_component
   pcl_conversions
   tf2
   tf2_ros
+  tf2_sensor_msgs
   laser_geometry
   pluginlib
   multiple_observation_kalman_filter
